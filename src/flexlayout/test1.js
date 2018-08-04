@@ -1,180 +1,169 @@
 
-import React from "react";
-import ReactDOM from "react-dom";
-import FlexLayout from "flexlayout-react";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import FlexLayout from 'flexlayout-react';
 
-import Menu from './menu';
+import Dashboard from './dashboard';
+import SideMenu from './sidemenu';
+import AccountSearch from './accountSearch';
+import AccountResults from './accountResults';
+import Tools from './tools';
 
-const json = {
+import ReactTable from 'react-table';
+
+const another = {
 	global: {},
-	borders: [],
-	layout:{
-		"type": "row",
-		"weight": 100,
-		"children": [
+	layout: {
+		type: 'row',
+		id: 'Container',
+		children: [
 			{
-				"type": "tabset",
-				"weight": 50,
-				"selected": 0,
-				"children": [
+				type: 'tabset',
+				weight: 12.5,
+				enableClose: false,
+				active: true,
+				id: 'MAIN',
+				children: [
 					{
-						"type": "tab",
-						"name": "FX",
-						"component":"grid",
+						type: 'tab',
+						name: 'Dashboard',
+						enableClose: false,
+						enableDrag: false,
+						enableRename: false,
+						component: 'dashboard',
+						id: 'DashboardTab'
 					}
 				]
 			},
-			{
-				"type": "tabset",
-				"weight": 50,
-				"selected": 0,
-				"children": [
-					{
-						"type": "tab",
-						"name": "FI",
-						"component":"grid",
-					}
-				]
-			}
-		]
-	}
-};
-
-const other = {
-	"global": {},
-	"layout": {
-		"type": "row",
-		"id": "#4",
-		"children": [
-			{
-				"type": "tabset",
-				"weight": 12.5,
-				"active": true,
-				"id": "#5",
-				"children": [
-					{
-						"type": "tab",
-						"name": "FX",
-						"component": "grid",
-						"id": "#6"
-					}
-				]
-			},
-			{
-				"type": "tabset",
-				"weight": 25,
-				"id": "#7",
-				"children": [
-					{
-						"type": "tab",
-						"name": "FI",
-						"component": "grid",
-						"id": "#8"
-					}
-				]
-			}
 		]
 	},
-	"borders": [
-		 {
-		    "type": "border",
-		 	"location": "left",
-			"children": [
-				{
-					"type": "tab",
-					"enableClose":false,
-					"name": "Navigation",
-					"component": "grid",
-					"id": "#24"
-				},
-        {
-          "type": "tab",
-          "enabledCLose": false,
-          "name": "Menu",
-          "component": "menu",
-          "id": "#menu",
-        }
-			]
-		},
+	borders: [
 		{
-		    "type": "border",
-		 	"location": "right",
-			"children": [
-				{
-					"type": "tab",
-					"enableClose":false,
-					"name": "Options",
-					"component": "grid",
-					"id": "#3"
-				}
-			]
-		},
-		{
-		    "type": "border",
-			"location": "bottom",
-			"children": [
-				{
-					"type": "tab",
-					"enableClose":false,
-					"name": "Activity Blotter",
-					"component": "grid",
-					"id": "#2"
-				},
-				{
-					"type": "tab",
-					"enableClose":false,
-					"name": "Execution Blotter",
-					"component": "grid",
-					"id": "#1"
-				}
-			]
-		}
+		 type: 'border',
+		 location: 'left',
+		 selected: 0,
+		 enableDrop: false,
+		 children: [
+			 {
+				 type: 'tab',
+				 enableClose: false,
+				 enableDrag: false,
+				 enableRename: false,
+				 name: 'Menu',
+				 component: 'sidemenu',
+				 id: '#menu',
+			 },
+		 	 {
+ 				 type: 'tab',
+ 				 name: 'Tools',
+				 component: 'tools',
+				 id: '#tools',
+				 enableClose: false,
+				 enableDrag: false,
+				 enableRename: false,
+ 			 },
+		 ]
+	 },
+	 // {
+		//  type: 'border',
+		//  location: 'right',
+		//  children: [
+	 // 
+		//  ],
+	 // },
+	 {
+		 type: 'border',
+		 location: 'bottom',
+		 children: [
+	 
+		 ],
+	 },
 	]
 };
-
-const fields = ["Name", "ISIN", "Bid", "Ask", "Last", "Yield"];
 
 class Main extends React.Component {
 
     constructor(props) {
         super(props);
         // this.state = {model: FlexLayout.Model.fromJson(json)};
-        this.state = {model: FlexLayout.Model.fromJson(other)};
+        // this.state = {model: FlexLayout.Model.fromJson(other)};
+				this.state = {model: FlexLayout.Model.fromJson(another)};
     }
 
-    factory(node) {
-        var component = node.getComponent();
-        
-        if (component === "button") {
-            return <button>{node.getName()}</button>;
-        }
-        
-        if (component === "grid") {
-            if (node.getExtraData().data == null) {
-                // create data in node extra data first time accessed
-                node.getExtraData().data = this.makeFakeData();
-            }
+		addNode = (node) => {
+			const existing = this.layout.model.getNodeById(node.id);
+			if (!existing) {
+				// this.layout.addTabToTabSet('MAIN', node);
+				this.layout.addTabToActiveTabSet(node);
+			} else {
+				this.layout.doAction(FlexLayout.Actions.selectTab(node.id));
+			}
+		}
 
-            return <SimpleTable fields={fields} onClick={this.onTableClick.bind(this, node)} data={node.getExtraData().data}/>;
-        }
-            
-        if (component === "menu") {
-          return <Menu />
-        }    
+    factory(node) {
+        const component = node.getComponent();
+				
+				// console.log('node:', node);
+				
+				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
+				const { addNode } = this;
+				const props = {
+					addNode
+				}
+				
+				switch(component) {
+					case 'dashboard':
+						result = <Dashboard {...props} />
+						break;
+					case 'button':
+						result = <button>{node.getName()}</button>;
+						break;
+					case 'grid': 
+						const fields = ['Name', 'ISIN', 'Bid', 'Ask', 'Last', 'Yield'];
+						if (node.getExtraData().data == null) {
+								// create data in node extra data first time accessed
+								node.getExtraData().data = this.makeFakeData(fields);
+						}
+						result = <SimpleTable fields={fields} onClick={this.onTableClick.bind(this, node)} data={node.getExtraData().data}/>;
+						break;
+					case 'ReactTable':
+						const config = node.getConfig();
+						const rtProps = {
+							...config,
+							...props,
+							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase())
+						}
+						result = <div style={{padding: '10px'}}><ReactTable { ...rtProps } /></div>;
+						break;
+					case 'tools':
+						result = <Tools {...props} />;
+						break;
+					case 'sidemenu':
+						result = <SideMenu  {...props} />;
+						break;
+					case 'AccountSearch':
+						result = <AccountSearch  {...props}  />
+						break;
+					case 'AccountResults':
+						result = <AccountResults  {...props}  />
+						break;
+				}
+        
+				return result;
     }
 
     onTableClick(node, event) {
-        console.log("tab: \n" + node._toAttributeString());
-        console.log("tabset: \n" + node.getParent()._toAttributeString());
+        console.log('tab: \n' + node._toAttributeString());
+        console.log('tabset: \n' + node.getParent()._toAttributeString());
     }
         
-    makeFakeData() {
+    makeFakeData(fields) {
         var data = [];
         var r = Math.random() * 50;
         for (var i = 0; i < r; i++) {
             var rec = {};
-            rec.Name = this.randomString(5, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-            rec.ISIN = rec.Name + this.randomString(7, "1234567890");
+            rec.Name = this.randomString(5, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            rec.ISIN = rec.Name + this.randomString(7, '1234567890');
             for (var j = 2; j < fields.length; j++) {
                 rec[fields[j]] = (1.5 + Math.random() * 2).toFixed(2);
             }
@@ -189,12 +178,12 @@ class Main extends React.Component {
             a.push(chars[Math.floor(Math.random() * chars.length)]);
         }
 
-        return a.join("");
+        return a.join('');
     }
     
     render() {
         return (
-            <FlexLayout.Layout model={this.state.model} factory={this.factory.bind(this)}/>
+            <FlexLayout.Layout ref={(r) => this.layout = r} model={this.state.model} factory={this.factory.bind(this)}/>
         )
     }
 }
@@ -216,7 +205,7 @@ class SimpleTable extends React.Component {
         }
 
         return (
-          <table className="simple_table" onClick={this.props.onClick}>
+          <table className='simple_table' onClick={this.props.onClick}>
             <tbody>
             <tr>{headercells}</tr>
             {rows}
