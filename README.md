@@ -13,3 +13,16 @@ Main components (aside from React and ReactDOM):
 * bootstrap@3 - just for styling
 * react-table - for displaying tabular data
 * superagent - for HTTP calls
+
+## Installation
+* clone the repo
+* open a terminal window
+* cd into the cloned repo local directory
+* run: npm install
+* run: npm start
+* open a 2nd terminal window
+* ensure you are in the local cloned directory
+* run: npm install json-server -g
+* run: json-server db.json --port <portnumber> (suggest something like 3090 - this will provide a localhost:3090/ REST API into the db.json data)
+
+Then develop.
