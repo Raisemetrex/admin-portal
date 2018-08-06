@@ -6,8 +6,19 @@ import 'flexlayout-react/style/light.css';
 
 import FirstLayout from './flexlayout/test1';
 
+import PhoenixData from './lib/PhoenixData';
+
+PhoenixData.authenticate('slack@reffind.com', 'slack')
+  .then(result => {
+    // console.log('auth result:', result);
+    // console.log('result cookie:', result.headers.get('set-cookie'));
+    // console.log('document.cookie:', document.cookie);
+    // console.log('PhoenixData: result:', result);
+    PhoenixData.listUsers();
+  });
+
 class App extends Component {
-  
+
   render() {
     return (
       <div className="App">
