@@ -8,11 +8,13 @@ import FirstLayout from './flexlayout/test1';
 
 import PhoenixData from './lib/PhoenixData';
 
+// PhoenixData.listUsers();
+
 PhoenixData.authenticate('slack@reffind.com', 'slack')
   .then(result => {
     // console.log('auth result:', result);
     // console.log('result cookie:', result.headers.get('set-cookie'));
-    // console.log('document.cookie:', document.cookie);
+    console.log('document.cookie:', document.cookie);
     // console.log('PhoenixData: result:', result);
     PhoenixData.listUsers();
   });

@@ -3,7 +3,8 @@
 
 class PhoenixData {
   constructor() {
-    this.endPoint = 'http://localhost:4000/admin/api/v1';
+    const server = 'app.reffind.local'
+    this.endPoint = `http://${server}:4000/admin/api/v1`;
     this.credentials = {
       cookie: null,
       root: null,
@@ -85,7 +86,8 @@ class PhoenixData {
       const url = `${this.endPoint}/users`; // 'http://localhost:4000/admin/api/v1/users'
       fetch(url,{
           method: 'get',
-          credentials: 'same-origin',
+          // mode: 'cors',
+          // credentials: 'same-origin',
       })
       .then(result => {
           console.log('list result:', result);
