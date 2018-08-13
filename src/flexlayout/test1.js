@@ -7,6 +7,7 @@ import Dashboard from './dashboard';
 import SideMenu from './sidemenu';
 import AccountSearch from './accountSearch';
 import AccountResults from './accountResults';
+import QuickTest from './quickTest';
 import Tools from './tools';
 
 import ReactTable from 'react-table';
@@ -68,14 +69,14 @@ const another = {
 		//  type: 'border',
 		//  location: 'right',
 		//  children: [
-	 // 
+	 //
 		//  ],
 	 // },
 	 {
 		 type: 'border',
 		 location: 'bottom',
 		 children: [
-	 
+
 		 ],
 	 },
 	]
@@ -102,15 +103,15 @@ class Main extends React.Component {
 
     factory(node) {
         const component = node.getComponent();
-				
+
 				// console.log('node:', node);
-				
+
 				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
 				const { addNode } = this;
 				const props = {
 					addNode
 				}
-				
+
 				switch(component) {
 					case 'dashboard':
 						result = <Dashboard {...props} />
@@ -118,7 +119,7 @@ class Main extends React.Component {
 					case 'button':
 						result = <button>{node.getName()}</button>;
 						break;
-					case 'grid': 
+					case 'grid':
 						const fields = ['Name', 'ISIN', 'Bid', 'Ask', 'Last', 'Yield'];
 						if (node.getExtraData().data == null) {
 								// create data in node extra data first time accessed
@@ -141,6 +142,9 @@ class Main extends React.Component {
 					case 'sidemenu':
 						result = <SideMenu  {...props} />;
 						break;
+					case 'QuickTest':
+						result = <QuickTest {...props} />;
+						break;
 					case 'AccountSearch':
 						result = <AccountSearch  {...props}  />
 						break;
@@ -148,7 +152,7 @@ class Main extends React.Component {
 						result = <AccountResults  {...props}  />
 						break;
 				}
-        
+
 				return result;
     }
 
@@ -156,7 +160,7 @@ class Main extends React.Component {
         console.log('tab: \n' + node._toAttributeString());
         console.log('tabset: \n' + node.getParent()._toAttributeString());
     }
-        
+
     makeFakeData(fields) {
         var data = [];
         var r = Math.random() * 50;
@@ -170,7 +174,7 @@ class Main extends React.Component {
             data.push(rec);
         }
         return data;
-    }    
+    }
 
     randomString(len, chars) {
         var a = [];
@@ -180,7 +184,7 @@ class Main extends React.Component {
 
         return a.join('');
     }
-    
+
     render() {
         return (
             <FlexLayout.Layout ref={(r) => this.layout = r} model={this.state.model} factory={this.factory.bind(this)}/>
