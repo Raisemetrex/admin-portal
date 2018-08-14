@@ -122,4 +122,32 @@
       border-color: #ADCFFB; */
     }
 
-    
+.aligner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.aligner-item {
+  max-width: 50%;
+  padding: 10px;
+  /* text-align: center; */
+}
+
+.aligner form {
+  width: 400px;
+}
+
+.aligner .round-border {
+  border: 1px solid green;
+  border-radius: 5px;
+}
+
+.aligner-item--top {
+  align-self: flex-start;
+}
+
+.aligner-item--bottom {
+  align-self: flex-end;
+}

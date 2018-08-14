@@ -5,6 +5,7 @@ import logo from './logo.svg';
 import 'flexlayout-react/style/light.css';
 
 import FirstLayout from './flexlayout/test1';
+import Authentication from './lib/components/authentication';
 
 // import PhoenixData from './lib/PhoenixData';
 
@@ -49,18 +50,26 @@ PhoenixAuth.authenticate('gary@reffind.com', 'R3ff1nd!2017')
 //   });
 
 class App extends Component {
-
+  constructor(props) {
+    super(props);
+    this.state = {
+      authenticated: false,
+    }
+  }
+  authenticate = (data) => {
+    console.log('App.authenticate:', data);
+    this.setState({ authenticated: true });
+  }
   render() {
+    const { authenticated } = this.state;
     return (
       <div className="App">
-        {/* <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header> */}
-        <FirstLayout />
-        {/* <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p> */}
+        {
+          authenticated ?
+          <FirstLayout />
+          :
+          <Authentication authenticate={this.authenticate}/>
+        }
       </div>
     );
   }
