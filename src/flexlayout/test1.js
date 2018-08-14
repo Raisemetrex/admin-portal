@@ -8,6 +8,7 @@ import SideMenu from './sidemenu';
 import AccountSearch from './accountSearch';
 import AccountResults from './accountResults';
 import QuickTest from './quickTest';
+import Reports from './reports';
 import Tools from './tools';
 
 import ReactTable from 'react-table';
@@ -141,6 +142,9 @@ class Main extends React.Component {
 						break;
 					case 'sidemenu':
 						result = <SideMenu  {...props} />;
+						break;
+					case 'Reports':
+						result = <Reports {...props} />;
 						break;
 					case 'QuickTest':
 						result = <QuickTest {...props} />;

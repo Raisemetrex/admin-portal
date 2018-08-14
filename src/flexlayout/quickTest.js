@@ -33,7 +33,7 @@ class QuickTest extends React.Component {
       params: [],
       sql: 'SELECT * FROM users',
     };
-    PhoenixAuth.query(requestFiltered)
+    PhoenixAuth.query(requestAll)
       .then(data => {
         console.log('didMount: result:', data);
         this.setState({ data });
