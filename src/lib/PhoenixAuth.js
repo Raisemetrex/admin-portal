@@ -59,6 +59,8 @@ class PhoenixAuth {
     request.append('username', username);
     request.append('password', password);
 
+    console.log('Authenticating with WooBoard...');
+
     return fetch(signon, {
       method: 'POST',
       body: request,
@@ -69,6 +71,17 @@ class PhoenixAuth {
     })
     .then(json => {
       // console.log('authenticate: json:', json);
+
+      if (json) {
+        this.access_token = json.access_token;
+
+        const parsed = this.parseJwt(this.access_token);
+        console.log('parsed token:', parsed);
+
+      } else {
+        throw 'Unauthorized';
+      }
+
       return json;
     })
     .catch(err => {
@@ -76,33 +89,33 @@ class PhoenixAuth {
     })
   }
 
-  test() {
-    return this.getAccountID('reffind')
-      .then(account_id => {
-        // console.log('test: account_id:', account_id);
-        return this.authenticate('gary@reffind.com', 'R3ff1nd!2017');
-        // return this.authenticate('gary@reffind.com', 'bad password');
-      })
-      .then(auth => {
-        // console.log('auth:', auth);
-        if (auth) {
-          this.access_token = auth.access_token;
-        } else {
-          throw 'Unauthorized';
-        }
-      })
-      .then(() => {
-        this.getPosts()
-          .then(result => {
-            console.log('test: getPosts: result:', result);
-          });
-      })
-      // .catch(err => {
-      //   console.log('authentication: error:', err);
-      // })
-      ;
-  }
-
+  // test() {
+  //   return this.getAccountID('reffind')
+  //     .then(account_id => {
+  //       // console.log('test: account_id:', account_id);
+  //       return this.authenticate('gary@reffind.com', 'R3ff1nd!2017');
+  //       // return this.authenticate('gary@reffind.com', 'bad password');
+  //     })
+  //     .then(auth => {
+  //       // console.log('auth:', auth);
+  //       if (auth) {
+  //         this.access_token = auth.access_token;
+  //       } else {
+  //         throw 'Unauthorized';
+  //       }
+  //     })
+  //     .then(() => {
+  //       this.getPosts()
+  //         .then(result => {
+  //           console.log('test: getPosts: result:', result);
+  //         });
+  //     })
+  //     // .catch(err => {
+  //     //   console.log('authentication: error:', err);
+  //     // })
+  //     ;
+  // }
+  //
   getPosts() {
     const posts = `${this.endpoint}/posts?limit=10&start=0`;
     return fetch(posts, {
@@ -153,6 +166,14 @@ class PhoenixAuth {
     //   return json;
     // })
   }
+
+  parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace('-', '+').replace('_', '/');
+    return JSON.parse(window.atob(base64));
+  }
+
+
 }
 
 const phoenixAuth = new PhoenixAuth();
