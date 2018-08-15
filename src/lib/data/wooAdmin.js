@@ -3,11 +3,12 @@
 
 // import JSONAPISerializer from 'json-api-serializer';
 
-class PhoenixAuth {
+class WooAdmin {
 
   constructor() {
     this.endpoint = `http://localhost:4000/api/v1`;
     this.account_id = null;
+    this.access_token = null;
     // this.serializer = new JSONAPISerializer();
     // this.serializer.register('user',{
     //   id: 'id',
@@ -19,6 +20,12 @@ class PhoenixAuth {
     //   // links: {},
     //   // relationships: {},
     // })
+  }
+
+  isAuthenticated() {
+    console.log({ WooAdmin: this });
+    // return true;
+    return this.access_token !== null;
   }
 
   getAccountID(subdomain) {
@@ -66,11 +73,11 @@ class PhoenixAuth {
       body: request,
     })
     .then(result => {
-      // console.log('authentication: result:', result);
+      console.log('authentication: result:', result);
       return result.json()
     })
     .then(json => {
-      // console.log('authenticate: json:', json);
+      console.log('authenticate: json:', json);
 
       if (json) {
         this.access_token = json.access_token;
@@ -176,6 +183,6 @@ class PhoenixAuth {
 
 }
 
-const phoenixAuth = new PhoenixAuth();
+const wooAdmin = new WooAdmin();
 
-export default phoenixAuth;
+export default wooAdmin;

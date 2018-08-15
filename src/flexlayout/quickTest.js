@@ -5,7 +5,7 @@ import React from 'react';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
-import PhoenixAuth from '../lib/PhoenixAuth';
+import WooAdmin from '../lib/data/wooAdmin';
 
 class QuickTest extends React.Component {
   constructor(props) {
@@ -33,7 +33,7 @@ class QuickTest extends React.Component {
       params: [],
       sql: 'SELECT * FROM users',
     };
-    PhoenixAuth.query(requestAll)
+    WooAdmin.query(requestAll)
       .then(data => {
         console.log('didMount: result:', data);
         this.setState({ data });
