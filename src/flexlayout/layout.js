@@ -11,6 +11,7 @@ import QuickTest from './quickTest';
 import Reports from './reports';
 import Tools from './tools';
 import Settings from './settings';
+import JsonProps from './jsonProps';
 
 import ReactTable from 'react-table';
 
@@ -97,25 +98,27 @@ class Main extends React.Component {
 
     constructor(props) {
         super(props);
-        // this.state = {model: FlexLayout.Model.fromJson(json)};
-        // this.state = {model: FlexLayout.Model.fromJson(other)};
 				this.state = {model: FlexLayout.Model.fromJson(another)};
     }
 
 		addNode = (node) => {
+			// console.log('Layout.addNode node:', node);
 			const existing = this.layout.model.getNodeById(node.id);
 			if (!existing) {
 				// this.layout.addTabToTabSet('MAIN', node);
 				this.layout.addTabToActiveTabSet(node);
+				const newNode = this.layout.model.getNodeById(node.id);
+				newNode.getExtraData().data = node;
 			} else {
 				this.layout.doAction(FlexLayout.Actions.selectTab(node.id));
 			}
 		}
 
     factory(node) {
-        const component = node.getComponent();
+			// console.log('node:', node);
 
-				// console.log('node:', node);
+        const component = node.getComponent();
+				const extraData = node.getExtraData().data;
 
 				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
 				const { WooAdmin } = this.props;
@@ -154,6 +157,13 @@ class Main extends React.Component {
 							logout: WooAdmin.logout,
 						}
 						result = <Settings {...settingsProps} />;
+						break;
+					case 'JsonProps':
+						const jsonProps = {
+							...props,
+							...extraData,
+						}
+						result = <JsonProps {...jsonProps} />;
 						break;
 					case 'tools':
 						result = <Tools {...props} />;
@@ -209,7 +219,11 @@ class Main extends React.Component {
 
     render() {
         return (
-            <FlexLayout.Layout ref={(r) => this.layout = r} model={this.state.model} factory={this.factory.bind(this)}/>
+            <FlexLayout.Layout
+							ref={(r) => this.layout = r}
+							model={this.state.model}
+							factory={this.factory.bind(this)}
+						/>
         )
     }
 }

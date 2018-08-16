@@ -4,7 +4,7 @@ import React from 'react';
 import WooAdmin from '../lib/data/wooAdmin';
 
 const Me = props => {
-  console.log('Me.props:', props)
+  // console.log('Me.props:', props)
   if (props.me === null) return <div>Loading...</div>;
   return (
     <div style={{padding: '5px', border: '1px solid #CCC', borderRadius: '5px', backgroundColor: '#DDD'}}>
@@ -35,7 +35,7 @@ class Settings extends React.Component {
     WooAdmin.me()
       .then(response => WooAdmin.getRecord(response))
       .then(me => {
-        console.log('me:', me);
+        // console.log('me:', me);
         this.setState({ me });
       })
       .catch(err => console.log('WooAdmin.me error:', err));

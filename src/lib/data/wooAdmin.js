@@ -55,7 +55,7 @@ class WooAdmin {
     request.append('username', username);
     request.append('password', password);
 
-    // console.log('Authenticating with WooBoard...');
+    console.log('Authenticating with WooBoard...', this.account_id);
 
     return fetch(signon, {
       method: 'POST',
@@ -178,7 +178,7 @@ class WooAdmin {
   }
 
   getRecord(jsonApi, index = 0) {
-    // console.log('WooBoard.getRecord jsonApi:', jsonApi);
+    console.log('WooBoard.getRecord jsonApi:', jsonApi);
     if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
       const { data } = jsonApi;
       // console.log('getRecord: jsonApi.data:', { data, index });

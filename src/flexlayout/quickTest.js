@@ -25,17 +25,17 @@ class QuickTest extends React.Component {
     }
   }
   componentDidMount() {
-    const requestFiltered = {
-      params: ['2018-01-22','2018-01-23T23:59:59Z','8BF248F5-AFAF-49F3-86D0-3E886C375ED1'],
-      sql: 'SELECT * FROM users WHERE inserted_at BETWEEN $1 and $2 AND current_account_id = $3',
-    };
+    // const requestFiltered = {
+    //   params: ['2018-01-22','2018-01-23T23:59:59Z','8BF248F5-AFAF-49F3-86D0-3E886C375ED1'],
+    //   sql: 'SELECT * FROM users WHERE inserted_at BETWEEN $1 and $2 AND current_account_id = $3',
+    // };
     const requestAll = {
       params: [],
       sql: 'SELECT * FROM users',
     };
     WooAdmin.query(requestAll)
       .then(data => {
-        console.log('didMount: result:', data);
+        // console.log('didMount: result:', data);
         this.setState({ data });
       })
       .catch(err => console.log('QuickTest: didMount: error:', err));

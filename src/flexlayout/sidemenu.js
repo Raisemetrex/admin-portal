@@ -2,6 +2,8 @@
 import React from 'react';
 import Tree, { TreeNode } from 'rc-tree';
 
+import QueryStore from '../mobx/queryStore';
+
 import 'rc-tree/assets/index.css';
 
 const menu = [
@@ -64,12 +66,54 @@ const treeData = [
   },
 ];
 
+function firstCap(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function humanReadable(s) {
+  const words = s.split('-');
+  const readable = words.map(word => {
+    return firstCap(word);
+  })
+  return readable.join(' ');
+}
+
+function extendReportsMenu() {
+  const reportsMenu = menu.find(item => item.key === 'reports');
+  if (reportsMenu) {
+    // console.log('reportsMenu:', reportsMenu);
+    const queries = QueryStore.report();
+    // console.log('queries:', queries);
+    queries.forEach(query => {
+      const { menuPath, component } = query;
+      // console.log({ menuPath, component});
+      const path = menuPath.split('.');
+      const key = path[1];
+      const title = humanReadable(key);
+      const menuItem = {
+        key,
+        title,
+        'data-action': {
+          name: title,
+          id: key,
+          component,
+          query,
+        }
+      };
+      reportsMenu.children.push(menuItem);
+    })
+  } else {
+    console.log('reportsMenu not found');
+  }
+}
+
+extendReportsMenu();
 
 class SideMenu extends React.Component {
 
   onSelect = (item, info) => {
     const action = info.node.props['data-action'];
-    console.log('selected:', { item, info, action });
+    // console.log('selected:', { item, info, action });
 
     let node = { component: 'dummy', id: 'dummy-component' };
     if (action) {
@@ -82,13 +126,6 @@ class SideMenu extends React.Component {
 
 
   render() {
-    // const items = menu.map(item => {
-    //   const props = {...item};
-    //   return (
-    //     <TreeNode {...props} />
-    //   )
-    // })
-
     const loop = data => {
       return data.map((item) => {
         const { children, ...rest} = item;

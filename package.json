@@ -9,6 +9,8 @@
     "flexlayout-react": "^0.2.5",
     "json-api-serializer": "^1.13.0",
     "json-schema-faker": "^0.5.0-rc15",
+    "mobx": "^5.0.3",
+    "mobx-react": "^5.2.5",
     "rc-tree": "^1.12.7",
     "react": "^16.4.2",
     "react-chartjs-2": "^2.7.4",
