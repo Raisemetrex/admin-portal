@@ -1,64 +1,53 @@
 
 // import superAgent from 'superagent';
 
-// import JSONAPISerializer from 'json-api-serializer';
-
 class WooAdmin {
 
   constructor() {
     this.endpoint = `http://localhost:4000/api/v1`;
-    this.account_id = null;
-    this.access_token = null;
-    // this.serializer = new JSONAPISerializer();
-    // this.serializer.register('user',{
-    //   id: 'id',
-    //   // links: {},
-    //   // relationships: {},
-    // });
-    // this.serializer.register('post',{
-    //   id: 'id',
-    //   // links: {},
-    //   // relationships: {},
-    // })
+    this.account_id = localStorage.getItem('account_id');
+    this.access_token = localStorage.getItem('access_token');
+    this.access_json = null;
   }
 
-  isAuthenticated() {
-    console.log({ WooAdmin: this });
-    // return true;
+  isAuthenticated = () => {
     return this.access_token !== null;
   }
 
-  getAccountID(subdomain) {
-    if(this.account_id !== null) {
-      console.log('getAccountID: exists:', this.account_id);
-      return Promise.resolve(this.account_id);
-    } else {
-      const account = `${this.endpoint}/accounts?subdomain=${subdomain}`;
-      const options = {
-        //   method: 'GET',
-        //   // credentials: 'same-origin',
-        //   mode: 'cors',
-      };
-      console.log('getAccountID: fetching:', account);
+  // getAccountID = (subdomain) => {
+  //   if(this.account_id !== null) {
+  //     // console.log('getAccountID: exists:', this.account_id);
+  //     return Promise.resolve(this.account_id);
+  //   } else {
+  //     const account = `${this.endpoint}/accounts?subdomain=${subdomain}`;
+  //     const options = {
+  //       //   method: 'GET',
+  //       //   // credentials: 'same-origin',
+  //       //   mode: 'cors',
+  //     };
+  //     // console.log('getAccountID: fetching:', account);
+  //
+  //     return fetch(account, options)
+  //       .then(result => {
+  //         if (result.status !== 200) {
+  //           throw {error: result.status, message: result.statusText};
+  //         }
+  //         // console.log('got a result:', result);
+  //         // const json = result.json();
+  //         return result.json();
+  //       }, err => console.log('fetch error:', err))
+  //       .then(json => {
+  //         // console.log('json:', json);
+  //         this.account_id = json.data.id;
+  //         return this.account_id;
+  //       })
+  //       // .catch(err => {
+  //       //   console.log('getAccountID: error:', err);
+  //       // })
+  //   }
+  // }
 
-      return fetch(account, options)
-        .then(result => {
-          console.log('got a result:', result);
-          // const json = result.json();
-          return result.json();
-        }, err => console.log('fetch error:', err))
-        .then(json => {
-          console.log('json:', json);
-          this.account_id = json.data.id;
-          return this.account_id;
-        })
-        .catch(err => {
-          console.log('getAccountID: error:', err);
-        })
-    }
-  }
-
-  authenticate(username, password) {
+  authenticate = (username, password) => {
     const signon = `${this.endpoint}/token`;
     const request = new FormData();
     request.append('grant_type', 'password');
@@ -66,64 +55,38 @@ class WooAdmin {
     request.append('username', username);
     request.append('password', password);
 
-    console.log('Authenticating with WooBoard...');
+    // console.log('Authenticating with WooBoard...');
 
     return fetch(signon, {
       method: 'POST',
       body: request,
     })
     .then(result => {
-      console.log('authentication: result:', result);
+      // console.log('authentication: result:', result);
+      if (result.status !== 200) {
+        throw {error: result.status, message: result.statusText};
+      }
       return result.json()
     })
     .then(json => {
-      console.log('authenticate: json:', json);
+      // console.log('authenticate: json:', json);
 
-      if (json) {
+      if (json && json.access_token) {
         this.access_token = json.access_token;
-
-        const parsed = this.parseJwt(this.access_token);
-        console.log('parsed token:', parsed);
-
+        localStorage.setItem('access_token', this.access_token);
+        this.access_json = this.parseJwt(this.access_token);
       } else {
-        throw 'Unauthorized';
+        throw {error: 401, message: 'Unauthorized' };
       }
 
       return json;
     })
-    .catch(err => {
-      console.log('authenticate: error:', err);
-    })
+    // .catch(err => {
+    //   console.log('authenticate: error:', err);
+    // })
   }
 
-  // test() {
-  //   return this.getAccountID('reffind')
-  //     .then(account_id => {
-  //       // console.log('test: account_id:', account_id);
-  //       return this.authenticate('gary@reffind.com', 'R3ff1nd!2017');
-  //       // return this.authenticate('gary@reffind.com', 'bad password');
-  //     })
-  //     .then(auth => {
-  //       // console.log('auth:', auth);
-  //       if (auth) {
-  //         this.access_token = auth.access_token;
-  //       } else {
-  //         throw 'Unauthorized';
-  //       }
-  //     })
-  //     .then(() => {
-  //       this.getPosts()
-  //         .then(result => {
-  //           console.log('test: getPosts: result:', result);
-  //         });
-  //     })
-  //     // .catch(err => {
-  //     //   console.log('authentication: error:', err);
-  //     // })
-  //     ;
-  // }
-  //
-  getPosts() {
+  getPosts = () => {
     const posts = `${this.endpoint}/posts?limit=10&start=0`;
     return fetch(posts, {
       method: 'GET',
@@ -135,25 +98,23 @@ class WooAdmin {
     })
     .then(result => {
       // console.log('getPosts: result:', result);
+      if (result.status !== 200) {
+        throw {error: result.status, message: result.statusText};
+      }
       return result.json()
     })
     .then(json => {
-      console.log('getPosts: json:', json);
-      // json.data.forEach(post => {
-      //   console.log('post:', post);
-      //   const record = this.serializer.deserialize(post);
-      //   console.log('getPosts: deserialized:', record);
-      // })
+      // console.log('getPosts: json:', json);
       return json;
     })
-    .catch(err => {
-      console.log('posts: error:', err);
-    });
+    // .catch(err => {
+    //   console.log('posts: error:', err);
+    // });
   }
 
-  query(request) {
+  query = (request) => {
     const query = `${this.endpoint}/query`;
-    console.log('running query:', request);
+    // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
       headers: {
@@ -166,6 +127,9 @@ class WooAdmin {
     })
     .then(result => {
       // console.log('testQuery: result:', result);
+      if (result.status !== 200) {
+        throw {error: result.status, message: result.statusText};
+      }
       return result.json();
     })
     // .then(json => {
@@ -174,12 +138,69 @@ class WooAdmin {
     // })
   }
 
+  logout = () => {
+    this.access_token = null;
+    this.access_Json = null;
+    localStorage.removeItem('access_token');
+    window.location.reload();
+  }
+
+  me = () => {
+    const q = `${this.endpoint}/me`;
+    return this.fetch(q);
+  }
+
+  fetch = (url, data, method = 'GET') => {
+    let extra = {};
+    if (data) { body: JSON.stringify(data) };
+    return fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${this.access_token}`,
+        'Accept': 'application/json, application/vnd.api+json',
+        'Content-Type': 'application/json',
+      },
+      ...extra,
+    })
+    .then(result => {
+      // console.log('testQuery: result:', result);
+      if (result.status !== 200) {
+        throw {error: result.status, message: result.statusText};
+      }
+      return result.json();
+    })
+  }
+
   parseJwt(token) {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace('-', '+').replace('_', '/');
     return JSON.parse(window.atob(base64));
   }
 
+  getRecord(jsonApi, index = 0) {
+    // console.log('WooBoard.getRecord jsonApi:', jsonApi);
+    if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
+      const { data } = jsonApi;
+      // console.log('getRecord: jsonApi.data:', { data, index });
+
+      let record = null;
+      if (Array.isArray(data)) {
+        // console.log('data isArray');
+        record = data[index];
+      } else {
+        record = data;
+      }
+      record = {
+        ...record.attributes,
+        id: record.id,
+        _type: record.type,
+      }
+      return record;
+    }
+
+    console.log('WooBoard.getRecord: unsupported json-api:', jsonApi);
+    throw "Invalid json-api or unsupported version"
+  }
 
 }
 

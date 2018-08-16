@@ -30,8 +30,9 @@ class Tools extends React.Component {
   render() {
     return (
       <div style={{padding: '10px'}}>
-        {/* <h4>Tools</h4> */}
-        <button onClick={this.generateUserData}>Generate User Data</button>
+        <div style={{textAlign: 'center'}}>
+          {/*<button onClick={this.generateUserData}>Generate User Data</button>*/}
+        </div>
       </div>
     )
   }

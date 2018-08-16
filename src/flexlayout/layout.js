@@ -10,6 +10,7 @@ import AccountResults from './accountResults';
 import QuickTest from './quickTest';
 import Reports from './reports';
 import Tools from './tools';
+import Settings from './settings';
 
 import ReactTable from 'react-table';
 
@@ -41,30 +42,39 @@ const another = {
 	},
 	borders: [
 		{
-		 type: 'border',
-		 location: 'left',
-		 selected: 0,
-		 enableDrop: false,
-		 children: [
-			 {
-				 type: 'tab',
-				 enableClose: false,
-				 enableDrag: false,
-				 enableRename: false,
-				 name: 'Menu',
-				 component: 'sidemenu',
-				 id: '#menu',
-			 },
-		 	 {
- 				 type: 'tab',
- 				 name: 'Tools',
-				 component: 'tools',
-				 id: '#tools',
-				 enableClose: false,
-				 enableDrag: false,
-				 enableRename: false,
- 			 },
-		 ]
+			type: 'border',
+			location: 'left',
+			selected: 0,
+			enableDrop: false,
+			children: [
+				{
+					type: 'tab',
+					enableClose: false,
+					enableDrag: false,
+					enableRename: false,
+					name: 'Menu',
+					component: 'sidemenu',
+					id: '#menu',
+				},
+				// {
+				// 	type: 'tab',
+				// 	name: 'Tools',
+				// 	component: 'tools',
+				// 	id: '#tools',
+				// 	enableClose: false,
+				// 	enableDrag: false,
+				// 	enableRename: false,
+				// },
+				{
+					type: 'tab',
+					enableClose: false,
+					enableDrag: false,
+					enableRename: false,
+					name: '\u2699',
+					component: 'settings',
+					id: '#settings',
+				},
+			]
 	 },
 	 // {
 		//  type: 'border',
@@ -108,10 +118,11 @@ class Main extends React.Component {
 				// console.log('node:', node);
 
 				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
+				const { WooAdmin } = this.props;
 				const { addNode } = this;
 				const props = {
-					addNode
-				}
+					addNode,
+				};
 
 				switch(component) {
 					case 'dashboard':
@@ -136,6 +147,13 @@ class Main extends React.Component {
 							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase())
 						}
 						result = <div style={{padding: '10px'}}><ReactTable { ...rtProps } /></div>;
+						break;
+					case 'settings':
+						const settingsProps = {
+							...props,
+							logout: WooAdmin.logout,
+						}
+						result = <Settings {...settingsProps} />;
 						break;
 					case 'tools':
 						result = <Tools {...props} />;

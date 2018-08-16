@@ -4,14 +4,12 @@ import React from 'react';
 import Form from "react-jsonschema-form";
 import 'bootstrap/dist/css/bootstrap.css';
 
-import WooAdmin from '../data/wooAdmin';
-
 const schema = {
   title: 'Admin Login',
   type: 'object',
   required: ['email', 'password'],
   properties: {
-    email: {type: "string", title: "Email", default: 'gary@reffind.com' },
+    email: {type: "string", title: "Email", default: '' },
     password: {type: "string", title: "Password", default: '' },
   }
 };
@@ -48,6 +46,7 @@ class Authenticate extends React.Component {
 
   render() {
     const { showPassword } = this.state;
+    const { message } = this.props;
     return (
       <div className="aligner" style={{height: '400px'}}>
         <div className="aligner-item round-border">
@@ -61,6 +60,8 @@ class Authenticate extends React.Component {
             onError={this.errors}
           />
 
+        <div className="errors">{message || <span>&nbsp;</span>}</div>
+
         </div>
       </div>
     )
@@ -71,12 +72,15 @@ class Authentication extends React.Component {
 
   constructor(props) {
     super(props);
+    const { WooAdmin } = this.props;
     this.state = {
       isAuthenticated: WooAdmin.isAuthenticated(),
+      message: null,
     }
   }
 
   authenticate = (username, password) => {
+    const { WooAdmin } = this.props;
     // console.log('Authentication.authenticate:', { username, password });
     WooAdmin.authenticate(username, password)
       .then(result => {
@@ -84,14 +88,15 @@ class Authentication extends React.Component {
         this.setState({ isAuthenticated: true });
       })
       .catch(err => {
-        console.log('WooAdmin.authenticate: error:', err);
+        // console.log('WooAdmin.authenticate: error:', err);
+        this.setState({ isAuthenticated: false, message: 'Your email or password is incorrect. Please try again.'})
       })
   }
 
   render() {
-    const { isAuthenticated } = this.state;
+    const { isAuthenticated, message } = this.state;
     if (!isAuthenticated) {
-      return <Authenticate authenticate={this.authenticate} />
+      return <Authenticate authenticate={this.authenticate} message={message} />
     }
 
     return this.props.children;

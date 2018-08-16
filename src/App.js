@@ -3,15 +3,17 @@ import React, { Component } from 'react';
 // import '../node_modules/flexlayout-react/style/light.css';
 import 'flexlayout-react/style/light.css';
 
-import FirstLayout from './flexlayout/test1';
+import WooAdmin from './lib/data/wooAdmin';
+
+import FirstLayout from './flexlayout/layout';
 import Authentication from './lib/components/authentication';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <Authentication>
-          <FirstLayout />
+        <Authentication WooAdmin={WooAdmin}>
+          <FirstLayout WooAdmin={WooAdmin}/>
         </Authentication>
       </div>
     );

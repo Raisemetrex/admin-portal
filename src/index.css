@@ -151,3 +151,12 @@
 .aligner-item--bottom {
   align-self: flex-end;
 }
+
+.errors {
+  color: red;
+  font-weight:bold;
+}
+
+.form-wide p:last-child {
+  text-align: right;
+}
