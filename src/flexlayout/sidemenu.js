@@ -3,6 +3,7 @@ import React from 'react';
 import Tree, { TreeNode } from 'rc-tree';
 
 import QueryStore from '../mobx/queryStore';
+import humanReadable from '../lib/utils/humanReadable';
 
 import 'rc-tree/assets/index.css';
 
@@ -17,34 +18,68 @@ const menu = [
   {
     key: 'reports',
     title: 'Reports',
-    children: [
-      {
-        key: 'accounts',
-        title: 'Accounts',
-        'data-action': {
-          enableRename: false,
-          component: 'AccountSearch',
-          id: 'account-search',
-          name: 'Account Search',
-        }
-      },
-      {
-        key: 'quick-test',
-        title: 'Quick Test',
-        'data-action': {
-          enableRename: false,
-          component: 'QuickTest',
-          id: 'quick-test',
-          name: 'Quick Test',
-        }
-      },
-    ],
+    open: true,
     'data-action': {
       enableRename: false,
       id: 'reports',
       name: 'Reports',
       component: 'Reports',
     },
+    children: [
+      // {
+      //   key: 'accounts',
+      //   title: 'Accounts',
+      //   'data-action': {
+      //     enableRename: false,
+      //     component: 'AccountSearch',
+      //     id: 'account-search',
+      //     name: 'Account Search',
+      //   }
+      // },
+      // {
+      //   key: 'quick-test',
+      //   title: 'Quick Test',
+      //   'data-action': {
+      //     enableRename: false,
+      //     component: 'QuickTest',
+      //     id: 'quick-test',
+      //     name: 'Quick Test',
+      //   }
+      // },
+    ],
+  },
+  {
+    key: 'charts',
+    title: 'Charts',
+    open: true,
+    'data-action': {
+      enableRename: false,
+      id: 'charts',
+      name: 'Charts',
+      component: 'Charts',
+    },
+    children: [
+      // {
+      //   key: 'accounts',
+      //   title: 'Accounts',
+      //   'data-action': {
+      //     enableRename: false,
+      //     component: 'AccountSearch',
+      //     id: 'account-search',
+      //     name: 'Account Search',
+      //   }
+      // },
+      // {
+      //   key: 'quick-test',
+      //   title: 'Quick Test',
+      //   'data-action': {
+      //     enableRename: false,
+      //     component: 'QuickTest',
+      //     id: 'quick-test',
+      //     name: 'Quick Test',
+      //   }
+      // },
+    ],
   },
 ];
 
@@ -66,21 +101,9 @@ const treeData = [
   },
 ];
 
-function firstCap(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-function humanReadable(s) {
-  const words = s.split('-');
-  const readable = words.map(word => {
-    return firstCap(word);
-  })
-  return readable.join(' ');
-}
-
-function extendReportsMenu() {
-  const reportsMenu = menu.find(item => item.key === 'reports');
-  if (reportsMenu) {
+function extendMenu() {
+  // const reportsMenu = menu.find(item => item.key === 'reports');
+  // if (reportsMenu) {
     // console.log('reportsMenu:', reportsMenu);
     const queries = QueryStore.report();
     // console.log('queries:', queries);
@@ -88,9 +111,11 @@ function extendReportsMenu() {
       const { menuPath, component } = query;
       // console.log({ menuPath, component});
       const path = menuPath.split('.');
+      const rootItem = menu.find(item => item.key == path[0]);
+      console.assert(rootItem, `Could not find menu item: ${path[0]}`);
       const key = path[1];
       const title = humanReadable(key);
-      const menuItem = {
+      const newItem = {
         key,
         title,
         'data-action': {
@@ -100,14 +125,14 @@ function extendReportsMenu() {
           query,
         }
       };
-      reportsMenu.children.push(menuItem);
+      rootItem.children.push(newItem);
     })
-  } else {
-    console.log('reportsMenu not found');
-  }
+  // } else {
+  //   console.log('reportsMenu not found');
+  // }
 }
 
-extendReportsMenu();
+extendMenu();
 
 class SideMenu extends React.Component {
 
@@ -145,6 +170,7 @@ class SideMenu extends React.Component {
     return (
       <Tree
         onSelect={this.onSelect}
+        defaultExpandAll={true}
       >
         {loop(menu)}
       </Tree>

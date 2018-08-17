@@ -1,8 +1,11 @@
 
 import React from 'react';
 import Dazzle from 'react-dazzle';
-import LineChart from './widgets/LineChart';
-import DoughnutChart from './widgets/DoughnutChart';
+// import LineChart from './widgets/LineChart';
+// import DoughnutChart from './widgets/DoughnutChart';
+
+import PostsByMonth from './widgets/PostsByMonth';
+import PostsByCategory from './widgets/PostsByCategory';
 
 import 'react-dazzle/lib/style/style.css';
 
@@ -34,13 +37,13 @@ class Dashboard extends React.Component {
     this.state = {
       // data: linedata,
       widgets: {
-        LineChart: {
-          type: LineChart,
-          title: 'Line Chart',
+        PieChart: {
+          type: PostsByCategory,
+          title: 'Posts By Category - All Time',
         },
-        DoughnutChart: {
-          type: DoughnutChart,
-          title: 'Doughnut Chart'
+        BarChart: {
+          type: PostsByMonth,
+          title: 'Posts By Month - All Time'
         }
       },
       layout: {
@@ -48,11 +51,11 @@ class Dashboard extends React.Component {
           columns: [
             {
               className: 'col-md-6 col-sm-6 col-xs-12',
-              widgets: [{key: 'LineChart'}],
+              widgets: [{key: 'PieChart'}],
             },
             {
               className: 'col-md-6 col-sm-6 col-xs-12',
-              widgets: [{key: 'DoughnutChart'}],
+              widgets: [{key: 'BarChart'}],
             },
           ],
         }],

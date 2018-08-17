@@ -1,6 +1,7 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
+import shortid from 'shortid';
 import FlexLayout from 'flexlayout-react';
 
 import Dashboard from './dashboard';
@@ -9,13 +10,16 @@ import AccountSearch from './accountSearch';
 import AccountResults from './accountResults';
 import QuickTest from './quickTest';
 import Reports from './reports';
+import Charts from './charts';
 import Tools from './tools';
 import Settings from './settings';
 import JsonProps from './jsonProps';
+import DataTable from '../lib/components/dataTable';
+import PieChart from '../lib/components/pieChart';
+import BarChart from '../lib/components/barChart';
+import NewQuery from '../lib/components/newQuery';
 
-import ReactTable from 'react-table';
-
-const another = {
+const mainLayout = {
 	global: {},
 	layout: {
 		type: 'row',
@@ -98,7 +102,7 @@ class Main extends React.Component {
 
     constructor(props) {
         super(props);
-				this.state = {model: FlexLayout.Model.fromJson(another)};
+				this.state = {model: FlexLayout.Model.fromJson(mainLayout)};
     }
 
 		addNode = (node) => {
@@ -119,6 +123,7 @@ class Main extends React.Component {
 
         const component = node.getComponent();
 				const extraData = node.getExtraData().data;
+				const config = node.getConfig();
 
 				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
 				const { WooAdmin } = this.props;
@@ -131,25 +136,17 @@ class Main extends React.Component {
 					case 'dashboard':
 						result = <Dashboard {...props} />
 						break;
-					case 'button':
-						result = <button>{node.getName()}</button>;
-						break;
-					case 'grid':
-						const fields = ['Name', 'ISIN', 'Bid', 'Ask', 'Last', 'Yield'];
-						if (node.getExtraData().data == null) {
-								// create data in node extra data first time accessed
-								node.getExtraData().data = this.makeFakeData(fields);
-						}
-						result = <SimpleTable fields={fields} onClick={this.onTableClick.bind(this, node)} data={node.getExtraData().data}/>;
-						break;
-					case 'ReactTable':
-						const config = node.getConfig();
+					case 'DataTable':
 						const rtProps = {
 							...config,
 							...props,
-							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase())
+							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase()),
+							...extraData,
 						}
-						result = <div style={{padding: '10px'}}><ReactTable { ...rtProps } /></div>;
+						result = <div style={{padding: '10px'}}><DataTable { ...rtProps } /></div>;
+						break;
+					case 'Charts':
+						result = <Charts { ...props } />;
 						break;
 					case 'settings':
 						const settingsProps = {
@@ -165,20 +162,39 @@ class Main extends React.Component {
 						}
 						result = <JsonProps {...jsonProps} />;
 						break;
-					case 'tools':
-						result = <Tools {...props} />;
-						break;
+					// case 'tools':
+					// 	result = <Tools {...props} />;
+					// 	break;
 					case 'sidemenu':
 						result = <SideMenu  {...props} />;
 						break;
 					case 'Reports':
 						result = <Reports {...props} />;
 						break;
+					case 'NewQuery':
+						result = <NewQuery {...props} />;
+						break;
 					case 'QuickTest':
 						result = <QuickTest {...props} />;
 						break;
 					case 'AccountSearch':
 						result = <AccountSearch  {...props}  />
+						break;
+					case 'PieChart':
+						const pieProps = {
+							...config,
+							...props,
+							...extraData,
+						}
+						result = <PieChart {...pieProps} />
+						break;
+					case 'BarChart':
+						const barProps = {
+							...config,
+							...props,
+							...extraData,
+						}
+						result = <BarChart {...barProps} />
 						break;
 					case 'AccountResults':
 						result = <AccountResults  {...props}  />
@@ -188,34 +204,12 @@ class Main extends React.Component {
 				return result;
     }
 
-    onTableClick(node, event) {
-        console.log('tab: \n' + node._toAttributeString());
-        console.log('tabset: \n' + node.getParent()._toAttributeString());
-    }
-
-    makeFakeData(fields) {
-        var data = [];
-        var r = Math.random() * 50;
-        for (var i = 0; i < r; i++) {
-            var rec = {};
-            rec.Name = this.randomString(5, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-            rec.ISIN = rec.Name + this.randomString(7, '1234567890');
-            for (var j = 2; j < fields.length; j++) {
-                rec[fields[j]] = (1.5 + Math.random() * 2).toFixed(2);
-            }
-            data.push(rec);
-        }
-        return data;
-    }
-
-    randomString(len, chars) {
-        var a = [];
-        for (var i = 0; i < len; i++) {
-            a.push(chars[Math.floor(Math.random() * chars.length)]);
-        }
-
-        return a.join('');
-    }
+		onRenderTabSet = (node, renderValues) => {
+			// console.log('onRenderTabSet:', { node, renderValues });
+			// renderValues.headerContent = "-- " + renderValues.headerContent + " --";
+			// renderValues.buttons.push(<img key={shortid.generate()} src="grey_ball.png" />);
+			renderValues.buttons.push(<i className="fa fa-fw fa-cog" key={shortid.generate()} />);
+		};
 
     render() {
         return (
@@ -223,37 +217,10 @@ class Main extends React.Component {
 							ref={(r) => this.layout = r}
 							model={this.state.model}
 							factory={this.factory.bind(this)}
+							onRenderTabSet={this.onRenderTabSet}
 						/>
         )
     }
 }
-
-class SimpleTable extends React.Component {
-    shouldComponentUpdate() {
-        return true;
-    }
-
-    render() {
-        var headercells = this.props.fields.map(function (field) {
-            return <th key={field}>{field}</th>;
-        });
-
-        var rows = [];
-        for (var i = 0; i < this.props.data.length; i++) {
-            var row = this.props.fields.map(field => <td key={field}>{this.props.data[i][field]}</td>);
-            rows.push(<tr key={i}>{row}</tr>);
-        }
-
-        return (
-          <table className='simple_table' onClick={this.props.onClick}>
-            <tbody>
-            <tr>{headercells}</tr>
-            {rows}
-            </tbody>
-          </table>
-        );
-    }
-}
-
 
 export default Main;

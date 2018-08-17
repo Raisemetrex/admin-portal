@@ -160,3 +160,17 @@
 .form-wide p:last-child {
   text-align: right;
 }
+
+.avatar {
+  display: inline-block;
+
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #FFFFFF;
+
+  margin: auto;
+}

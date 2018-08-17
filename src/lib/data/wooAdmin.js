@@ -1,71 +1,64 @@
 
 // import superAgent from 'superagent';
 
+import type from 'type-of';
+
+import humanReadable from '../utils/humanReadable';
+
 class WooAdmin {
 
   constructor() {
-    this.endpoint = `http://localhost:4000/api/v1`;
+    this.endpoint = {
+      local: `http://localhost:4000/api/v1`,
+      staging: 'https://api.reffind.xyz',
+      production: 'https://api.wooboard.com',
+    }
     this.account_id = localStorage.getItem('account_id');
     this.access_token = localStorage.getItem('access_token');
+    this.username = localStorage.getItem('username');
+    this.database = localStorage.getItem('database');
     this.access_json = null;
+  }
+
+  getEndpoint() {
+    console.assert(this.endpoint[this.database], 'Database endpoint is incorrect', this);
+    return this.endpoint[this.database];
   }
 
   isAuthenticated = () => {
     return this.access_token !== null;
   }
 
-  // getAccountID = (subdomain) => {
-  //   if(this.account_id !== null) {
-  //     // console.log('getAccountID: exists:', this.account_id);
-  //     return Promise.resolve(this.account_id);
-  //   } else {
-  //     const account = `${this.endpoint}/accounts?subdomain=${subdomain}`;
-  //     const options = {
-  //       //   method: 'GET',
-  //       //   // credentials: 'same-origin',
-  //       //   mode: 'cors',
-  //     };
-  //     // console.log('getAccountID: fetching:', account);
-  //
-  //     return fetch(account, options)
-  //       .then(result => {
-  //         if (result.status !== 200) {
-  //           throw {error: result.status, message: result.statusText};
-  //         }
-  //         // console.log('got a result:', result);
-  //         // const json = result.json();
-  //         return result.json();
-  //       }, err => console.log('fetch error:', err))
-  //       .then(json => {
-  //         // console.log('json:', json);
-  //         this.account_id = json.data.id;
-  //         return this.account_id;
-  //       })
-  //       // .catch(err => {
-  //       //   console.log('getAccountID: error:', err);
-  //       // })
-  //   }
-  // }
-
-  authenticate = (username, password) => {
-    const signon = `${this.endpoint}/token`;
+  authenticate = (username, password, database) => {
+    console.log('authentication:', { database });
+    const signon = `${this.endpoint[database || 'local']}/token`;
     const request = new FormData();
-    request.append('grant_type', 'password');
-    request.append('account_id', this.account_id);
+
+    request.append('grant_type', 'password-subdomain');
+    request.append('subdomain', 'reffind');
+    // request.append('subdomain', 'garycustom');
+
+    // request.append('grant_type', 'password');
+    // request.append('account_id', null);
+
     request.append('username', username);
     request.append('password', password);
 
-    console.log('Authenticating with WooBoard...', this.account_id);
+    // console.log('Authenticating with WooBoard...');
 
     return fetch(signon, {
       method: 'POST',
+      // mode: 'cors',
       body: request,
     })
     .then(result => {
-      // console.log('authentication: result:', result);
-      if (result.status !== 200) {
+      // console.log('WA.authentication: result:', result);
+      if (result.status !== 200) { // ??? why zero ? when no-cors
         throw {error: result.status, message: result.statusText};
       }
+
+      // console.log('body:', result.text());
+
       return result.json()
     })
     .then(json => {
@@ -73,7 +66,11 @@ class WooAdmin {
 
       if (json && json.access_token) {
         this.access_token = json.access_token;
+        this.username = username;
+        this.database = database || 'local';
         localStorage.setItem('access_token', this.access_token);
+        localStorage.setItem('username', username);
+        localStorage.setItem('database', this.database);
         this.access_json = this.parseJwt(this.access_token);
       } else {
         throw {error: 401, message: 'Unauthorized' };
@@ -81,39 +78,24 @@ class WooAdmin {
 
       return json;
     })
-    // .catch(err => {
-    //   console.log('authenticate: error:', err);
-    // })
   }
 
-  getPosts = () => {
-    const posts = `${this.endpoint}/posts?limit=10&start=0`;
-    return fetch(posts, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${this.access_token}`,
-        'Accept': 'application/json', // , application/vnd.api+json',
-      },
-      mode: 'cors',
-    })
-    .then(result => {
-      // console.log('getPosts: result:', result);
-      if (result.status !== 200) {
-        throw {error: result.status, message: result.statusText};
-      }
-      return result.json()
-    })
-    .then(json => {
-      // console.log('getPosts: json:', json);
-      return json;
-    })
-    // .catch(err => {
-    //   console.log('posts: error:', err);
-    // });
+  getUserName = () => {
+    return this.username;
+  }
+
+  reset = () => {
+    this.account_id = null;
+    this.access_token = null;
+    this.access_json = null;
+    this.username = null;
+    localStorage.removeItem('account_id');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('database');
   }
 
   query = (request) => {
-    const query = `${this.endpoint}/query`;
+    const query = `${this.getEndpoint()}/query`;
     // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
@@ -132,21 +114,18 @@ class WooAdmin {
       }
       return result.json();
     })
-    // .then(json => {
-    //   console.log('testQuery: json:', json);
-    //   return json;
-    // })
   }
 
   logout = () => {
     this.access_token = null;
     this.access_Json = null;
     localStorage.removeItem('access_token');
+    localStorage.removeItem('database');
     window.location.reload();
   }
 
   me = () => {
-    const q = `${this.endpoint}/me`;
+    const q = `${this.getEndpoint()}/me`;
     return this.fetch(q);
   }
 
@@ -200,6 +179,43 @@ class WooAdmin {
 
     console.log('WooBoard.getRecord: unsupported json-api:', jsonApi);
     throw "Invalid json-api or unsupported version"
+  }
+
+  createColumn(key, value) {
+    const column = {};
+
+    column.Header = humanReadable(key);
+    column.accessor = key;
+    column.id = key;
+
+    switch(type(value)) {
+      case 'date':
+        break;
+    }
+
+    return column;
+  }
+
+  getReactTableColumns(data, query) {
+    // console.log('getReactTableColumns:', { data, query });
+    const columns = [];
+    if (data && data.length) {
+      if (query && query.columnOrder) {
+        query.columnOrder.map(col => {
+          console.assert(data[0][col], `Column ${col} not found in data:`, data[0]);
+          const value = data[0][col];
+          columns.push(this.createColumn(col, value));
+        })
+      } else {
+        const keys = Object.keys(data[0]);
+        keys.forEach(key => {
+          const value = data[0][key];
+          columns.push(this.createColumn(key, value));
+        });
+      }
+    }
+
+    return columns;
   }
 
 }

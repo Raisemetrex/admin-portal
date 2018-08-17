@@ -7,15 +7,31 @@ import 'bootstrap/dist/css/bootstrap.css';
 const schema = {
   title: 'Admin Login',
   type: 'object',
-  required: ['email', 'password'],
+  required: ['database', 'email', 'password'],
   properties: {
+    database: {
+      type: "string",
+      title: "Database",
+      enum:[
+        'local',
+        'staging',
+        'production',
+      ],
+      enumNames: [
+        'Local',
+        'Staging',
+        'Production'
+      ],
+      default: 'local'
+    },
     email: {type: "string", title: "Email", default: '' },
     password: {type: "string", title: "Password", default: '' },
   }
 };
 
 const uiSchema = {
-  'ui:order': [ 'email', 'password' ],
+  'ui:order': [ 'database', 'email', 'password' ],
+  database: {},
   email: { 'ui:placeholder': 'Enter your email address' },
   password: { 'ui:widget': 'password', 'ui:placeholder': 'Enter your password' },
 }
@@ -28,7 +44,10 @@ class Authenticate extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      schema,
+      formData: {}
     }
+    this.state.schema.properties.email.default = props.username;
   }
 
   errors = (errors) => {
@@ -37,15 +56,19 @@ class Authenticate extends React.Component {
 
   changed = (changes) => {
     // console.log({ changes });
+    // const { formData } = changes;
+    // this.setState({ formData });
   }
 
   authenticate = (data) => {
-    console.log('submit: data:', data);
-    this.props.authenticate(data.formData.email, data.formData.password);
+    // console.log('submit: data:', data.formData);
+    const { formData } = data;
+    this.setState({ formData });
+    this.props.authenticate(formData.email, formData.password, formData.database);
   }
 
   render() {
-    const { showPassword } = this.state;
+    const { showPassword, formData } = this.state;
     const { message } = this.props;
     return (
       <div className="aligner" style={{height: '400px'}}>
@@ -58,6 +81,7 @@ class Authenticate extends React.Component {
             onChange={this.changed}
             onSubmit={this.authenticate}
             onError={this.errors}
+            formData={formData}
           />
 
         <div className="errors">{message || <span>&nbsp;</span>}</div>
@@ -76,27 +100,30 @@ class Authentication extends React.Component {
     this.state = {
       isAuthenticated: WooAdmin.isAuthenticated(),
       message: null,
+      username: WooAdmin.getUserName(),
     }
   }
 
-  authenticate = (username, password) => {
+  authenticate = (username, password, database) => {
     const { WooAdmin } = this.props;
-    // console.log('Authentication.authenticate:', { username, password });
-    WooAdmin.authenticate(username, password)
-      .then(result => {
-        // console.log('WooAdmin.authenticate:', result);
-        this.setState({ isAuthenticated: true });
-      })
-      .catch(err => {
-        // console.log('WooAdmin.authenticate: error:', err);
-        this.setState({ isAuthenticated: false, message: 'Your email or password is incorrect. Please try again.'})
-      })
+    this.setState({ message: null, isAuthenticated: false }, () => {
+      // console.log('Authentication.authenticate:', { username, password });
+      WooAdmin.authenticate(username, password, database)
+        .then(result => {
+          console.log('WooAdmin.authenticate: result:', result);
+          this.setState({ isAuthenticated: true });
+        })
+        .catch(err => {
+          console.log('WooAdmin.authenticate: error:', err);
+          this.setState({ isAuthenticated: false, message: 'Your email or password is incorrect. Please try again.'})
+        })
+    });
   }
 
   render() {
-    const { isAuthenticated, message } = this.state;
+    const { isAuthenticated, message, username } = this.state;
     if (!isAuthenticated) {
-      return <Authenticate authenticate={this.authenticate} message={message} />
+      return <Authenticate authenticate={this.authenticate} message={message} username={username} />
     }
 
     return this.props.children;
