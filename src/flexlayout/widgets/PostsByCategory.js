@@ -1,16 +1,16 @@
 
-
 import React from 'react';
-
-import QueryStore from '../../mobx/queryStore';
-
+import * as mobxReact from 'mobx-react';
 import PieChart from '../../lib/components/pieChart';
 
-const PostsByCategory = () => {
-  const query = QueryStore.find('charts.posts-pie-chart');
+const PostsByCategory = (props) => {
+  const postsByCategory = props.MenuStore.findByPath('charts.posts-pie-chart');
+  if (!postsByCategory) return null;
+  // console.log('postsByCategory:', postsByCategory)
+  const { query } = postsByCategory['data-action'];
   return (
     <PieChart query={query} showTitle="no"/>
   )
 }
 
-export default PostsByCategory;
+export default mobxReact.observer(PostsByCategory);

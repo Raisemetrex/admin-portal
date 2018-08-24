@@ -56,7 +56,7 @@ class Settings extends React.Component {
   }
 
   render() {
-    console.log('Settings.props:', this.props);
+    // console.log('Settings.props:', this.props);
     const { me } = this.state;
     return (
       <div style={{padding: '10px'}}>

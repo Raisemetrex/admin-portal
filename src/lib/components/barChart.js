@@ -39,7 +39,8 @@ class BarChart extends React.Component {
   }
 
   componentDidMount() {
-    const { sql, params } = this.props.query;
+    const { properties } = this.props.query;
+    const { sql, params } = properties;
     WooAdmin.query({sql, params})
       .then(result => {
         // console.log('BarChart: result:', result);
@@ -53,17 +54,22 @@ class BarChart extends React.Component {
       .catch(err => console.log('PieChart: didMount: error:', err));
   }
 
+  onElementsClick = (elems) => {
+    console.log('onElementsClick:', elems);
+  }
+
   render() {
     let options = {...this.state.options};
     if (this.props.showTitle === 'no') {
       options.title.display = false;
     }
     return (
-      <div style={{width: '800px', height: '800px', padding: '10px'}}>
+      <div style={{width: '800px', height: '450px', padding: '10px'}}>
       <h6>Bar Chart</h6>
         <Bar
           data={this.state.data}
           options={options}
+          onElementsClick={this.onElementsClick}
         />
       </div>
     );

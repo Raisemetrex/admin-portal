@@ -4,6 +4,8 @@ import React from 'react';
 import Form from "react-jsonschema-form";
 import 'bootstrap/dist/css/bootstrap.css';
 
+import MenuStore from '../../mobx/menuStore';
+
 const schema = {
   title: 'New Query',
   type: 'object',
@@ -43,7 +45,26 @@ class NewQuery extends React.Component {
   }
 
   update = (form) => {
-    console.log('NewQuery: update:', form);
+    const { formData } = form;
+    const { menuPath, sql, params, component } = formData;
+    const item = {
+      menuPath,
+      menuOrder: 0,
+      permissions: '*',
+      properties: {
+        sql,
+        params: [],
+        formSchema: null,
+        component,
+        componentOptions: {
+          // key: 'id',
+          // columnOrder: ['first_name', 'last_name', 'email_address', 'inserted_at'],
+        },
+      },
+    };
+
+    console.log('NewQuery: item:', item);
+    MenuStore.append(item);
   }
 
   render() {

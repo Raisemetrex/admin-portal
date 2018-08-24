@@ -1,15 +1,16 @@
 
 import React from 'react';
-
-import QueryStore from '../../mobx/queryStore';
-
+import * as mobxReact from 'mobx-react';
 import BarChart from '../../lib/components/barChart';
 
-const PostsByMonth = () => {
-  const postsByMonth = QueryStore.find('charts.posts-by-month');
+const PostsByMonth = (props) => {
+  const postsByMonth = props.MenuStore.findByPath('charts.posts-by-month');
+  if (!postsByMonth) return null;
+  // console.log('postsByMonth:', postsByMonth);
+  const { query } = postsByMonth['data-action'];
   return (
-    <BarChart query={postsByMonth} showTitle="no" />
+    <BarChart query={query} showTitle="no" />
   )
 }
 
-export default PostsByMonth;
+export default mobxReact.observer(PostsByMonth);

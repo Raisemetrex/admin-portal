@@ -1,21 +1,26 @@
 
 import React from 'react';
-// import shortid from 'shortid';
 
-// import DataGenerator from '../lib/dataGenerator';
-// import JSONData from '../lib/JSONData';
+import { extender } from '../mobx/menuStore';
+import WooAdmin from '../lib/data/wooAdmin';
 
 class Tools extends React.Component {
-  // generateUserData = () => {
-  //   DataGenerator.generateData('user').then(data => {
-  //     JSONData.insert('users', data);
-  //   });
-  // }
+  extendMenu = () => {
+    extender();
+  }
+  consoleJwt = () => {
+    console.log('JWT:',WooAdmin.getJwt());
+  }
   render() {
+    const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
+    const buttonStyle = {width: '100%'};
     return (
       <div style={{padding: '10px'}}>
-        <div style={{textAlign: 'center'}}>
-          {/*<button onClick={this.generateUserData}>Generate User Data</button>*/}
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.extendMenu}>Extend Menu</button>
+        </div>
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.consoleJwt}>Show JWT</button>
         </div>
       </div>
     )

@@ -19,6 +19,8 @@ import PieChart from '../lib/components/pieChart';
 import BarChart from '../lib/components/barChart';
 import NewQuery from '../lib/components/newQuery';
 
+import MenuStore from '../mobx/menuStore';
+
 const mainLayout = {
 	global: {},
 	layout: {
@@ -50,7 +52,31 @@ const mainLayout = {
 			type: 'border',
 			location: 'left',
 			selected: 0,
-			enableDrop: false,
+			// enableDrop: true,
+			// children: [
+			// 	{ type: 'row', id: 'LeftBorderTop', children: [
+			// 		{ type: 'tabset', id: 'bts', children: [
+			// 			{
+			// 				type: 'tab',
+			// 				enableClose: false,
+			// 				enableDrag: false,
+			// 				enableRename: false,
+			// 				name: 'Menu',
+			// 				component: 'sidemenu',
+			// 				id: '#menu',
+			// 			},
+			// 			{
+			// 				type: 'tab',
+			// 				enableClose: false,
+			// 				enableDrag: false,
+			// 				enableRename: false,
+			// 				name: '\u2699',
+			// 				component: 'settings',
+			// 				id: '#settings',
+			// 			},
+			// 		]},
+			// 	]}
+			// ],
 			children: [
 				{
 					type: 'tab',
@@ -61,15 +87,6 @@ const mainLayout = {
 					component: 'sidemenu',
 					id: '#menu',
 				},
-				// {
-				// 	type: 'tab',
-				// 	name: 'Tools',
-				// 	component: 'tools',
-				// 	id: '#tools',
-				// 	enableClose: false,
-				// 	enableDrag: false,
-				// 	enableRename: false,
-				// },
 				{
 					type: 'tab',
 					enableClose: false,
@@ -81,18 +98,26 @@ const mainLayout = {
 				},
 			]
 	 },
-	 // {
-		//  type: 'border',
-		//  location: 'right',
-		//  children: [
-	 //
-		//  ],
-	 // },
+	 {
+		 type: 'border',
+		 location: 'right',
+		 selected: 0,
+		 children: [
+			 {
+				 type: 'tab',
+				 name: 'Tools',
+				 component: 'tools',
+				 id: '#tools',
+				 enableClose: false,
+				 enableDrag: true,
+				 enableRename: false,
+			 },
+		 ],
+	 },
 	 {
 		 type: 'border',
 		 location: 'bottom',
 		 children: [
-
 		 ],
 	 },
 	]
@@ -162,11 +187,15 @@ class Main extends React.Component {
 						}
 						result = <JsonProps {...jsonProps} />;
 						break;
-					// case 'tools':
-					// 	result = <Tools {...props} />;
-					// 	break;
+					case 'tools':
+						result = <Tools {...props} />;
+						break;
 					case 'sidemenu':
-						result = <SideMenu  {...props} />;
+						const sidemenuProps = {
+							...props,
+							menu: MenuStore,
+						}
+						result = <SideMenu  {...sidemenuProps} />;
 						break;
 					case 'Reports':
 						result = <Reports {...props} />;

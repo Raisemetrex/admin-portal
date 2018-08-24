@@ -150,6 +150,10 @@ class WooAdmin {
     })
   }
 
+  getJwt() {
+    return this.parseJwt(this.access_token);
+  }
+
   parseJwt(token) {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace('-', '+').replace('_', '/');
@@ -200,8 +204,8 @@ class WooAdmin {
     // console.log('getReactTableColumns:', { data, query });
     const columns = [];
     if (data && data.length) {
-      if (query && query.columnOrder) {
-        query.columnOrder.map(col => {
+      if (query && query.componentOptions && query.componentOptions.columnOrder) {
+        query.componentOptions.columnOrder.map(col => {
           console.assert(data[0][col], `Column ${col} not found in data:`, data[0]);
           const value = data[0][col];
           columns.push(this.createColumn(col, value));

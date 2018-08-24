@@ -1,35 +1,14 @@
 
 import React from 'react';
+
 import Dazzle from 'react-dazzle';
-// import LineChart from './widgets/LineChart';
-// import DoughnutChart from './widgets/DoughnutChart';
+import { DashboardWithoutDndContext } from 'react-dazzle';
+import 'react-dazzle/lib/style/style.css';
 
 import PostsByMonth from './widgets/PostsByMonth';
 import PostsByCategory from './widgets/PostsByCategory';
 
-import 'react-dazzle/lib/style/style.css';
-
-// const piedata = [
-// 	{
-// 		value: 300,
-// 		color:"#F7464A",
-// 		highlight: "#FF5A5E",
-// 		label: "Red"
-// 	},
-// 	{
-// 		value: 50,
-// 		color: "#46BFBD",
-// 		highlight: "#5AD3D1",
-// 		label: "Green"
-// 	},
-// 	{
-// 		value: 100,
-// 		color: "#FDB45C",
-// 		highlight: "#FFC870",
-// 		label: "Yellow"
-// 	}
-// ];
-
+import MenuStore from '../mobx/menuStore';
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -40,10 +19,16 @@ class Dashboard extends React.Component {
         PieChart: {
           type: PostsByCategory,
           title: 'Posts By Category - All Time',
+          props: {
+            MenuStore,
+          }
         },
         BarChart: {
           type: PostsByMonth,
-          title: 'Posts By Month - All Time'
+          title: 'Posts By Month - All Time',
+          props: {
+            MenuStore,
+          }
         }
       },
       layout: {
@@ -62,19 +47,11 @@ class Dashboard extends React.Component {
       }
     }
   }
+
   render() {
-
     return (
-      <Dazzle widgets={this.state.widgets} layout={this.state.layout} />
+      <Dazzle widgets={this.state.widgets} layout={this.state.layout} editable={false} />
     )
-
-    // return (
-    //   <div style={{padding: '10px'}}>
-    //     <h4>Dashboard</h4>
-    //     <LineChart />
-    //     <DoughnutChart />
-    //   </div>
-    // )
   }
 }
 
