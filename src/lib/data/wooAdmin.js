@@ -12,12 +12,14 @@ class WooAdmin {
       local: `http://localhost:4000/api/v1`,
       staging: 'https://api.reffind.xyz',
       production: 'https://api.wooboard.com',
+      test: `http://localhost:5000/api/v1`,
     }
     this.account_id = localStorage.getItem('account_id');
     this.access_token = localStorage.getItem('access_token');
     this.username = localStorage.getItem('username');
     this.database = localStorage.getItem('database');
     this.access_json = null;
+    this.test_token = localStorage.getItem('test_token');
   }
 
   getEndpoint() {
@@ -25,8 +27,17 @@ class WooAdmin {
     return this.endpoint[this.database];
   }
 
+  getTestEndpoint() {
+    return this.endpoint['test'];
+  }
+
   isAuthenticated = () => {
     return this.access_token !== null;
+  }
+
+  setTestToken = (token) => {
+    this.test_token = token;
+    localStorage.setItem('test_token', this.test_token);
   }
 
   authenticate = (username, password, database) => {
@@ -110,10 +121,37 @@ class WooAdmin {
     .then(result => {
       // console.log('testQuery: result:', result);
       if (result.status !== 200) {
-        throw {error: result.status, message: result.statusText};
+        throw {error: result.status, message: `WooAdmin.query: ${result.statusText}`};
       }
       return result.json();
     })
+  }
+
+  rest = (path, method = 'GET') => {
+    console.assert(this.test_token);
+    const query = `${this.getTestEndpoint()}${path}`;
+    // console.log('running query:', request);
+    return fetch(query, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${this.test_token}`,
+        'Accept': 'application/json, application/vnd.api+json',
+        'Content-Type': 'application/json',
+      },
+      // body: JSON.stringify(request),
+    })
+    .then(result => {
+      return result.json();
+    })
+    .then(jsonApi => {
+      return this.getDataFromJsonAPI(jsonApi);
+    })
+    // .then(result => {
+    //   if (result.status !== 200) {
+    //     throw {error: result.status, message: `WooAdmin.rest: ${result.statusText}`};
+    //   }
+    //   return result.json();
+    // })
   }
 
   logout = () => {
@@ -131,7 +169,12 @@ class WooAdmin {
 
   fetch = (url, data, method = 'GET') => {
     let extra = {};
-    if (data) { body: JSON.stringify(data) };
+    if (data) {
+      extra = {
+        ...extra,
+        body: JSON.stringify(data)
+      };
+    }
     return fetch(url, {
       method,
       headers: {
@@ -141,13 +184,13 @@ class WooAdmin {
       },
       ...extra,
     })
-    .then(result => {
-      // console.log('testQuery: result:', result);
-      if (result.status !== 200) {
-        throw {error: result.status, message: result.statusText};
-      }
-      return result.json();
-    })
+    // .then(result => {
+    //   // console.log('testQuery: result:', result);
+    //   if (result.status !== 200) {
+    //     throw {error: result.status, message: result.statusText};
+    //   }
+    //   return result.json();
+    // })
   }
 
   getJwt() {
@@ -160,8 +203,53 @@ class WooAdmin {
     return JSON.parse(window.atob(base64));
   }
 
+  getDataFromJsonAPI(jsonApi) {
+    const data = this.getDataset(jsonApi);
+    const result = data.map(item => {
+      return this.getDataFromJsonRecord(item);
+    });
+    return result;
+  }
+
+  getDataFromJsonRecord(item) {
+    const record = {
+      ...item.attributes,
+      id: item.id,
+      _type: item.type,
+    }
+    return record;
+  }
+
+  getDataset(jsonApi) {
+    if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
+      const { data } = jsonApi;
+      return data;
+    }
+
+    console.log('WooBoard.getDataset: unsupported json-api:', jsonApi);
+    throw "Invalid json-api or unsupported version"
+  }
+
+  getDatasetLength(jsonApi) {
+
+    if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
+      const { data } = jsonApi;
+      // console.log('getRecord: jsonApi.data:', { data, index });
+
+      let length = 1;
+      if (Array.isArray(data)) {
+        // console.log('data isArray');
+        length = data.length;
+      }
+      return length;
+    }
+
+    console.log('WooBoard.getDatasetLength: unsupported json-api:', jsonApi);
+    throw "Invalid json-api or unsupported version"
+  }
+
   getRecord(jsonApi, index = 0) {
-    console.log('WooBoard.getRecord jsonApi:', jsonApi);
+    // console.log('WooBoard.getRecord jsonApi:', jsonApi);
     if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
       const { data } = jsonApi;
       // console.log('getRecord: jsonApi.data:', { data, index });
@@ -173,11 +261,7 @@ class WooAdmin {
       } else {
         record = data;
       }
-      record = {
-        ...record.attributes,
-        id: record.id,
-        _type: record.type,
-      }
+      record = this.getDataFromJsonRecord(record);
       return record;
     }
 

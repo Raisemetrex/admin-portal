@@ -15,6 +15,7 @@ import Tools from './tools';
 import Settings from './settings';
 import JsonProps from './jsonProps';
 import DataTable from '../lib/components/dataTable';
+import RestTable from '../lib/components/restTable';
 import PieChart from '../lib/components/pieChart';
 import BarChart from '../lib/components/barChart';
 import NewQuery from '../lib/components/newQuery';
@@ -144,8 +145,6 @@ class Main extends React.Component {
 		}
 
     factory(node) {
-			// console.log('node:', node);
-
         const component = node.getComponent();
 				const extraData = node.getExtraData().data;
 				const config = node.getConfig();
@@ -157,18 +156,29 @@ class Main extends React.Component {
 					addNode,
 				};
 
+				// console.log('factory:', { component, extraData, config, props });
+
 				switch(component) {
 					case 'dashboard':
 						result = <Dashboard {...props} />
 						break;
-					case 'DataTable':
+					case 'RestTable':
 						const rtProps = {
 							...config,
 							...props,
 							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase()),
 							...extraData,
 						}
-						result = <div style={{padding: '10px'}}><DataTable { ...rtProps } /></div>;
+						result = <div style={{padding: '10px'}}><RestTable { ...rtProps } /></div>;
+						break;
+					case 'DataTable':
+						const dtProps = {
+							...config,
+							...props,
+							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase()),
+							...extraData,
+						}
+						result = <div style={{padding: '10px'}}><DataTable { ...dtProps } /></div>;
 						break;
 					case 'Charts':
 						result = <Charts { ...props } />;
