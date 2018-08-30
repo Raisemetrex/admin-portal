@@ -26,9 +26,10 @@ class DataTable extends React.Component {
     //   params: ['2018-01-22','2018-01-23T23:59:59Z','8BF248F5-AFAF-49F3-86D0-3E886C375ED1'],
     //   sql: 'SELECT * FROM users WHERE inserted_at BETWEEN $1 and $2 AND current_account_id = $3',
     // };
-    const { properties } = this.props.query;
+    const { properties, componentOptions } = this.props.query;
+    const { use_test_token } = componentOptions ? componentOptions : { use_test_token: false };
     const { sql, params } = properties;
-    WooAdmin.query({sql, params})
+    WooAdmin.query({sql, params}, use_test_token)
       .then(data => {
         // console.log('didMount: result:', data);
         const columns = WooAdmin.getReactTableColumns(data, this.props.query);
@@ -37,8 +38,9 @@ class DataTable extends React.Component {
       .catch(err => console.log('QuickTest: didMount: error:', err));
   }
   render() {
-    // console.log('DataTable.props:', this.props);
+    console.log('DataTable.props:', this.props);
     const { columns, data } = this.state;
+    console.log('DataTable:', { columns, data });
     return (
       <ReactTable
           className="-striped -highlight"

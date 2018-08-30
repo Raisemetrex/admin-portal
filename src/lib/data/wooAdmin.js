@@ -1,6 +1,8 @@
 
 // import superAgent from 'superagent';
 
+import React from 'react';
+
 import type from 'type-of';
 
 import humanReadable from '../utils/humanReadable';
@@ -106,13 +108,14 @@ class WooAdmin {
     localStorage.removeItem('database');
   }
 
-  query = (request) => {
-    const query = `${this.getEndpoint()}/query`;
+  query = (request, use_test_token = false) => {
+    if (use_test_token) console.assert(this.test_token, 'test_token is null!');
+    const query = use_test_token ? `${this.getTestEndpoint()}/query` : `${this.getEndpoint()}/query`;
     // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.access_token}`,
+        'Authorization': `Bearer ${use_test_token ? this.test_token : this.access_token}`,
         'Accept': 'application/json, application/vnd.api+json',
         'Content-Type': 'application/json',
       },
@@ -125,6 +128,10 @@ class WooAdmin {
         throw {error: result.status, message: `WooAdmin.query: ${result.statusText}`};
       }
       return result.json();
+    })
+    .catch(err => {
+      console.error(`WooAdmin: query: error:`, err);
+      throw new Error(err.message);
     })
   }
 
@@ -282,6 +289,9 @@ class WooAdmin {
     column.id = key;
 
     switch(type(value)) {
+      case 'object':
+        column.Cell = displayJSON;
+        break;
       case 'date':
         break;
     }
@@ -314,6 +324,10 @@ class WooAdmin {
     return columns;
   }
 
+}
+
+function displayJSON(props) {
+  return <div>{JSON.stringify(props.value)}</div>;
 }
 
 const wooAdmin = new WooAdmin();

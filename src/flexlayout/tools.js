@@ -136,6 +136,78 @@ class Tools extends React.Component {
     }
     this.props.addNode(newTab);
   }
+  showUsersQuery = () => {
+    // console.log('showUsers props:', this.props);
+
+    const newId = shortid.generate();
+    const newTab = {
+      component: 'DataTable',
+      query: {
+        properties: {
+          sql: `
+          SELECT
+            *
+          FROM
+            users
+          `,
+          params: [],
+          formSchema: null,
+        },
+        componentOptions: {
+          columnOrder: ['id', 'first_name', 'last_name', 'email', 'avatar', 'auth_provider', 'pigs'],
+          use_test_token: true,
+        },
+      },
+      // componentOptions: {
+      //   // url: '/users',
+      //   columnOrder: ['id', 'first-name', 'last-name', 'email', 'avatar', 'auth-provider', 'pigs'],
+      //   use_test_token: true,
+      // },
+      name: `SSO Query Results (${newId})`,
+      id: `SSOQueryResults-${shortid.generate()}`,
+    }
+    this.props.addNode(newTab);
+  }
+  showAdminSQL = () => {
+    // console.log('showUsers props:', this.props);
+
+    const newId = shortid.generate();
+    const newTab = {
+      component: 'DataTable',
+      query: {
+        properties: {
+          sql: `
+          SELECT
+            *
+          FROM
+            admin_sql
+          `,
+          params: [],
+          formSchema: null,
+        },
+        componentOptions: {
+          columnOrder: [
+            'id',
+            'menu-path',
+            'properties',
+            'menu-order',
+            'permissions',
+            'inserted_at',
+            'updated_at',
+          ],
+          use_test_token: true,
+        },
+      },
+      // componentOptions: {
+      //   // url: '/users',
+      //   columnOrder: ['id', 'first-name', 'last-name', 'email', 'avatar', 'auth-provider', 'pigs'],
+      //   use_test_token: true,
+      // },
+      name: `Admin SQL Results (${newId})`,
+      id: `AdminSQLResults-${shortid.generate()}`,
+    }
+    this.props.addNode(newTab);
+  }
   render() {
     const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
     const buttonStyle = {width: '100%'};
@@ -162,7 +234,13 @@ class Tools extends React.Component {
         </div>
         <hr/>
         <div style={buttonRowStyle}>
-          <button style={buttonStyle} onClick={this.showUsers}>Quick Test - SSO Users</button>
+          <button style={buttonStyle} onClick={this.showUsers}>SSO Users</button>
+        </div>
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.showUsersQuery}>SSO Query Users</button>
+        </div>
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.showAdminSQL}>Admin SQL</button>
         </div>
       </div>
     )
