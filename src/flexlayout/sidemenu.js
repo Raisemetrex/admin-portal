@@ -1,67 +1,56 @@
 
 import React from 'react';
+import * as mobxReact from 'mobx-react';
 import Tree, { TreeNode } from 'rc-tree';
-
 import 'rc-tree/assets/index.css';
 
-const menu = [
-  {
-    title: 'Dashboard',
-    key: 'dashboard',
-    'data-action': {
-      id: 'DashboardTab'
-    }
-  },
-  {
-    title: 'Accounts',
-    key: 'accounts',
-    'data-action': {
-      enableRename: false,
-      component: 'AccountSearch',
-      id: 'account-search',
-      name: 'Account Search',
-    }
-  },
-  {
-    title: 'Reports',
-    key: 'reports',
-    'data-action': {
-      enableRename: false,
-      id: 'reports',
-      name: 'Reports',
-    }
-  }
-]
+// import MenuStore from '../mobx/menuStore';
+
+// console.log({ mobxReact });
 
 class SideMenu extends React.Component {
-  
+
   onSelect = (item, info) => {
     const action = info.node.props['data-action'];
-    console.log('selected:', { item, info, action });
-    
+    // console.log('selected:', { item, info, action });
+
     let node = { component: 'dummy', id: 'dummy-component' };
     if (action) {
       node = {...action};
     }
-    
+
     this.props.addNode(node);
-    
+
   }
-  
-  
+
+  loop = data => {
+    return data.map((item) => {
+      const { children, ...rest} = item;
+      if (children) {
+        return (
+          <TreeNode
+            {...rest}
+          >
+            {this.loop(item.children)}
+          </TreeNode>
+        );
+      }
+      return <TreeNode {...rest} />;
+    });
+  };
+
   render() {
-    const items = menu.map(item => {
-      const props = {...item};
-      return (
-        <TreeNode {...props} />
-      )
-    })
+    const { data } = this.props.menu;
+
     return (
-      <Tree onSelect={this.onSelect}>
-        {items}
+      <Tree
+        onSelect={this.onSelect}
+        defaultExpandAll={true}
+      >
+        {this.loop(data)}
       </Tree>
     )
   }
 }
 
-export default SideMenu;
+export default mobxReact.observer(SideMenu);

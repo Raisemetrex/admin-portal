@@ -1,12 +1,56 @@
 
 import React from 'react';
 
+import Dazzle from 'react-dazzle';
+import { DashboardWithoutDndContext } from 'react-dazzle';
+import 'react-dazzle/lib/style/style.css';
+
+import PostsByMonth from './widgets/PostsByMonth';
+import PostsByCategory from './widgets/PostsByCategory';
+
+import MenuStore from '../mobx/menuStore';
+
 class Dashboard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      // data: linedata,
+      widgets: {
+        PieChart: {
+          type: PostsByCategory,
+          title: 'Posts By Category - All Time',
+          props: {
+            MenuStore,
+          }
+        },
+        BarChart: {
+          type: PostsByMonth,
+          title: 'Posts By Month - All Time',
+          props: {
+            MenuStore,
+          }
+        }
+      },
+      layout: {
+        rows: [{
+          columns: [
+            {
+              className: 'col-md-6 col-sm-6 col-xs-12',
+              widgets: [{key: 'PieChart'}],
+            },
+            {
+              className: 'col-md-6 col-sm-6 col-xs-12',
+              widgets: [{key: 'BarChart'}],
+            },
+          ],
+        }],
+      }
+    }
+  }
+
   render() {
     return (
-      <div style={{padding: '10px'}}>
-        <h4>Dashboard</h4>
-      </div>
+      <Dazzle widgets={this.state.widgets} layout={this.state.layout} editable={false} />
     )
   }
 }
