@@ -30,7 +30,7 @@ class RestTable extends React.Component {
     WooAdmin.rest(componentOptions.url)
       .then(data => {
         // console.log('didMount: result:', data);
-        const columns = WooAdmin.getReactTableColumns(data, this.props.query);
+        const columns = WooAdmin.getReactTableColumns(data, {componentOptions});
         this.setState({ data, columns });
       })
       .catch(err => console.log('RestTable: didMount: error:', err));

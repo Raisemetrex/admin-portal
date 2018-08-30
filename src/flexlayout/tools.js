@@ -82,6 +82,9 @@ class Tools extends React.Component {
   consoleJwt = () => {
     console.log('JWT:',WooAdmin.getJwt());
   }
+  consoleTestJwt = () => {
+    console.log('Test JWT:',WooAdmin.getTestJwt());
+  }
   authProvider = (provider) => {
 
     const url = `http://localhost:5000/api/v1/auth/${provider}`;
@@ -124,7 +127,10 @@ class Tools extends React.Component {
     const newId = shortid.generate();
     const newTab = {
       component: 'RestTable',
-      componentOptions: { url: '/users' },
+      componentOptions: {
+        url: '/users',
+        columnOrder: ['id', 'first-name', 'last-name', 'email', 'avatar', 'auth-provider', 'pigs'],
+      },
       name: `SSO Results (${newId})`,
       id: `SSOResults-${shortid.generate()}`,
     }
@@ -140,6 +146,9 @@ class Tools extends React.Component {
         </div>
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.consoleJwt}>Show JWT</button>
+        </div>
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.consoleTestJwt}>Show Test JWT</button>
         </div>
         <hr/>
         <div style={buttonRowStyle}>

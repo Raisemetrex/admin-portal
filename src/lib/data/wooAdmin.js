@@ -36,6 +36,7 @@ class WooAdmin {
   }
 
   setTestToken = (token) => {
+    console.log('old token:')
     this.test_token = token;
     localStorage.setItem('test_token', this.test_token);
   }
@@ -197,6 +198,10 @@ class WooAdmin {
     return this.parseJwt(this.access_token);
   }
 
+  getTestJwt() {
+    return this.parseJwt(this.test_token);
+  }
+
   parseJwt(token) {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace('-', '+').replace('_', '/');
@@ -290,9 +295,12 @@ class WooAdmin {
     if (data && data.length) {
       if (query && query.componentOptions && query.componentOptions.columnOrder) {
         query.componentOptions.columnOrder.map(col => {
-          console.assert(data[0][col], `Column ${col} not found in data:`, data[0]);
-          const value = data[0][col];
-          columns.push(this.createColumn(col, value));
+          if (data[0][col]) {
+            const value = data[0][col];
+            columns.push(this.createColumn(col, value));
+          } else {
+            console.assert(data[0][col], `Column ${col} not found in data:`, data[0]);
+          }
         })
       } else {
         const keys = Object.keys(data[0]);
