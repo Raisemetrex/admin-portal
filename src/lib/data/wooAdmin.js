@@ -38,9 +38,13 @@ class WooAdmin {
   }
 
   setTestToken = (token) => {
-    console.log('old token:')
-    this.test_token = token;
-    localStorage.setItem('test_token', this.test_token);
+    console.log('old token', localStorage.getItem('access_token'));
+    console.log('new token:', token);
+    // console.log('old token:', localStorage.getItem('test_token'));
+    // this.test_token = token;
+    // localStorage.setItem('test_token', token);
+    this.access_token = token;
+    localStorage.setItem('access_token', token);
   }
 
   authenticate = (username, password, database) => {

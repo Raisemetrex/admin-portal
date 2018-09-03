@@ -67,25 +67,30 @@ class Authenticate extends React.Component {
     this.props.authenticate(formData.email, formData.password, formData.database);
   }
 
+  signInWithGoogle = () => {
+    console.log('signInWithGoogle:');
+    const url = 'http://localhost:4000/api/v1/auth/google';
+    window.location.href = url;
+    // fetch(url)
+    //   .then(result => {
+    //     console.log('result:', result);
+    //   })
+  }
+
   render() {
     const { showPassword, formData } = this.state;
     const { message } = this.props;
     return (
-      <div className="aligner" style={{height: '400px'}}>
-        <div className="aligner-item round-border">
-
-          <Form
-            className="form form-wide"
-            schema={schema}
-            uiSchema={uiSchema}
-            onChange={this.changed}
-            onSubmit={this.authenticate}
-            onError={this.errors}
-            formData={formData}
-          />
-
-        <div className="errors">{message || <span>&nbsp;</span>}</div>
-
+      <div className="aligner" style={{height: '200px'}}>
+        <div className="aligner-item round-border" style={{width: '400px', textAlign: 'center'}}>
+            <h3>WooBoard Admin Login</h3>
+            <br/>
+            <div id="gSignInWrapper">
+              <div id="customBtn" className="customGPlusSignIn" onClick={this.signInWithGoogle}>
+                <span className="icon" />
+                <span className="buttonText">Sign In With Google</span>
+              </div>
+            </div>
         </div>
       </div>
     )
