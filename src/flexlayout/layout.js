@@ -22,6 +22,8 @@ import NewQuery from '../lib/components/newQuery';
 
 import MenuStore from '../mobx/menuStore';
 
+import WooAdmin from '../lib/data/wooAdmin';
+
 const mainLayout = {
 	global: {},
 	layout: {
@@ -102,17 +104,17 @@ const mainLayout = {
 	 {
 		 type: 'border',
 		 location: 'right',
-		 selected: 0,
+		 // selected: 0,
 		 children: [
-			 {
-				 type: 'tab',
-				 name: 'Tools',
-				 component: 'tools',
-				 id: '#tools',
-				 enableClose: false,
-				 enableDrag: true,
-				 enableRename: false,
-			 },
+			 // {
+				//  type: 'tab',
+				//  name: 'Tools',
+				//  component: 'tools',
+				//  id: '#tools',
+				//  enableClose: false,
+				//  enableDrag: true,
+				//  enableRename: false,
+			 // },
 		 ],
 	 },
 	 {
@@ -124,12 +126,29 @@ const mainLayout = {
 	]
 };
 
+const toolsPanel = {
+	type: 'tab',
+	name: 'Tools',
+	component: 'tools',
+	id: '#tools',
+	enableClose: false,
+	enableDrag: true,
+	enableRename: false,
+}
+
 class Main extends React.Component {
 
     constructor(props) {
         super(props);
 				this.state = {model: FlexLayout.Model.fromJson(mainLayout)};
     }
+
+		componentDidMount() {
+			if (['gary@reffind.com'].includes(WooAdmin.username)) {
+				this.layout.addTabToTabSet('border_right',toolsPanel);
+				// this.layout.doAction(FlexLayout.Actions.selectTab(toolsPanel.id));
+			}
+		}
 
 		addNode = (node) => {
 			// console.log('Layout.addNode node:', node);
@@ -166,7 +185,6 @@ class Main extends React.Component {
 						const rtProps = {
 							...config,
 							...props,
-							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase()),
 							...extraData,
 						}
 						result = <div style={{padding: '10px'}}><RestTable { ...rtProps } /></div>;
@@ -175,7 +193,6 @@ class Main extends React.Component {
 						const dtProps = {
 							...config,
 							...props,
-							defaultFilterMethod: (filter, row) => String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase()),
 							...extraData,
 						}
 						result = <div style={{padding: '10px'}}><DataTable { ...dtProps } /></div>;

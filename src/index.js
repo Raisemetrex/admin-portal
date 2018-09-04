@@ -11,7 +11,7 @@ const access_token = url.searchParams.get('access_token');
 
 if (access_token) {
   // console.log('access_token:', access_token);
-  WooAdmin.setTestToken(access_token);
+  WooAdmin.setAccessToken(access_token);
   window.location.href = `${url.origin}/#`;
 }
 

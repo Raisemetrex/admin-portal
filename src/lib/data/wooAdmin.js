@@ -5,6 +5,8 @@ import React from 'react';
 
 import type from 'type-of';
 
+import Numeral from 'numeral';
+
 import humanReadable from '../utils/humanReadable';
 
 class WooAdmin {
@@ -19,9 +21,14 @@ class WooAdmin {
     this.account_id = localStorage.getItem('account_id');
     this.access_token = localStorage.getItem('access_token');
     this.username = localStorage.getItem('username');
-    this.database = localStorage.getItem('database');
+    this.database = localStorage.getItem('database') || 'local';
     this.access_json = null;
-    this.test_token = localStorage.getItem('test_token');
+    // this.test_token = localStorage.getItem('test_token');
+  }
+
+  setAccessToken(token) {
+    this.access_token = token;
+    localStorage.setItem('access_token', token);
   }
 
   getEndpoint() {
@@ -37,15 +44,15 @@ class WooAdmin {
     return this.access_token !== null;
   }
 
-  setTestToken = (token) => {
-    console.log('old token', localStorage.getItem('access_token'));
-    console.log('new token:', token);
-    // console.log('old token:', localStorage.getItem('test_token'));
-    // this.test_token = token;
-    // localStorage.setItem('test_token', token);
-    this.access_token = token;
-    localStorage.setItem('access_token', token);
-  }
+  // setTestToken = (token) => {
+  //   console.log('old token', localStorage.getItem('access_token'));
+  //   console.log('new token:', token);
+  //   // console.log('old token:', localStorage.getItem('test_token'));
+  //   // this.test_token = token;
+  //   // localStorage.setItem('test_token', token);
+  //   this.access_token = token;
+  //   localStorage.setItem('access_token', token);
+  // }
 
   authenticate = (username, password, database) => {
     console.log('authentication:', { database });
@@ -112,14 +119,13 @@ class WooAdmin {
     localStorage.removeItem('database');
   }
 
-  query = (request, use_test_token = false) => {
-    if (use_test_token) console.assert(this.test_token, 'test_token is null!');
-    const query = use_test_token ? `${this.getTestEndpoint()}/query` : `${this.getEndpoint()}/query`;
+  query = (request) => {
+    const query = `${this.getEndpoint()}/query`;
     // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${use_test_token ? this.test_token : this.access_token}`,
+        'Authorization': `Bearer ${this.access_token}`,
         'Accept': 'application/json, application/vnd.api+json',
         'Content-Type': 'application/json',
       },
@@ -139,24 +145,56 @@ class WooAdmin {
     })
   }
 
-  rest = (path, method = 'GET') => {
-    console.assert(this.test_token);
-    const query = `${this.getTestEndpoint()}${path}`;
+  queryById = (request) => {
+    const query = `${this.getEndpoint()}/query_by_id`;
     // console.log('running query:', request);
+    return fetch(query, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.access_token}`,
+        'Accept': 'application/json, application/vnd.api+json',
+        'Content-Type': 'application/json',
+      },
+      // mode: 'cors',
+      body: JSON.stringify(request),
+    })
+    .then(result => {
+      // console.log('queryById: result:', result);
+      if (result.status !== 200) {
+        throw {error: result.status, message: `WooAdmin.query: ${result.statusText}`};
+      }
+      return result.json();
+    })
+    .catch(err => {
+      console.error(`WooAdmin: queryById: error:`, err);
+      throw new Error(err.message);
+    })
+  }
+
+  rest = (path, method = 'GET') => {
+    const query = `${this.getEndpoint()}${path}`;
     return fetch(query, {
       method,
       headers: {
-        'Authorization': `Bearer ${this.test_token}`,
-        'Accept': 'application/json, application/vnd.api+json',
+        'Authorization': `Bearer ${this.access_token}`,
+        'Accept': 'application/json, application/vnd.api+, text/html, text/plain',
         'Content-Type': 'application/json',
       },
       // body: JSON.stringify(request),
     })
-    .then(result => {
-      return result.json();
+    .then(async result => {
+      if (result.status === 200) {
+        return result.json();
+      }
+      return {error: result.status, text: await result.text()};
     })
     .then(jsonApi => {
-      return this.getDataFromJsonAPI(jsonApi);
+      if (jsonApi.hasOwnProperty('error')) {
+        return jsonApi;
+      } else {
+        // console.log('jsonApi:', jsonApi);
+        return this.getDataFromJsonAPI(jsonApi);
+      }
     })
     // .then(result => {
     //   if (result.status !== 200) {
@@ -209,9 +247,9 @@ class WooAdmin {
     return this.parseJwt(this.access_token);
   }
 
-  getTestJwt() {
-    return this.parseJwt(this.test_token);
-  }
+  // getTestJwt() {
+  //   return this.parseJwt(this.test_token);
+  // }
 
   parseJwt(token) {
     const base64Url = token.split('.')[1];
@@ -228,12 +266,15 @@ class WooAdmin {
   }
 
   getDataFromJsonRecord(item) {
-    const record = {
-      ...item.attributes,
-      id: item.id,
-      _type: item.type,
+    if (item.attributes) {
+      const record = {
+        ...item.attributes,
+        id: item.id,
+        _type: item.type,
+      }
+      return record;
     }
-    return record;
+    return item;
   }
 
   getDataset(jsonApi) {
@@ -241,9 +282,10 @@ class WooAdmin {
       const { data } = jsonApi;
       return data;
     }
+    return jsonApi;
 
-    console.log('WooBoard.getDataset: unsupported json-api:', jsonApi);
-    throw "Invalid json-api or unsupported version"
+    // console.log('WooBoard.getDataset: unsupported json-api:', jsonApi);
+    // throw "Invalid json-api or unsupported version"
   }
 
   getDatasetLength(jsonApi) {
@@ -292,11 +334,18 @@ class WooAdmin {
     column.accessor = key;
     column.id = key;
 
+    // console.log(`column(${type(value)}):`, { key, value} );
+
     switch(type(value)) {
+      case 'null':
       case 'object':
         column.Cell = displayJSON;
         break;
       case 'date':
+        break;
+      case 'number':
+        column.Cell = displayNumber;
+        column.style = {textAlign: 'right'};
         break;
     }
 
@@ -307,9 +356,17 @@ class WooAdmin {
     // console.log('getReactTableColumns:', { data, query });
     const columns = [];
     if (data && data.length) {
-      if (query && query.componentOptions && query.componentOptions.columnOrder) {
-        query.componentOptions.columnOrder.map(col => {
-          if (data[0][col]) {
+      if (
+        query
+        && query.properties
+        && query.properties.componentOptions
+        && query.properties.componentOptions.columnOrder
+      ) {
+
+        const { componentOptions } = query.properties;
+        componentOptions.columnOrder.map(col => {
+          // console.log('col:', col);
+          if (data[0].hasOwnProperty(col)) {
             const value = data[0][col];
             columns.push(this.createColumn(col, value));
           } else {
@@ -323,6 +380,12 @@ class WooAdmin {
           columns.push(this.createColumn(key, value));
         });
       }
+    } else {
+      const keys = Object.keys(data);
+      keys.forEach(key => {
+        const value = data[key];
+        columns.push(this.createColumn(key, value));
+      });
     }
 
     return columns;
@@ -331,9 +394,24 @@ class WooAdmin {
 }
 
 function displayJSON(props) {
-  return <div>{JSON.stringify(props.value)}</div>;
+  let result = props.value ? <div>{JSON.stringify(props.value)}</div> : <div className="dull">null</div>;
+  switch( type(props.value) ) {
+    case 'string':
+      result = props.value;
+      break;
+    case 'number':
+      result = displayNumber(props);
+      break;
+  }
+  return result;
+}
+
+function displayNumber(props) {
+  return <div>{Numeral(props.value).format(Number.isInteger(props.value) ? '0' : '0,0.000')}</div>
 }
 
 const wooAdmin = new WooAdmin();
+
+window.WooAdmin = wooAdmin;
 
 export default wooAdmin;

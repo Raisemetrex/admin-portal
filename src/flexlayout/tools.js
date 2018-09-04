@@ -2,9 +2,10 @@
 import React from 'react';
 import shortid from 'shortid';
 
-import { extender } from '../mobx/menuStore';
+import { extender, extenderMenuFromDB } from '../mobx/menuStore';
 import WooAdmin from '../lib/data/wooAdmin';
 
+import NoAccess from '../lib/components/noAccess';
 
 function oauthPopup(url) {
   const windowArea = {
@@ -79,11 +80,11 @@ class Tools extends React.Component {
   extendMenu = () => {
     extender();
   }
+  extendMenuFromDB = () => {
+    extenderMenuFromDB();
+  }
   consoleJwt = () => {
     console.log('JWT:',WooAdmin.getJwt());
-  }
-  consoleTestJwt = () => {
-    console.log('Test JWT:',WooAdmin.getTestJwt());
   }
   authProvider = (provider) => {
 
@@ -121,21 +122,21 @@ class Tools extends React.Component {
       //   console.log(`${provider} auth: jwt:`, result);
       // })
   }
-  showUsers = () => {
-    // console.log('showUsers props:', this.props);
-
-    const newId = shortid.generate();
-    const newTab = {
-      component: 'RestTable',
-      componentOptions: {
-        url: '/users',
-        columnOrder: ['id', 'first-name', 'last-name', 'email', 'avatar', 'auth-provider', 'pigs'],
-      },
-      name: `SSO Results (${newId})`,
-      id: `SSOResults-${shortid.generate()}`,
-    }
-    this.props.addNode(newTab);
-  }
+  // showUsers = () => {
+  //   // console.log('showUsers props:', this.props);
+  //
+  //   const newId = shortid.generate();
+  //   const newTab = {
+  //     component: 'RestTable',
+  //     componentOptions: {
+  //       url: '/users',
+  //       columnOrder: ['id', 'first-name', 'last-name', 'email', 'avatar', 'auth-provider', 'pigs'],
+  //     },
+  //     name: `SSO Results (${newId})`,
+  //     id: `SSOResults-${shortid.generate()}`,
+  //   }
+  //   this.props.addNode(newTab);
+  // }
   showUsersQuery = () => {
     // console.log('showUsers props:', this.props);
 
@@ -154,8 +155,8 @@ class Tools extends React.Component {
           formSchema: null,
         },
         componentOptions: {
-          columnOrder: ['id', 'first_name', 'last_name', 'email', 'avatar', 'auth_provider', 'pigs'],
-          use_test_token: true,
+          // columnOrder: ['id', 'first_name', 'last_name', 'email_address', 'avatar', 'auth_provider', 'pigs'],
+          // use_test_token: true,
         },
       },
       // componentOptions: {
@@ -188,14 +189,13 @@ class Tools extends React.Component {
         componentOptions: {
           columnOrder: [
             'id',
-            'menu-path',
+            'menu_path',
             'properties',
-            'menu-order',
+            'menu_order',
             'permissions',
             'inserted_at',
             'updated_at',
           ],
-          use_test_token: true,
         },
       },
       // componentOptions: {
@@ -211,19 +211,27 @@ class Tools extends React.Component {
   render() {
     const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
     const buttonStyle = {width: '100%'};
+    if (!['gary@reffind.com'].includes(WooAdmin.username)) {
+      return (
+        <NoAccess />
+      )
+    }
     return (
       <div style={{padding: '10px'}}>
-        <div style={buttonRowStyle}>
+        {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.extendMenu}>Extend Menu</button>
         </div>
         <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.extendMenuFromDB}>Extend Menu from DB</button>
+        </div>*/}
+
+        <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.consoleJwt}>Show JWT</button>
         </div>
-        <div style={buttonRowStyle}>
-          <button style={buttonStyle} onClick={this.consoleTestJwt}>Show Test JWT</button>
-        </div>
+
         <hr/>
-        <div style={buttonRowStyle}>
+
+        {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.googleAuth}>Google Auth</button>
         </div>
         <div style={buttonRowStyle}>
@@ -232,8 +240,10 @@ class Tools extends React.Component {
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.oktaAuth}>Okta Auth</button>
         </div>
-        <hr/>
-        <div style={buttonRowStyle}>
+        <hr/>*/}
+
+
+        {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.showUsers}>SSO Users</button>
         </div>
         <div style={buttonRowStyle}>
@@ -242,6 +252,7 @@ class Tools extends React.Component {
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.showAdminSQL}>Admin SQL</button>
         </div>
+        */}
       </div>
     )
   }

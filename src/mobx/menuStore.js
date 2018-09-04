@@ -1,6 +1,8 @@
 
 import * as mobx from 'mobx';
 
+import WooAdmin from '../lib/data/wooAdmin';
+
 import humanReadable from '../lib/utils/humanReadable';
 
 // console.log({ mobx });
@@ -32,7 +34,8 @@ class MenuStore {
     {
       key: 'charts',
       title: 'Charts',
-      open: true,
+      disabled: true,
+      open: false,
       'data-action': {
         enableRename: false,
         id: 'charts',
@@ -106,48 +109,48 @@ class MenuStore {
 const menuStore = new MenuStore();
 
 const seedMenu = [
-  {
-    id: null,
-    menuPath: 'reports.all-users',
-    menuOrder: 0,
-    permissions: '*',
-    properties: {
-      sql: 'SELECT * FROM users',
-      params: [],
-      formSchema: null,
-      component: 'DataTable',
-      componentOptions: {key: 'id'},
-    },
-  },
-  {
-    id: null,
-    menuPath: 'reports.some-users',
-    menuOrder: 0,
-    permissions: '*',
-    properties: {
-      sql: 'SELECT id, first_name, last_name, email_address, inserted_at FROM users WHERE current_account_id = $1',
-      params: ['F3071089-E566-405A-B3D0-12C163C57887'],
-      formSchema: null,
-      component: 'DataTable',
-      componentOptions: {
-        key: 'id',
-        columnOrder: ['first_name', 'last_name', 'email_address', 'inserted_at'],
-      },
-    },
-  },
-  {
-    id: null,
-    menuPath: 'reports.all-accounts',
-    menuOrder: 0,
-    permissions: '*',
-    properties: {
-      sql: 'SELECT * FROM accounts',
-      params: [],
-      formSchema: null,
-      component: 'DataTable',
-      componentOptions: {key: 'id'},
-    },
-  },
+  // {
+  //   id: null,
+  //   menuPath: 'reports.all-users',
+  //   menuOrder: 0,
+  //   permissions: '*',
+  //   properties: {
+  //     sql: 'SELECT * FROM users',
+  //     params: [],
+  //     formSchema: null,
+  //     component: 'DataTable',
+  //     componentOptions: {key: 'id'},
+  //   },
+  // },
+  // {
+  //   id: null,
+  //   menuPath: 'reports.some-users',
+  //   menuOrder: 0,
+  //   permissions: '*',
+  //   properties: {
+  //     sql: 'SELECT id, first_name, last_name, email_address, inserted_at FROM users WHERE current_account_id = $1',
+  //     params: ['F3071089-E566-405A-B3D0-12C163C57887'],
+  //     formSchema: null,
+  //     component: 'DataTable',
+  //     componentOptions: {
+  //       key: 'id',
+  //       columnOrder: ['first_name', 'last_name', 'email_address', 'inserted_at'],
+  //     },
+  //   },
+  // },
+  // {
+  //   id: null,
+  //   menuPath: 'reports.all-accounts',
+  //   menuOrder: 0,
+  //   permissions: '*',
+  //   properties: {
+  //     sql: 'SELECT * FROM accounts',
+  //     params: [],
+  //     formSchema: null,
+  //     component: 'DataTable',
+  //     componentOptions: {key: 'id'},
+  //   },
+  // },
   {
     id: null,
     menuPath: 'charts.posts-pie-chart',
@@ -195,29 +198,60 @@ function extendMenu(queries) {
   queries.forEach(query => {
     // console.log({ query })
     const { menuPath, properties } = query;
-    // console.log({ menuPath, properties });
-    const { component } = properties;
-    // console.log({ menuPath, component});
-    const path = menuPath.split('.');
-    const rootItem = menuStore.findByPath(path.slice(0,-1));
-    console.assert(rootItem, `Could not find root menu item: ${menuPath}`);
-    // console.log('rootItem:', rootItem);
-    const key = path.slice(-1)[0];
-    const title = humanReadable(key);
-    const newItem = {
-      key,
-      title,
-      'data-action': {
-        name: title,
-        id: key,
-        component,
-        query,
-      }
-    };
-    rootItem.children.push(newItem);
+    if (properties && menuPath) {
+      // console.log({ menuPath, properties, query });
+      const { component } = properties;
+      // console.log({ menuPath, component});
+      const path = menuPath.split('.');
+      const rootItem = menuStore.findByPath(path.slice(0,-1));
+      console.assert(rootItem, `Could not find root menu item: ${menuPath}`);
+      // console.log('rootItem:', rootItem);
+      const key = path.slice(-1)[0];
+      const title = humanReadable(key);
+      const newItem = {
+        key,
+        title,
+        'data-action': {
+          name: title,
+          id: key,
+          component: component || 'DataTable',
+          query,
+        }
+      };
+      rootItem.children.push(newItem);
+    }
   });
 
   // console.log('menuStore: extended:', menuStore);
+}
+
+function extendMenuFromDB() {
+  WooAdmin.rest('/queries')
+    .then(result => {
+      extendMenu(result.map(item => {
+        const {
+          id,
+          inserted_at: insertedAt,
+          updated_at: updatedAt,
+          menu_path: menuPath,
+          menu_order: menuOrder,
+          properties,
+          permissions,
+        } = item;
+        return {
+          id,
+          properties,
+          permissions,
+          menuPath,
+          menuOrder,
+          insertedAt,
+          updatedAt
+        }
+      }));
+    })
+    .catch(err => {
+      console.log('extendMenuFromDB: error:', err);
+    })
 }
 
 // extendMenu(seedMenu);
@@ -226,7 +260,13 @@ function extender() {
   extendMenu(seedMenu);
 }
 
-export { extender };
+function extenderMenuFromDB() {
+  extendMenuFromDB();
+}
 
+export { extender, extenderMenuFromDB };
+
+extenderMenuFromDB();
+extender();
 
 export default menuStore;

@@ -29,44 +29,44 @@ class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      me: null,
+      // me: null,
     }
   }
 
-  componentDidMount() {
-    WooAdmin.me()
-      .then(response => WooAdmin.getRecord(response))
-      .then(me => {
-        // console.log('me:', me);
-        this.setState({ me });
-      })
-      .catch(err => console.log('WooAdmin.me error:', err));
-  }
+  // componentDidMount() {
+  //   WooAdmin.me()
+  //     .then(response => WooAdmin.getRecord(response))
+  //     .then(me => {
+  //       // console.log('me:', me);
+  //       this.setState({ me });
+  //     })
+  //     .catch(err => console.log('WooAdmin.me error:', err));
+  // }
 
-  newQuery = () => {
-    console.log('newQuery');
-    const newId = shortid.generate();
-    const newTab = {
-      component: 'NewQuery',
-      name: `New Query ${newId}`,
-      id: `newquery-${newId}`,
-    }
-
-    this.props.addNode(newTab);
-  }
+  // newQuery = () => {
+  //   console.log('newQuery');
+  //   const newId = shortid.generate();
+  //   const newTab = {
+  //     component: 'NewQuery',
+  //     name: `New Query ${newId}`,
+  //     id: `newquery-${newId}`,
+  //   }
+  //
+  //   this.props.addNode(newTab);
+  // }
 
   render() {
     // console.log('Settings.props:', this.props);
     const { me } = this.state;
     return (
       <div style={{padding: '10px'}}>
-        <Me me={me} />
+        {/*<Me me={me} />*/}
         <div style={{textAlign: 'center', marginTop: '10px'}}>
           <button onClick={this.props.logout}>Logout</button>
         </div>
-        <div style={{textAlign: 'center', margin: '10px 10px'}}>
+        {/*<div style={{textAlign: 'center', margin: '10px 10px'}}>
           <button onClick={this.newQuery}>New Query</button>
-        </div>
+        </div>*/}
       </div>
     )
   }

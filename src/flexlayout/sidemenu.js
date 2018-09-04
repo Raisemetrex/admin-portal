@@ -24,17 +24,24 @@ class SideMenu extends React.Component {
   }
 
   loop = data => {
-    return data.map((item) => {
+    return data.map(item => {
+      const { key } = item;
+
+      if (!key) console.log('no key:', { item });
+
       const { children, ...rest} = item;
-      if (children) {
-        return (
-          <TreeNode
-            {...rest}
-          >
-            {this.loop(item.children)}
-          </TreeNode>
-        );
+      if (key !== 'charts') {
+        if (children) {
+          return (
+            <TreeNode
+              {...rest}
+            >
+              {this.loop(item.children)}
+            </TreeNode>
+          );
+        }
       }
+
       return <TreeNode {...rest} />;
     });
   };
@@ -46,6 +53,7 @@ class SideMenu extends React.Component {
       <Tree
         onSelect={this.onSelect}
         defaultExpandAll={true}
+        showLine
       >
         {this.loop(data)}
       </Tree>
