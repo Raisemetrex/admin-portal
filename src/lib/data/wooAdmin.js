@@ -110,7 +110,7 @@ class WooAdmin {
   }
 
   queryById = (request) => {
-    const query = `${this.getEndpoint()}/query_by_id`;
+    const query = `${this.getEndpoint()}/admin/query_by_id`;
     // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
@@ -174,8 +174,23 @@ class WooAdmin {
   }
 
   me = () => {
-    const q = `${this.getEndpoint()}/me`;
-    return this.fetch(q);
+    const q = `${this.getEndpoint()}/admin/me`;
+    // return this.fetch(q);
+    return fetch(q, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.access_token}`,
+        'Accept': 'application/json, application/vnd.api+, text/html, text/plain',
+        'Content-Type': 'application/json',
+      },
+      // body: JSON.stringify(request),
+    })
+    .then(async result => {
+      if (result.status === 200) {
+        return result.json();
+      }
+      return {error: result.status, text: await result.text()};
+    })
   }
 
   fetch = (url, data, method = 'GET') => {

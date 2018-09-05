@@ -146,7 +146,7 @@ function extendMenu(queries) {
 }
 
 function extendMenuFromDB() {
-  WooAdmin.rest('/queries')
+  WooAdmin.rest('/admin/queries')
     .then(result => {
       extendMenu(result.map(item => {
         const {

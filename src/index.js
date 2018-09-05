@@ -17,6 +17,11 @@ if (access_token) {
   console.log('access_token:', access_token);
   WooAdmin.setAccessToken(access_token);
   window.location.href = `${url.origin}/#`;
+} else if (WooAdmin.isAuthenticated()) {
+  WooAdmin.me()
+    .then(result => {
+      console.log('me:', result);
+    })
 }
 
 ReactDOM.render(<App WooAdmin={WooAdmin}/>, document.getElementById('root'));
