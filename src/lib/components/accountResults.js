@@ -4,7 +4,7 @@ import React from 'react';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
-import JSONData from '../lib/JSONData';
+// import JSONData from '../lib/JSONData';
 
 const dummyColumns = [
   {
@@ -29,11 +29,11 @@ class AccountResults extends React.Component {
     }
   }
   componentDidMount() {
-    JSONData.read('users')
-      .then(data => {
-        // console.log('componentDidMount: users:', data);
-        this.setState({ data });
-      })
+    // JSONData.read('users')
+    //   .then(data => {
+    //     // console.log('componentDidMount: users:', data);
+    //     this.setState({ data });
+    //   })
   }
   render() {
     const { columns, data } = this.state;

@@ -2,10 +2,10 @@
 import React from 'react';
 import shortid from 'shortid';
 
-import { extender, extenderMenuFromDB } from '../mobx/menuStore';
-import WooAdmin from '../lib/data/wooAdmin';
+import { extenderMenuFromDB } from '../../mobx/menuStore';
+// import WooAdmin from '../lib/data/wooAdmin';
 
-import NoAccess from '../lib/components/noAccess';
+import NoAccess from './noAccess';
 
 function oauthPopup(url) {
   const windowArea = {
@@ -77,66 +77,29 @@ class Tools extends React.Component {
   constructor(props) {
     super(props);
   }
-  extendMenu = () => {
-    extender();
-  }
   extendMenuFromDB = () => {
     extenderMenuFromDB();
   }
   consoleJwt = () => {
+    const { WooAdmin } = this.props;
     console.log('JWT:',WooAdmin.getJwt());
   }
   authProvider = (provider) => {
-
     const url = `http://localhost:5000/api/v1/auth/${provider}`;
-
-    // return oauthPopup(url);
-
     window.location.href = url;
-
-    // return fetch(url,{
-    //   method: 'GET',
-    // })
-    // .then(result => {
-    //   return result.json();
-    // })
   }
   googleAuth = () => {
     const provider = 'google';
     this.authProvider(provider)
-      // .then(result => {
-      //   console.log(`${provider} auth: jwt:`, result);
-      // })
   }
   aadAuth = () => {
     const provider = 'microsoft';
     const aad = this.authProvider(provider)
-      // .then(result => {
-      //   console.log(`${provider} auth: jwt:`, result);
-      // });
   }
   oktaAuth = () => {
     const provider = 'okta';
     this.authProvider(provider)
-      // .then(result => {
-      //   console.log(`${provider} auth: jwt:`, result);
-      // })
   }
-  // showUsers = () => {
-  //   // console.log('showUsers props:', this.props);
-  //
-  //   const newId = shortid.generate();
-  //   const newTab = {
-  //     component: 'RestTable',
-  //     componentOptions: {
-  //       url: '/users',
-  //       columnOrder: ['id', 'first-name', 'last-name', 'email', 'avatar', 'auth-provider', 'pigs'],
-  //     },
-  //     name: `SSO Results (${newId})`,
-  //     id: `SSOResults-${shortid.generate()}`,
-  //   }
-  //   this.props.addNode(newTab);
-  // }
   showUsersQuery = () => {
     // console.log('showUsers props:', this.props);
 
@@ -209,9 +172,10 @@ class Tools extends React.Component {
     this.props.addNode(newTab);
   }
   render() {
+    const { WooAdmin } = this.props;
     const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
     const buttonStyle = {width: '100%'};
-    if (!['gary@reffind.com'].includes(WooAdmin.username)) {
+    if (!['local'].includes(WooAdmin.getEnvironment())) {
       return (
         <NoAccess />
       )

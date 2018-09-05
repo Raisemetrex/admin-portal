@@ -14,135 +14,99 @@ class WooAdmin {
   constructor() {
     this.endpoint = {
       local: `http://localhost:4000/api/v1`,
-      staging: 'https://api.reffind.xyz',
-      production: 'https://api.wooboard.com',
-      test: `http://localhost:5000/api/v1`,
+      staging: 'https://api.reffind.xyz/api/v1',
+      production: 'https://api.wooboard.com/api/v1',
     }
-    this.account_id = localStorage.getItem('account_id');
-    this.access_token = localStorage.getItem('access_token');
-    this.username = localStorage.getItem('username');
-    this.database = localStorage.getItem('database') || 'local';
-    this.access_json = null;
-    // this.test_token = localStorage.getItem('test_token');
+    this.environment = localStorage.getItem('environment') || 'local';
+    this.access_token = localStorage.getItem(`${this.environment}_access_token`);
   }
 
-  setAccessToken(token) {
+  getEnvironment() {
+    return this.environment;
+  }
+
+  setEnvironment(environment) {
+    this.environment = environment;
+    localStorage.setItem('environment', environment);
+    this.access_token = localStorage.getItem(`${this.environment}_access_token`);
+  }
+
+  setAccessToken(token, environment = 'local') {
     this.access_token = token;
-    localStorage.setItem('access_token', token);
+    this.environment = environment;
+    localStorage.setItem(`${this.environment}_access_token`, token);
+    localStorage.setItem('environment', environment);
+    console.log('setAccessToken:', { WooAdmin: this });
+  }
+
+  getEndpointFor(environment) {
+    console.assert(this.endpoint[environment], `getEndpointFor: The ${environment} doesn't exist!`);
+    return this.endpoint[environment];
   }
 
   getEndpoint() {
-    console.assert(this.endpoint[this.database], 'Database endpoint is incorrect', this);
-    return this.endpoint[this.database];
-  }
-
-  getTestEndpoint() {
-    return this.endpoint['test'];
+    console.assert(this.endpoint[this.environment], 'Environment endpoint is incorrect', this);
+    return this.endpoint[this.environment];
   }
 
   isAuthenticated = () => {
     return this.access_token !== null;
   }
 
-  // setTestToken = (token) => {
-  //   console.log('old token', localStorage.getItem('access_token'));
-  //   console.log('new token:', token);
-  //   // console.log('old token:', localStorage.getItem('test_token'));
-  //   // this.test_token = token;
-  //   // localStorage.setItem('test_token', token);
-  //   this.access_token = token;
-  //   localStorage.setItem('access_token', token);
+  // authenticate = (username, password, database) => {
+  //   console.log('authentication:', { database });
+  //   const signon = `${this.endpoint[database || 'local']}/token`;
+  //   const request = new FormData();
+  //
+  //   request.append('grant_type', 'password-subdomain');
+  //   request.append('subdomain', 'reffind');
+  //   request.append('username', username);
+  //   request.append('password', password);
+  //
+  //   // console.log('Authenticating with WooBoard...');
+  //
+  //   return fetch(signon, {
+  //     method: 'POST',
+  //     body: request,
+  //   })
+  //   .then(result => {
+  //     // console.log('WA.authentication: result:', result);
+  //     if (result.status !== 200) { // ??? why zero ? when no-cors
+  //       throw {error: result.status, message: result.statusText};
+  //     }
+  //
+  //     // console.log('body:', result.text());
+  //
+  //     return result.json()
+  //   })
+  //   .then(json => {
+  //     // console.log('authenticate: json:', json);
+  //
+  //     if (json && json.access_token) {
+  //       this.access_token = json.access_token;
+  //       this.username = username;
+  //       this.database = database || 'local';
+  //       localStorage.setItem('access_token', this.access_token);
+  //       localStorage.setItem('username', username);
+  //       localStorage.setItem('database', this.database);
+  //       this.access_json = this.parseJwt(this.access_token);
+  //     } else {
+  //       throw {error: 401, message: 'Unauthorized' };
+  //     }
+  //
+  //     return json;
+  //   })
   // }
-
-  authenticate = (username, password, database) => {
-    console.log('authentication:', { database });
-    const signon = `${this.endpoint[database || 'local']}/token`;
-    const request = new FormData();
-
-    request.append('grant_type', 'password-subdomain');
-    request.append('subdomain', 'reffind');
-    // request.append('subdomain', 'garycustom');
-
-    // request.append('grant_type', 'password');
-    // request.append('account_id', null);
-
-    request.append('username', username);
-    request.append('password', password);
-
-    // console.log('Authenticating with WooBoard...');
-
-    return fetch(signon, {
-      method: 'POST',
-      // mode: 'cors',
-      body: request,
-    })
-    .then(result => {
-      // console.log('WA.authentication: result:', result);
-      if (result.status !== 200) { // ??? why zero ? when no-cors
-        throw {error: result.status, message: result.statusText};
-      }
-
-      // console.log('body:', result.text());
-
-      return result.json()
-    })
-    .then(json => {
-      // console.log('authenticate: json:', json);
-
-      if (json && json.access_token) {
-        this.access_token = json.access_token;
-        this.username = username;
-        this.database = database || 'local';
-        localStorage.setItem('access_token', this.access_token);
-        localStorage.setItem('username', username);
-        localStorage.setItem('database', this.database);
-        this.access_json = this.parseJwt(this.access_token);
-      } else {
-        throw {error: 401, message: 'Unauthorized' };
-      }
-
-      return json;
-    })
-  }
 
   getUserName = () => {
     return this.username;
   }
 
   reset = () => {
-    this.account_id = null;
+    localStorage.removeItem(`${this.environment}_access_token`);
+    localStorage.removeItem('environment');
     this.access_token = null;
-    this.access_json = null;
-    this.username = null;
-    localStorage.removeItem('account_id');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('database');
-  }
-
-  query = (request) => {
-    const query = `${this.getEndpoint()}/query`;
-    // console.log('running query:', request);
-    return fetch(query, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.access_token}`,
-        'Accept': 'application/json, application/vnd.api+json',
-        'Content-Type': 'application/json',
-      },
-      // mode: 'cors',
-      body: JSON.stringify(request),
-    })
-    .then(result => {
-      // console.log('testQuery: result:', result);
-      if (result.status !== 200) {
-        throw {error: result.status, message: `WooAdmin.query: ${result.statusText}`};
-      }
-      return result.json();
-    })
-    .catch(err => {
-      console.error(`WooAdmin: query: error:`, err);
-      throw new Error(err.message);
-    })
+    this.environment = null;
   }
 
   queryById = (request) => {
@@ -205,10 +169,7 @@ class WooAdmin {
   }
 
   logout = () => {
-    this.access_token = null;
-    this.access_Json = null;
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('database');
+    this.reset();
     window.location.reload();
   }
 

@@ -5,10 +5,6 @@ import WooAdmin from '../lib/data/wooAdmin';
 
 import humanReadable from '../lib/utils/humanReadable';
 
-// console.log({ mobx });
-
-// mobx.useStrict(true);
-
 class MenuStore {
 
   data = mobx.observable([
@@ -34,7 +30,7 @@ class MenuStore {
     {
       key: 'charts',
       title: 'Charts',
-      disabled: true,
+      // disabled: true,
       open: false,
       'data-action': {
         enableRename: false,
@@ -108,91 +104,6 @@ class MenuStore {
 
 const menuStore = new MenuStore();
 
-const seedMenu = [
-  // {
-  //   id: null,
-  //   menuPath: 'reports.all-users',
-  //   menuOrder: 0,
-  //   permissions: '*',
-  //   properties: {
-  //     sql: 'SELECT * FROM users',
-  //     params: [],
-  //     formSchema: null,
-  //     component: 'DataTable',
-  //     componentOptions: {key: 'id'},
-  //   },
-  // },
-  // {
-  //   id: null,
-  //   menuPath: 'reports.some-users',
-  //   menuOrder: 0,
-  //   permissions: '*',
-  //   properties: {
-  //     sql: 'SELECT id, first_name, last_name, email_address, inserted_at FROM users WHERE current_account_id = $1',
-  //     params: ['F3071089-E566-405A-B3D0-12C163C57887'],
-  //     formSchema: null,
-  //     component: 'DataTable',
-  //     componentOptions: {
-  //       key: 'id',
-  //       columnOrder: ['first_name', 'last_name', 'email_address', 'inserted_at'],
-  //     },
-  //   },
-  // },
-  // {
-  //   id: null,
-  //   menuPath: 'reports.all-accounts',
-  //   menuOrder: 0,
-  //   permissions: '*',
-  //   properties: {
-  //     sql: 'SELECT * FROM accounts',
-  //     params: [],
-  //     formSchema: null,
-  //     component: 'DataTable',
-  //     componentOptions: {key: 'id'},
-  //   },
-  // },
-  {
-    id: null,
-    menuPath: 'charts.posts-pie-chart',
-    menuOrder: 0,
-    permissions: '*',
-    properties: {
-      sql: `
-    SELECT
-    category,
-    COUNT(*)
-    FROM posts
-    GROUP BY category
-      `,
-      params: [],
-      formSchema: null,
-      component: 'PieChart',
-      componentOptions: {key: 'category'},
-    },
-  },
-  {
-    id: null,
-    menuPath: 'charts.posts-by-month',
-    menuOrder: 0,
-    permissions: '*',
-    properties: {
-      sql: `
-      SELECT
-        date_trunc('month',inserted_at) AS mon,
-        count(*)
-      FROM
-        posts
-      GROUP BY 1
-      ORDER BY date_trunc('month', inserted_at)
-      `,
-      params: [],
-      formSchema: null,
-      component: 'BarChart',
-      componentOptions: {key: 'mon'},
-    },
-  },
-];
-
 function extendMenu(queries) {
   // console.log('extendMenu:', queries);
   queries.forEach(query => {
@@ -222,7 +133,6 @@ function extendMenu(queries) {
     }
   });
 
-  // console.log('menuStore: extended:', menuStore);
 }
 
 function extendMenuFromDB() {
@@ -254,19 +164,16 @@ function extendMenuFromDB() {
     })
 }
 
-// extendMenu(seedMenu);
-
-function extender() {
-  extendMenu(seedMenu);
-}
-
 function extenderMenuFromDB() {
   extendMenuFromDB();
 }
 
-export { extender, extenderMenuFromDB };
+export { extenderMenuFromDB };
 
 extenderMenuFromDB();
-extender();
+// extender();
+
+// window.menuStoreData = menuStore.data;
+
 
 export default menuStore;

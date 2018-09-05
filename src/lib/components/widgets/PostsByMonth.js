@@ -1,7 +1,7 @@
 
 import React from 'react';
 import * as mobxReact from 'mobx-react';
-import BarChart from '../../lib/components/barChart';
+import BarChart from '../barChart';
 
 const PostsByMonth = (props) => {
   const postsByMonth = props.MenuStore.findByPath('charts.posts-by-month');

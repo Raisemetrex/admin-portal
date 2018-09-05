@@ -1,7 +1,7 @@
 
 import React from 'react';
 import * as mobxReact from 'mobx-react';
-import PieChart from '../../lib/components/pieChart';
+import PieChart from '../pieChart';
 
 const PostsByCategory = (props) => {
   const postsByCategory = props.MenuStore.findByPath('charts.posts-pie-chart');

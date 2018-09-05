@@ -4,25 +4,49 @@ import React from 'react';
 import shortid from 'shortid';
 import FlexLayout from 'flexlayout-react';
 
-import Dashboard from './dashboard';
-import SideMenu from './sidemenu';
-import AccountSearch from './accountSearch';
-import AccountResults from './accountResults';
-import QuickTest from './quickTest';
-import Reports from './reports';
-import Charts from './charts';
-import Tools from './tools';
-import Settings from './settings';
-import JsonProps from './jsonProps';
-import DataTable from '../lib/components/dataTable';
-import RestTable from '../lib/components/restTable';
-import PieChart from '../lib/components/pieChart';
-import BarChart from '../lib/components/barChart';
-import NewQuery from '../lib/components/newQuery';
-
 import MenuStore from '../mobx/menuStore';
 
-import WooAdmin from '../lib/data/wooAdmin';
+import ComponentFactory from '../lib/components/componentFactory';
+
+const DashboardPanel = {
+	type: 'tab',
+	name: 'Dashboard',
+	enableClose: false,
+	enableDrag: false,
+	enableRename: false,
+	component: 'Dashboard',
+	id: 'DashboardTab',
+};
+
+const SideMenuPanel = {
+	type: 'tab',
+	enableClose: false,
+	enableDrag: false,
+	enableRename: false,
+	name: 'Menu',
+	component: 'SideMenu',
+	id: '#menu',
+};
+
+const SettingsPanel = {
+	type: 'tab',
+	enableClose: false,
+	enableDrag: false,
+	enableRename: false,
+	name: '\u2699',
+	component: 'Settings',
+	id: '#settings',
+};
+
+const toolsPanel = {
+	type: 'tab',
+	name: 'Tools',
+	component: 'Tools',
+	id: '#tools',
+	enableClose: false,
+	enableDrag: true,
+	enableRename: false,
+};
 
 const mainLayout = {
 	global: {},
@@ -37,15 +61,7 @@ const mainLayout = {
 				active: true,
 				id: 'MAIN',
 				children: [
-					{
-						type: 'tab',
-						name: 'Dashboard',
-						enableClose: false,
-						enableDrag: false,
-						enableRename: false,
-						component: 'dashboard',
-						id: 'DashboardTab'
-					}
+					DashboardPanel
 				]
 			},
 		]
@@ -55,86 +71,23 @@ const mainLayout = {
 			type: 'border',
 			location: 'left',
 			selected: 0,
-			// enableDrop: true,
-			// children: [
-			// 	{ type: 'row', id: 'LeftBorderTop', children: [
-			// 		{ type: 'tabset', id: 'bts', children: [
-			// 			{
-			// 				type: 'tab',
-			// 				enableClose: false,
-			// 				enableDrag: false,
-			// 				enableRename: false,
-			// 				name: 'Menu',
-			// 				component: 'sidemenu',
-			// 				id: '#menu',
-			// 			},
-			// 			{
-			// 				type: 'tab',
-			// 				enableClose: false,
-			// 				enableDrag: false,
-			// 				enableRename: false,
-			// 				name: '\u2699',
-			// 				component: 'settings',
-			// 				id: '#settings',
-			// 			},
-			// 		]},
-			// 	]}
-			// ],
 			children: [
-				{
-					type: 'tab',
-					enableClose: false,
-					enableDrag: false,
-					enableRename: false,
-					name: 'Menu',
-					component: 'sidemenu',
-					id: '#menu',
-				},
-				{
-					type: 'tab',
-					enableClose: false,
-					enableDrag: false,
-					enableRename: false,
-					name: '\u2699',
-					component: 'settings',
-					id: '#settings',
-				},
+				SideMenuPanel,
+				SettingsPanel,
 			]
 	 },
 	 {
 		 type: 'border',
 		 location: 'right',
-		 // selected: 0,
-		 children: [
-			 // {
-				//  type: 'tab',
-				//  name: 'Tools',
-				//  component: 'tools',
-				//  id: '#tools',
-				//  enableClose: false,
-				//  enableDrag: true,
-				//  enableRename: false,
-			 // },
-		 ],
+		 // children: [],
 	 },
 	 {
 		 type: 'border',
 		 location: 'bottom',
-		 children: [
-		 ],
+		 // children: [],
 	 },
 	]
 };
-
-const toolsPanel = {
-	type: 'tab',
-	name: 'Tools',
-	component: 'tools',
-	id: '#tools',
-	enableClose: false,
-	enableDrag: true,
-	enableRename: false,
-}
 
 class Main extends React.Component {
 
@@ -144,7 +97,8 @@ class Main extends React.Component {
     }
 
 		componentDidMount() {
-			if (['gary@reffind.com'].includes(WooAdmin.username)) {
+			const { WooAdmin } = this.props;
+			if (['local'].includes(WooAdmin.getEnvironment())) {
 				this.layout.addTabToTabSet('border_right',toolsPanel);
 				// this.layout.doAction(FlexLayout.Actions.selectTab(toolsPanel.id));
 			}
@@ -154,8 +108,8 @@ class Main extends React.Component {
 			// console.log('Layout.addNode node:', node);
 			const existing = this.layout.model.getNodeById(node.id);
 			if (!existing) {
-				// this.layout.addTabToTabSet('MAIN', node);
-				this.layout.addTabToActiveTabSet(node);
+				this.layout.addTabToTabSet('MAIN', node);
+				// this.layout.addTabToActiveTabSet(node);
 				const newNode = this.layout.model.getNodeById(node.id);
 				newNode.getExtraData().data = node;
 			} else {
@@ -165,117 +119,64 @@ class Main extends React.Component {
 
     factory(node) {
         const component = node.getComponent();
-				const extraData = node.getExtraData().data;
-				const config = node.getConfig();
+				const extraData = node.getExtraData().data || {};
+				const config = node.getConfig() || {};
 
 				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
-				const { WooAdmin } = this.props;
+				const { WooAdmin, setEnvironment } = this.props;
 				const { addNode } = this;
 				const props = {
 					addNode,
+					setEnvironment,
+					WooAdmin,
+					setEnvironment,
+					...config,
+					...extraData,
+					logout: WooAdmin.logout,
+					menu: MenuStore,
 				};
 
 				// console.log('factory:', { component, extraData, config, props });
 
-				switch(component) {
-					case 'dashboard':
-						result = <Dashboard {...props} />
-						break;
-					case 'RestTable':
-						const rtProps = {
-							...config,
-							...props,
-							...extraData,
-						}
-						result = <div style={{padding: '10px'}}><RestTable { ...rtProps } /></div>;
-						break;
-					case 'DataTable':
-						const dtProps = {
-							...config,
-							...props,
-							...extraData,
-						}
-						result = <div style={{padding: '10px'}}><DataTable { ...dtProps } /></div>;
-						break;
-					case 'Charts':
-						result = <Charts { ...props } />;
-						break;
-					case 'settings':
-						const settingsProps = {
-							...props,
-							logout: WooAdmin.logout,
-						}
-						result = <Settings {...settingsProps} />;
-						break;
-					case 'JsonProps':
-						const jsonProps = {
-							...props,
-							...extraData,
-						}
-						result = <JsonProps {...jsonProps} />;
-						break;
-					case 'tools':
-						result = <Tools {...props} />;
-						break;
-					case 'sidemenu':
-						const sidemenuProps = {
-							...props,
-							menu: MenuStore,
-						}
-						result = <SideMenu  {...sidemenuProps} />;
-						break;
-					case 'Reports':
-						result = <Reports {...props} />;
-						break;
-					case 'NewQuery':
-						result = <NewQuery {...props} />;
-						break;
-					case 'QuickTest':
-						result = <QuickTest {...props} />;
-						break;
-					case 'AccountSearch':
-						result = <AccountSearch  {...props}  />
-						break;
-					case 'PieChart':
-						const pieProps = {
-							...config,
-							...props,
-							...extraData,
-						}
-						result = <PieChart {...pieProps} />
-						break;
-					case 'BarChart':
-						const barProps = {
-							...config,
-							...props,
-							...extraData,
-						}
-						result = <BarChart {...barProps} />
-						break;
-					case 'AccountResults':
-						result = <AccountResults  {...props}  />
-						break;
-				}
+				result = ComponentFactory.create(component, props);
+				console.assert(result,`Layout: ComponentFactory could not locate component: ${component}`);
 
 				return result;
     }
 
+		settingsClick = (x) => {
+			const { target } = x;
+			console.log('settingsClick:', { target, x });
+		}
+
+		onRenderTab = (node, renderValues) => {
+			console.log('onRenderTab:', { node, renderValues });
+			renderValues.leading = 'Bingo:';
+		}
+
 		onRenderTabSet = (node, renderValues) => {
-			// console.log('onRenderTabSet:', { node, renderValues });
-			// renderValues.headerContent = "-- " + renderValues.headerContent + " --";
-			// renderValues.buttons.push(<img key={shortid.generate()} src="grey_ball.png" />);
-			renderValues.buttons.push(<i className="fa fa-fw fa-cog" key={shortid.generate()} />);
+			if (node._attributes.id === 'MAIN') {
+				console.log('onRenderTabSet:', { node, renderValues });
+				renderValues.headerContent = "-- " + renderValues.headerContent + " --";
+				renderValues.buttons.push(<i className="fa fa-fw fa-cog" key={shortid.generate()} onClick={this.settingsClick} />);
+			}
 		};
 
     render() {
-        return (
-            <FlexLayout.Layout
-							ref={(r) => this.layout = r}
-							model={this.state.model}
-							factory={this.factory.bind(this)}
-							onRenderTabSet={this.onRenderTabSet}
-						/>
-        )
+			// console.log('layout: props:', this.props);
+			const { onRenderTabSet, onRenderTab } = this;
+			const extra = {
+				// onRenderTab,
+				// onRenderTabSet
+			}
+      return (
+          <FlexLayout.Layout
+						ref={(r) => this.layout = r}
+						model={this.state.model}
+						factory={this.factory.bind(this)}
+						{...extra}
+					/>
+      )
     }
 }
 

@@ -30,16 +30,14 @@ class SideMenu extends React.Component {
       if (!key) console.log('no key:', { item });
 
       const { children, ...rest} = item;
-      if (key !== 'charts') {
-        if (children) {
-          return (
-            <TreeNode
-              {...rest}
-            >
-              {this.loop(item.children)}
-            </TreeNode>
-          );
-        }
+      if (children) {
+        return (
+          <TreeNode
+            {...rest}
+          >
+            {this.loop(item.children)}
+          </TreeNode>
+        );
       }
 
       return <TreeNode {...rest} />;

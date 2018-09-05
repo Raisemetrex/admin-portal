@@ -3,6 +3,8 @@ import React from 'react';
 import ReactTable from 'react-table';
 import Inspector from 'react-inspector';
 
+import ReactJsonEditor from './reactJsonEditor';
+
 import WooAdmin from '../data/wooAdmin';
 
 import { filterContainsNoCase } from '../utils/reactTableFilters';
@@ -11,6 +13,10 @@ const columns = [
   {Header: 'Property', accessor: 'property', maxWidth: 250, style: {textAlign: 'right', fontWeight: 'bold'}},
   {Header: 'Value', accessor: 'value'},
 ];
+
+function editorChangeHandler(values) {
+    console.log('new values', values)
+}
 
 function PropertySheet(props) {
   console.log('props:', props);
@@ -25,7 +31,8 @@ function PropertySheet(props) {
     }
   });
   const extraProps = {
-    // style={{height: '400px'}},
+    // style: {height: '400px'},
+    // filterable: true,
   }
   return (
     <div style={{padding: '10px', backgroundColor: '#F9F9F9'}}>
@@ -41,11 +48,15 @@ function PropertySheet(props) {
             pageSize={data.length}
             showPagination={false}
             sortable={false}
-            filterable
             defaultFilterMethod={filterContainsNoCase}
             {...extraProps}
           />
         </div>
+
+        <ReactJsonEditor
+          values={columns}
+          onChange={editorChangeHandler}
+        />
 
       </div>
     </div>

@@ -8,7 +8,7 @@ import 'react-dazzle/lib/style/style.css';
 import PostsByMonth from './widgets/PostsByMonth';
 import PostsByCategory from './widgets/PostsByCategory';
 
-import MenuStore from '../mobx/menuStore';
+// import MenuStore from '../mobx/menuStore';
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -20,14 +20,14 @@ class Dashboard extends React.Component {
           type: PostsByCategory,
           title: 'Posts By Category - All Time',
           props: {
-            MenuStore,
+            MenuStore: this.props.menu,
           }
         },
         BarChart: {
           type: PostsByMonth,
           title: 'Posts By Month - All Time',
           props: {
-            MenuStore,
+            MenuStore: this.props.menu,
           }
         }
       },

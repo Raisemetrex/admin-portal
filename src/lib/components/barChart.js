@@ -12,6 +12,7 @@ class BarChart extends React.Component {
     super();
     this.state = {
       options: {
+        responsive: true,
         title: {
 					display: true,
 					text: 'Posts by Month',
@@ -39,9 +40,9 @@ class BarChart extends React.Component {
   }
 
   componentDidMount() {
-    const { properties } = this.props.query;
-    const { sql, params } = properties;
-    WooAdmin.query({sql, params})
+    const { properties, id } = this.props.query;
+    const {  params } = properties;
+    WooAdmin.queryById({id, params})
       .then(result => {
         // console.log('BarChart: result:', result);
         const columns = WooAdmin.getReactTableColumns(result);
@@ -55,7 +56,7 @@ class BarChart extends React.Component {
   }
 
   onElementsClick = (elems) => {
-    console.log('onElementsClick:', elems);
+    console.log('BarChart.onElementsClick:', elems);
   }
 
   render() {
@@ -64,14 +65,11 @@ class BarChart extends React.Component {
       options.title.display = false;
     }
     return (
-      <div style={{width: '800px', height: '450px', padding: '10px'}}>
-      <h6>Bar Chart</h6>
-        <Bar
-          data={this.state.data}
-          options={options}
-          onElementsClick={this.onElementsClick}
-        />
-      </div>
+      <Bar
+        data={this.state.data}
+        options={options}
+        onElementsClick={this.onElementsClick}
+      />
     );
   }
 }

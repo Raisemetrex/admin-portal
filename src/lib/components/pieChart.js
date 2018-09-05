@@ -61,9 +61,9 @@ class PieChart extends React.Component {
 
     // console.log('cdm: props:', this.props);
 
-    const { properties } = this.props.query;
-    const { sql, params } = properties;
-    WooAdmin.query({sql, params})
+    const { properties, id } = this.props.query;
+    const { params } = properties;
+    WooAdmin.queryById({id, params})
       .then(result => {
         const columns = WooAdmin.getReactTableColumns(result);
         const { data } = this.state;
@@ -76,7 +76,7 @@ class PieChart extends React.Component {
   }
 
   onElementsClick = (elems) => {
-    console.log('onElementsClick:', elems);
+    console.log('PieChart.onElementsClick:', elems);
   }
 
   render() {
@@ -85,13 +85,11 @@ class PieChart extends React.Component {
       options.title.display = false;
     }
     return (
-      <div style={{width: '800px', height: '450px', padding: '10px'}}>
-        <Pie
-          data={this.state.data}
-          options={options}
-          onElementsClick={this.onElementsClick}
-        />
-      </div>
+      <Pie
+        data={this.state.data}
+        options={options}
+        onElementsClick={this.onElementsClick}
+      />
     );
   }
 }

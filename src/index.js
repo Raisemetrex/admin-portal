@@ -10,10 +10,11 @@ const url = new URL(window.location.href);
 const access_token = url.searchParams.get('access_token');
 
 if (access_token) {
-  // console.log('access_token:', access_token);
+  console.log('WooAdmin.environment', WooAdmin.environment);
+  console.log('access_token:', access_token);
   WooAdmin.setAccessToken(access_token);
   window.location.href = `${url.origin}/#`;
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App WooAdmin={WooAdmin}/>, document.getElementById('root'));
 registerServiceWorker();

@@ -2,7 +2,7 @@
 import React from 'react';
 import shortid from 'shortid';
 
-import WooAdmin from '../lib/data/wooAdmin';
+// import WooAdmin from '../lib/data/wooAdmin';
 
 const Me = props => {
   // console.log('Me.props:', props)
@@ -28,8 +28,10 @@ class Settings extends React.Component {
 
   constructor(props) {
     super(props);
+    const { WooAdmin } = props;
     this.state = {
       // me: null,
+      environment: WooAdmin.getEnvironment()
     }
   }
 
@@ -55,18 +57,32 @@ class Settings extends React.Component {
   //   this.props.addNode(newTab);
   // }
 
+  switchEnvironment = (e) => {
+    const { target } = e;
+    const { value: environment } = target;
+    this.setState({ environment }, () => {
+      // console.log('switchEnvironment: state:', this.state);
+      this.props.setEnvironment(environment);
+    });
+  }
+
   render() {
     // console.log('Settings.props:', this.props);
-    const { me } = this.state;
+    const { me, environment } = this.state;
     return (
       <div style={{padding: '10px'}}>
         {/*<Me me={me} />*/}
+        <div style={{textAlign: 'center', margin: '10px 10px'}}>
+          <label>Environment: &nbsp;</label>
+          <select onChange={this.switchEnvironment} value={environment}>
+            <option value="local">Local</option>
+            <option value="staging">Staging</option>
+            <option value="production">Production</option>
+          </select>
+        </div>
         <div style={{textAlign: 'center', marginTop: '10px'}}>
           <button onClick={this.props.logout}>Logout</button>
         </div>
-        {/*<div style={{textAlign: 'center', margin: '10px 10px'}}>
-          <button onClick={this.newQuery}>New Query</button>
-        </div>*/}
       </div>
     )
   }

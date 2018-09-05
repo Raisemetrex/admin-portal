@@ -42,13 +42,14 @@ class DataTable extends React.Component {
         })
         .catch(err => console.log('DataTable.loadData: error:', err));
     } else {
-      WooAdmin.query({sql, params: params || [], id})
-        .then(data => {
-          console.log('direct query: result:', data);
-          const columns = WooAdmin.getReactTableColumns(data, this.props.query);
-          this.setState({ data, columns });
-        })
-        .catch(err => console.log('DataTable.loadData: error:', err));
+      throw "Executing SQL directly has been deprecated"
+      // WooAdmin.query({sql, params: params || [], id})
+      //   .then(data => {
+      //     console.log('direct query: result:', data);
+      //     const columns = WooAdmin.getReactTableColumns(data, this.props.query);
+      //     this.setState({ data, columns });
+      //   })
+      //   .catch(err => console.log('DataTable.loadData: error:', err));
     }
   }
   extraProps = () => {
