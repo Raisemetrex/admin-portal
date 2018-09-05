@@ -40,7 +40,13 @@ class MenuStore {
       },
       children: [],
     },
-
+    {
+      key: 'hidden',
+      title: 'Hidden',
+      open: false,
+      disabled: true,
+      children: [],
+    }
   ]);
 
   add = mobx.action(item => {
@@ -129,7 +135,11 @@ function extendMenu(queries) {
           query,
         }
       };
-      rootItem.children.push(newItem);
+      if (rootItem) {
+        rootItem.children.push(newItem);
+      } else {
+        console.warn(`could not find rootItem for ${path.slice(0,-1)}`);
+      }
     }
   });
 

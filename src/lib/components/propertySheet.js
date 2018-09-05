@@ -3,9 +3,7 @@ import React from 'react';
 import ReactTable from 'react-table';
 import Inspector from 'react-inspector';
 
-import ReactJsonEditor from './reactJsonEditor';
-
-import WooAdmin from '../data/wooAdmin';
+// import ReactJsonEditor from './reactJsonEditor';
 
 import { filterContainsNoCase } from '../utils/reactTableFilters';
 
@@ -20,6 +18,7 @@ function editorChangeHandler(values) {
 
 function PropertySheet(props) {
   console.log('props:', props);
+  const { WooAdmin } = props;
   const fields = props.columns; // WooAdmin.getReactTableColumns(props.original);
   console.log({fields});
   const data = fields.map(field => {
@@ -53,11 +52,11 @@ function PropertySheet(props) {
           />
         </div>
 
-        <ReactJsonEditor
+        {/*<ReactJsonEditor
           values={columns}
           onChange={editorChangeHandler}
         />
-
+*/}
       </div>
     </div>
   )

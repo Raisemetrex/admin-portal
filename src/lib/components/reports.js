@@ -1,15 +1,40 @@
 
 import React from 'react';
 
+// import ReactJsonEditor from './reactJsonEditor';
+// import ReactTable from 'react-table';
+//
+// function propertiesEditor(row) {
+//   const { properties } = row;
+//   return (
+//     <ReactJsonEditor
+//       values={properties}
+//     />
+//   )
+//   // onChange={editorChangeHandler}
+//
+// }
+
 class Reports extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      data: [],
+      columns: [{Header: 'Empty', accessor: 'id'}],
     };
   }
 
+  componentDidMount() {
+    console.log('Reports: cdm: props:', this.props);
+  }
+
   render() {
+    const { data, columns } = this.state;
+    const tableProps = {
+      data,
+      columns,
+      className: '-striped -highlight',
+    };
     return (
       <div
         style={{padding: '10px'}}

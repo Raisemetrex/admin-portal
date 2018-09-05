@@ -3,13 +3,14 @@
 import React from 'react';
 
 import ReactTable from 'react-table';
-import 'react-table/react-table.css';
 
-import WooAdmin from '../data/wooAdmin';
+// import WooAdmin from '../data/wooAdmin';
 
 import { filterContainsNoCase } from '../utils/reactTableFilters';
 
-import PropertySheet from '../components/propertySheet';
+import ComponentFactory from './componentFactory';
+
+import PropertySheet from './propertySheet';
 
 class DataTable extends React.Component {
   constructor(props) {
@@ -27,7 +28,7 @@ class DataTable extends React.Component {
     //   params: ['2018-01-22','2018-01-23T23:59:59Z','8BF248F5-AFAF-49F3-86D0-3E886C375ED1'],
     //   sql: 'SELECT * FROM users WHERE inserted_at BETWEEN $1 and $2 AND current_account_id = $3',
     // };
-    const { query } = this.props;
+    const { query, WooAdmin } = this.props;
     const { properties, componentOptions, id } = query;
 
     // console.log('loadData: properties:', { properties, query });
@@ -53,17 +54,23 @@ class DataTable extends React.Component {
     }
   }
   extraProps = () => {
-    const subComponentProps = {
-      // ...row,
-      columns: [...this.state.columns],
-    };
+    const { query } = this.props;
+    const { properties, componentOptions, id } = query;
+    const { columns } = this.state;
+    // const subComponentProps = {
+    //   // ...row,
+    //   columns,
+    // };
+    const SubComponent = properties.SubComponent
+                          ? row => ComponentFactory.create(properties.SubComponent, {values: row.original})
+                          : row => <PropertySheet columns={columns} {...row} />;
     const extra = {
-      SubComponent: row => <PropertySheet {...subComponentProps} {...row} />,
+      SubComponent,
     };
     return extra;
   }
   render() {
-    // console.log('DataTable: props:', this.props);
+    console.log('DataTable: props:', this.props);
     // const { component, componentOptions, formSchema, params, sql } = this.props.query.properties;
     // console.log('DataTable: props.query.properies:', {
     //   component,
