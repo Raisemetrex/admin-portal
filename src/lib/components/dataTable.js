@@ -34,13 +34,13 @@ class DataTable extends React.Component {
 
     // console.log('loadData: properties:', { properties, query });
 
-    const { sql, params } = properties;
+    const { params } = properties;
     if (id) {
       this.setState({ loading: true }, () => {
         const stateUpdate = {
           loading: false,
         };
-        WooAdmin.queryById({sql, params: params || [], id})
+        WooAdmin.queryById({params: params || [], id})
           .then(data => {
             // console.log('query_by_id: result:', data);
             stateUpdate.columns = WooAdmin.getReactTableColumns(data, this.props.query);

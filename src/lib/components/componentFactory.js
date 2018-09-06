@@ -18,7 +18,7 @@ import Tools from './tools';
 import Settings from './settings';
 import JsonProps from './jsonProps';
 
-import JSONEditor from './reactJsonEditor';
+import JSONEditor from './jsonEditor';
 
 import EmptyComponent from './emptyComponent';
 

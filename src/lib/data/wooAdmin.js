@@ -309,6 +309,7 @@ class WooAdmin {
     column.Header = humanReadable(key);
     column.accessor = key;
     column.id = key;
+    column.show = !['id','inserted_at', 'updated_at', 'deactivated_at'].includes(key);
 
     // console.log(`column(${type(value)}):`, { key, value} );
 
