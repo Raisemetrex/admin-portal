@@ -1,7 +1,9 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
 
-import WooAdmin from '../data/wooAdmin';
+import Loading from './loading';
+
+// import WooAdmin from '../data/wooAdmin';
 
 import humanReadable from '../utils/humanReadable';
 import colors from '../utils/randomColors';
@@ -10,13 +12,14 @@ class PieChart extends React.Component {
   constructor() {
     super();
     this.state = {
+      loading: false,
       options: {
 				responsive: true,
 				legend: {
 					position: 'bottom',
 				},
 				title: {
-					display: true,
+					display: false,
 					text: 'Posts by Category - All Time',
 				},
 				animation: {
@@ -60,27 +63,48 @@ class PieChart extends React.Component {
   componentDidMount() {
 
     // console.log('cdm: props:', this.props);
+    this.load();
+  }
 
-    const { properties, id } = this.props.query;
-    const { params } = properties;
-    WooAdmin.queryById({id, params})
-      .then(result => {
-        const columns = WooAdmin.getReactTableColumns(result);
-        const { data } = this.state;
-        data.labels = result.map(row => humanReadable(row.category));
-        data.datasets[0].data = result.map(row => row.count);
-        // console.log('PieChart: data:', data);
-        this.setState({ data });
-      })
-      .catch(err => console.log('PieChart: didMount: error:', err));
+  load = () => {
+    this.setState({ loading: true }, () => {
+      const { properties, id } = this.props.query;
+      const { params } = properties;
+      const state = { loading: false};
+      const { WooAdmin } = this.props;
+      WooAdmin.queryById({id, params})
+        .then(result => {
+          const columns = WooAdmin.getReactTableColumns(result);
+          const { data } = this.state;
+          data.labels = result.map(row => humanReadable(row.category));
+          data.datasets[0].data = result.map(row => row.count);
+          // console.log('PieChart: data:', data);
+          state.result = result;
+          state.data = data;
+          // this.setState({ data });
+        })
+        .catch(err => console.log('PieChart: didMount: error:', err))
+        .finally(() => {
+          this.setState(state);
+        })
+    });
   }
 
   onElementsClick = (elems) => {
-    console.log('PieChart.onElementsClick:', elems);
+    const { data, result } = this.state;
+    // const { datasets } = data;
+    console.log('PieChart.onElementsClick:', { elems, data, result });
+    elems.map(e => {
+      // const dataset = datasets[e._datasetIndex];
+      // const { data } = dataset;
+      const item = result[e._index];
+      console.log('item:', item);
+    })
   }
 
   render() {
-    let options = {...this.state.options};
+    const { options, loading } = this.state;
+    if (loading) return <Loading />;
     if (this.props.showTitle === 'no') {
       options.title.display = false;
     }

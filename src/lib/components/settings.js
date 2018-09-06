@@ -2,24 +2,41 @@
 import React from 'react';
 import shortid from 'shortid';
 
+import Loading from './loading';
+
 // import WooAdmin from '../lib/data/wooAdmin';
 
 const Me = props => {
   // console.log('Me.props:', props)
-  if (props.me === null) return <div>Loading...</div>;
+  const { me } = props;
+  // console.log('me:', me);
   return (
-    <div style={{padding: '5px', border: '1px solid #CCC', borderRadius: '5px', backgroundColor: '#DDD', textAlign: 'center'}}>
-      {
-        props.me['profile-image-url'] ?
-        <div style={{textAlign: 'center', padding: '10px'}}>
-          <div className="avatar">
-            <img src={props.me['profile-image-url']} />
-          </div>
-        </div>
-        : null
-      }
-      <div><strong>{props.me['first-name']} {props.me['last-name']}</strong></div>
-      <small>{props.me['email-address']}</small>
+    <div style={{padding: '5px', border: '1px solid #CCC', borderRadius: '5px', backgroundColor: '#EEE', textAlign: 'center'}}>
+      <div style={{backgroundColor: '#DDD', borderRadius: '5px'}}>
+        {
+          !me ?
+            <Loading />
+          :
+            <div>
+              <strong>{me.auth_provider}</strong>
+              {
+                me.avatar ?
+                <div style={{textAlign: 'center', padding: '10px'}}>
+                  <div className="avatar">
+                    <img src={me.avatar} width="32px" height="32px"/>
+                  </div>
+                </div>
+                : null
+              }
+              <div>
+                <strong>{me.first_name} {me.last_name}</strong>
+              </div>
+              <div>
+                <small>{me.email}</small>
+              </div>
+            </div>
+        }
+      </div>
     </div>
   )
 }
@@ -35,15 +52,16 @@ class Settings extends React.Component {
     }
   }
 
-  // componentDidMount() {
-  //   WooAdmin.me()
-  //     .then(response => WooAdmin.getRecord(response))
-  //     .then(me => {
-  //       // console.log('me:', me);
-  //       this.setState({ me });
-  //     })
-  //     .catch(err => console.log('WooAdmin.me error:', err));
-  // }
+  componentDidMount() {
+    const { WooAdmin } = this.props;
+    WooAdmin.me()
+      .then(result => {
+        console.log('me result:', result);
+        const me = result && result.length ? result[0] : {empty: true}
+        console.log('me:', me);
+        this.setState({ me });
+      });
+  }
 
   // newQuery = () => {
   //   console.log('newQuery');
@@ -71,7 +89,7 @@ class Settings extends React.Component {
     const { me, environment } = this.state;
     return (
       <div style={{padding: '10px'}}>
-        {/*<Me me={me} />*/}
+        <Me me={me} />
         <div style={{textAlign: 'center', margin: '10px 10px'}}>
           <label>Environment: &nbsp;</label>
           <select onChange={this.switchEnvironment} value={environment}>

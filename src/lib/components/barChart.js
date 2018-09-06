@@ -4,6 +4,8 @@ import { Bar } from 'react-chartjs-2';
 
 import WooAdmin from '../data/wooAdmin';
 
+import Loading from './loading';
+
 import humanReadable from '../utils/humanReadable';
 import colors from '../utils/randomColors';
 
@@ -11,11 +13,12 @@ class BarChart extends React.Component {
   constructor() {
     super();
     this.state = {
+      loading: false,
       options: {
         responsive: true,
         title: {
-					display: true,
-					text: 'Posts by Month',
+					display: false,
+					text: 'Posts by Month - Past 6 Months',
 				},
 			},
       data: {
@@ -40,19 +43,40 @@ class BarChart extends React.Component {
   }
 
   componentDidMount() {
-    const { properties, id } = this.props.query;
-    const {  params } = properties;
-    WooAdmin.queryById({id, params})
-      .then(result => {
-        // console.log('BarChart: result:', result);
-        const columns = WooAdmin.getReactTableColumns(result);
-        const { data } = this.state;
-        data.labels = result.map(row => row.mon.split('T')[0]);
-        data.datasets[0].data = result.map(row => row.count);
-        // console.log('BarChart: data:', data);
-        this.setState({ data });
-      })
-      .catch(err => console.log('PieChart: didMount: error:', err));
+    // const { properties, id } = this.props.query;
+    // const {  params } = properties;
+    // WooAdmin.queryById({id, params})
+    //   .then(result => {
+    //     // console.log('BarChart: result:', result);
+    //     const columns = WooAdmin.getReactTableColumns(result);
+    //     const { data } = this.state;
+    //     data.labels = result.map(row => row.mon.split('T')[0]);
+    //     data.datasets[0].data = result.map(row => row.count);
+    //     // console.log('BarChart: data:', data);
+    //     this.setState({ data });
+    //   })
+    //   .catch(err => console.log('PieChart: didMount: error:', err));
+    //
+
+      this.setState({ loading: true }, () => {
+        const { properties, id } = this.props.query;
+        const { params } = properties;
+        const state = { loading: false};
+        const { WooAdmin } = this.props;
+        WooAdmin.queryById({id, params})
+          .then(result => {
+            const columns = WooAdmin.getReactTableColumns(result);
+            const { data } = this.state;
+            data.labels = result.map(row => row.mon.split('T')[0]);
+            data.datasets[0].data = result.map(row => row.count);
+            state.data = data;
+          })
+          .catch(err => console.log('PieChart: didMount: error:', err))
+          .finally(() => {
+            this.setState(state);
+          })
+      });
+
   }
 
   onElementsClick = (elems) => {
@@ -60,7 +84,8 @@ class BarChart extends React.Component {
   }
 
   render() {
-    let options = {...this.state.options};
+    const { options, loading } = this.state;
+    if (loading) return <Loading />;
     if (this.props.showTitle === 'no') {
       options.title.display = false;
     }

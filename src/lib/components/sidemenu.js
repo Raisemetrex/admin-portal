@@ -1,6 +1,7 @@
 
 import React from 'react';
 import * as mobxReact from 'mobx-react';
+import shortid from 'shortid';
 import Tree, { TreeNode } from 'rc-tree';
 import 'rc-tree/assets/index.css';
 
@@ -14,7 +15,7 @@ class SideMenu extends React.Component {
     const action = info.node.props['data-action'];
     // console.log('selected:', { item, info, action });
 
-    let node = { component: 'dummy', id: 'dummy-component' };
+    let node = { name: 'Empty Component', component: 'EmptyComponent', id: `empty-component` };
     if (action) {
       node = {...action};
     }

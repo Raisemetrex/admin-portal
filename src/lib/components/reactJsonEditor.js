@@ -1,7 +1,6 @@
 
 import React from 'react';
 import JSONEditor from 'jsoneditor';
-import 'jsoneditor/dist/jsoneditor.min.css';
 
 class ReactJsoneditor extends React.Component {
   constructor(props) {
@@ -35,7 +34,9 @@ class ReactJsoneditor extends React.Component {
 
   render() {
     return (
-      <div className="react-json-editor-wrapper" ref={(el) => {this.container = el}} />
+      <div style={{padding: '10px'}}>
+        <div className="react-json-editor-wrapper" ref={(el) => {this.container = el}} />
+      </div>
     )
   }
 }

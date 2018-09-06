@@ -40,13 +40,13 @@ class MenuStore {
       },
       children: [],
     },
-    {
-      key: 'hidden',
-      title: 'Hidden',
-      open: false,
-      disabled: true,
-      children: [],
-    }
+    // {
+    //   key: 'hidden',
+    //   title: 'Hidden',
+    //   open: false,
+    //   disabled: true,
+    //   children: [],
+    // },
   ]);
 
   add = mobx.action(item => {
@@ -108,7 +108,19 @@ class MenuStore {
 
 }
 
+const hidden = {
+  key: 'hidden',
+  title: 'Hidden',
+  open: false,
+  // disabled: true,
+  children: [],
+}
+
 const menuStore = new MenuStore();
+
+if (['local'].includes(WooAdmin.getEnvironment())) {
+  menuStore.add(hidden);
+}
 
 function extendMenu(queries) {
   // console.log('extendMenu:', queries);
@@ -121,24 +133,24 @@ function extendMenu(queries) {
       // console.log({ menuPath, component});
       const path = menuPath.split('.');
       const rootItem = menuStore.findByPath(path.slice(0,-1));
-      console.assert(rootItem, `Could not find root menu item: ${menuPath}`);
+      // console.assert(rootItem, `Could not find root menu item: ${menuPath}`);
       // console.log('rootItem:', rootItem);
-      const key = path.slice(-1)[0];
-      const title = humanReadable(key);
-      const newItem = {
-        key,
-        title,
-        'data-action': {
-          name: title,
-          id: key,
-          component: component || 'DataTable',
-          query,
-        }
-      };
       if (rootItem) {
+        const key = path.slice(-1)[0];
+        const title = humanReadable(key);
+        const newItem = {
+          key,
+          title,
+          'data-action': {
+            name: title,
+            id: key,
+            component: component || 'DataTable',
+            query,
+          }
+        };
         rootItem.children.push(newItem);
       } else {
-        console.warn(`could not find rootItem for ${path.slice(0,-1)}`);
+        console.log(`could not find rootItem for ${path.slice(0,-1)} - skipping`);
       }
     }
   });

@@ -20,6 +20,8 @@ import JsonProps from './jsonProps';
 
 import JSONEditor from './reactJsonEditor';
 
+import EmptyComponent from './emptyComponent';
+
 
 class ComponentFactory {
   constructor() {
@@ -73,6 +75,7 @@ factory
   .add('Settings', Settings)
   .add('JsonProps', JsonProps)
   .add('JSONEditor', JSONEditor)
+  .add('EmptyComponent', EmptyComponent)
   ;
 
 window.factory = factory;

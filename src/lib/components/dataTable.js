@@ -17,7 +17,8 @@ class DataTable extends React.Component {
     super(props);
     this.state = {
       columns: [],
-      data: []
+      data: [],
+      loading: false,
     }
   }
   componentDidMount() {
@@ -35,13 +36,23 @@ class DataTable extends React.Component {
 
     const { sql, params } = properties;
     if (id) {
-      WooAdmin.queryById({sql, params: params || [], id})
-        .then(data => {
-          // console.log('query_by_id: result:', data);
-          const columns = WooAdmin.getReactTableColumns(data, this.props.query);
-          this.setState({ data, columns });
-        })
-        .catch(err => console.log('DataTable.loadData: error:', err));
+      this.setState({ loading: true }, () => {
+        const stateUpdate = {
+          loading: false,
+        };
+        WooAdmin.queryById({sql, params: params || [], id})
+          .then(data => {
+            // console.log('query_by_id: result:', data);
+            stateUpdate.columns = WooAdmin.getReactTableColumns(data, this.props.query);
+            stateUpdate.data = data;
+          })
+          .catch(err => {
+            console.log('DataTable.loadData: error:', err)
+          })
+          .finally(() => {
+            this.setState(stateUpdate);
+          });
+      });
     } else {
       throw "Executing SQL directly has been deprecated"
       // WooAdmin.query({sql, params: params || [], id})
@@ -56,7 +67,7 @@ class DataTable extends React.Component {
   extraProps = () => {
     const { query } = this.props;
     const { properties, componentOptions, id } = query;
-    const { columns } = this.state;
+    const { columns, loading } = this.state;
     // const subComponentProps = {
     //   // ...row,
     //   columns,
@@ -66,11 +77,13 @@ class DataTable extends React.Component {
                           : row => <PropertySheet columns={columns} {...row} />;
     const extra = {
       SubComponent,
+      loading,
+      loadingText: <i className="fa fa-fw fa-spinner fa-spin fa-2x" />
     };
     return extra;
   }
   render() {
-    console.log('DataTable: props:', this.props);
+    // console.log('DataTable: props:', this.props);
     // const { component, componentOptions, formSchema, params, sql } = this.props.query.properties;
     // console.log('DataTable: props.query.properies:', {
     //   component,
