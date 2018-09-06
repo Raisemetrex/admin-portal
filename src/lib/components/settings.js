@@ -56,9 +56,9 @@ class Settings extends React.Component {
     const { WooAdmin } = this.props;
     WooAdmin.me()
       .then(result => {
-        console.log('me result:', result);
+        // console.log('me result:', result);
         const me = result && result.length ? result[0] : {empty: true}
-        console.log('me:', me);
+        // console.log('me:', me);
         this.setState({ me });
       });
   }

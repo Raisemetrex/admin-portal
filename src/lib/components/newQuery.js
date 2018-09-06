@@ -4,7 +4,7 @@ import React from 'react';
 import Form from "react-jsonschema-form";
 import 'bootstrap/dist/css/bootstrap.css';
 
-import MenuStore from '../../mobx/menuStore';
+// import MenuStore from '../../mobx/menuStore';
 
 const schema = {
   title: 'New Query',
@@ -64,7 +64,7 @@ class NewQuery extends React.Component {
     };
 
     console.log('NewQuery: item:', item);
-    MenuStore.append(item);
+    // MenuStore.append(item);
   }
 
   render() {

@@ -14,10 +14,10 @@ class JSONEditor extends React.Component {
     }
   }
   onChange = (values) => {
-    console.log('JSONEditor.onChange: values:', values);
-    const sql = values.properties.sql;
-    const formatted = sqlFormatter.format(sql);
-    console.log({ sql, formatted});
+    // console.log('JSONEditor.onChange: values:', values);
+    // const sql = values.properties.sql;
+    // const formatted = sqlFormatter.format(sql);
+    // console.log({ sql, formatted});
     // values.properties.sql = formatted.replace('\\n', '<br/>');
     // this.setState({ values });
   }

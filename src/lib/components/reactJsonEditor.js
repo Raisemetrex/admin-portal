@@ -20,7 +20,7 @@ class ReactJsoneditor extends React.Component {
 
   componentDidMount() {
     this.options = {
-      // mode: 'code',
+      // mode: 'form',
       onChangeJSON: (json) => {
         console.log('json:', json);
         if (this.props.onChange) {
@@ -28,11 +28,11 @@ class ReactJsoneditor extends React.Component {
           this.props.onChange(newValues)
         }
       },
-      onEditable: (node) => {
-        console.log('onEditable: node:', node);
-        if (node.field === 'sql') return false;
-        return true;
-      }
+      // onEditable: (node) => {
+      //   console.log('onEditable: node:', node);
+      //   if (node.field === 'sql') return false;
+      //   return true;
+      // },
     }
     this.editor = new JSONEditor(this.container, this.options)
     this.editor.set(this.props.values)

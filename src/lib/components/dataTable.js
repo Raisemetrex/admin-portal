@@ -67,32 +67,24 @@ class DataTable extends React.Component {
   extraProps = () => {
     const { query } = this.props;
     const { properties, componentOptions, id } = query;
-    const { columns, loading } = this.state;
-    // const subComponentProps = {
-    //   // ...row,
-    //   columns,
-    // };
+    const { columns, loading, data } = this.state;
     const SubComponent = properties.SubComponent
-                          ? row => ComponentFactory.create(properties.SubComponent, {values: row.original})
-                          : row => <PropertySheet columns={columns} {...row} />;
+      ? row => ComponentFactory.create(properties.SubComponent, {values: row.original, parentProps: this.props})
+      : row => <PropertySheet columns={columns} data={row} parentProps={this.props} />;
+    const showPagination = data.length >= this.props.pageSize;
+    const defaultPageSize = data.length < this.props.pageSize ? data.length : this.props.pageSize;
     const extra = {
       SubComponent,
       loading,
-      loadingText: <i className="fa fa-fw fa-spinner fa-spin fa-2x" />
+      loadingText: <i className="fa fa-fw fa-spinner fa-spin fa-2x" />,
+      defaultPageSize,
+      pageSize: defaultPageSize,
+      showPagination,
     };
     return extra;
   }
   render() {
     // console.log('DataTable: props:', this.props);
-    // const { component, componentOptions, formSchema, params, sql } = this.props.query.properties;
-    // console.log('DataTable: props.query.properies:', {
-    //   component,
-    //   componentOptions,
-    //   formSchema,
-    //   params,
-    //   sql,
-    // });
-
     const { columns, data } = this.state;
     // console.log('DataTable:', { columns, data });
     const extraProps = this.extraProps();

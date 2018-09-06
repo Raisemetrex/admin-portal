@@ -49,7 +49,7 @@ class Authenticate extends React.Component {
     this.state = {
       // schema,
       // formData: {},
-      environment: WooAdmin.getEnvironment(),
+      environment: localStorage.getItem('lastEnvironment') || 'local',
     };
     // this.state.schema.properties.email.default = props.username;
   }
@@ -79,12 +79,19 @@ class Authenticate extends React.Component {
   // }
 
   signInWithGoogle = () => {
-    console.log('signInWithGoogle:');
+    // const { state, props } = this;
+    // console.log('signInWithGoogle:', { state, props });
+
     const { WooAdmin } = this.props;
+    localStorage.setItem('lastEnvironment', this.state.environment);
     WooAdmin.setEnvironment(this.state.environment);
-    const endpoint = WooAdmin.getEndpoint();
-    const url = `${endpoint}/auth/google`; // 'http://localhost:4000/api/v1/auth/google';
-    window.location.href = url;
+    if (!WooAdmin.isAuthenticated()) {
+      const endpoint = WooAdmin.getEndpoint();
+      const url = `${endpoint}/auth/google`; // 'http://localhost:4000/api/v1/auth/google';
+      window.location.href = url;
+    } else {
+      window.location.reload();
+    }
   }
 
   selectEnvironment = (e) => {
@@ -123,7 +130,7 @@ class Authenticate extends React.Component {
             <br/>
             <div>
               <label>Environment: &nbsp;</label>
-              <select onChange={this.selectEnvironment}>
+              <select onChange={this.selectEnvironment} value={this.state.environment}>
                 <option value="local">Local</option>
                 <option value="staging">Staging</option>
                 <option value="production">Production</option>
@@ -151,9 +158,11 @@ class Authentication extends React.Component {
     this.state = {
       isAuthenticated: WooAdmin.isAuthenticated(),
       environment: WooAdmin.getEnvironment(),
-      message: null,
-      username: WooAdmin.getUserName(),
+      checkAuthentication: false,
+      // message: null,
+      // username: WooAdmin.getUserName(),
     }
+    // console.log('Authentication: state:', this.state);
   }
 
   componentWillReceiveProps(newProps) {
@@ -161,14 +170,15 @@ class Authentication extends React.Component {
     if (newProps.environemnt !== oldProps.environment) {
       // console.log('new props:', { newProps, oldProps: this.props });
       console.log('new environment:', newProps.environent);
+      this.setState({ checkAuthentication: true });
     }
   }
 
   render() {
-    const { isAuthenticated, message, username } = this.state;
+    const { isAuthenticated, message, username, checkAuthentication } = this.state;
     if (!isAuthenticated) {
-      const { WooAdmin } = this.props;
-      return <Authenticate authenticate={this.authenticate} message={message} username={username} WooAdmin={WooAdmin} />
+      // const { WooAdmin } = this.props;
+      return <Authenticate {...this.props} />
     }
     return this.props.children;
   }

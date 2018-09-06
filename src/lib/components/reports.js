@@ -25,7 +25,7 @@ class Reports extends React.Component {
   }
 
   componentDidMount() {
-    console.log('Reports: cdm: props:', this.props);
+    // console.log('Reports: cdm: props:', this.props);
   }
 
   render() {

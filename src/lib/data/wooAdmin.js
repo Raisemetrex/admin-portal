@@ -17,25 +17,41 @@ class WooAdmin {
       staging: 'https://api.reffind.xyz/api/v1',
       production: 'https://api.wooboard.com/api/v1',
     }
-    this.environment = localStorage.getItem('environment') || 'local';
-    this.access_token = localStorage.getItem(`${this.environment}_access_token`);
+    this.environment = null;
+    this.access_token = null;
+
+    this.environment = localStorage.getItem('environment');
+    if (this.environment) {
+      this.access_token = localStorage.getItem(`${this.environment}_access_token`);
+    }
   }
 
   getEnvironment() {
+    // if (this.environment === null) this.environment = localStorage.getItem('environment');
     return this.environment;
   }
 
   setEnvironment(environment) {
+    console.assert(environment === null || ['local','staging','production'].includes(environment), `setEnvironment: Invalid environment: ${environment}`);
+    console.log('WooAdmin.setEnvironment:', environment)
     this.environment = environment;
     localStorage.setItem('environment', environment);
-    this.access_token = localStorage.getItem(`${this.environment}_access_token`);
+    if (this.environment) {
+      this.access_token = localStorage.getItem(`${this.environment}_access_token`);
+    }
+    console.log('WooAdmin: environment:', {
+      environment,
+      access_token: this.access_token,
+    });
   }
 
-  setAccessToken(token, environment = 'local') {
+  setAccessToken(token, environment = null) {
+    console.assert(environment === null || ['local','staging','production'].includes(environment), `setAccessToken: Invalid environment: ${environment}`);
     this.access_token = token;
-    this.environment = environment;
+    if (environment) this.setEnvironment(environment);
+    // this.environment = environment ? environment : localStorage.getItem();
     localStorage.setItem(`${this.environment}_access_token`, token);
-    localStorage.setItem('environment', environment);
+    // localStorage.setItem('environment', environment);
     console.log('setAccessToken:', { WooAdmin: this });
   }
 
@@ -50,7 +66,12 @@ class WooAdmin {
   }
 
   isAuthenticated = () => {
-    return this.access_token !== null;
+    const { environment, access_token } = this;
+    console.log('WooAdmin.isAuthenticated:', {
+      environment,
+      access_token
+    });
+    return this.environment && this.access_token !== null;
   }
 
   // authenticate = (username, password, database) => {
@@ -102,10 +123,12 @@ class WooAdmin {
     return this.username;
   }
 
-  reset = () => {
-    localStorage.removeItem(`${this.environment}_access_token`);
+  reset = (clearToken = false) => {
+    if (clearToken) {
+      localStorage.removeItem(`${this.environment}_access_token`);
+      this.access_token = null;
+    }
     localStorage.removeItem('environment');
-    this.access_token = null;
     this.environment = null;
   }
 
@@ -220,7 +243,7 @@ class WooAdmin {
   }
 
   getJwt() {
-    return this.parseJwt(this.access_token);
+    return this.access_token ? this.parseJwt(this.access_token) : null;
   }
 
   // getTestJwt() {

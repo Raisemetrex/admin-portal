@@ -17,13 +17,21 @@ function editorChangeHandler(values) {
 }
 
 function PropertySheet(props) {
-  console.log('props:', props);
+  // console.log('props:', props);
   const { WooAdmin } = props;
+  const { query } = props.parentProps;
+
+  const buttons = [...query.properties.componentOptions.buttons];
+  console.log({ buttons });
+  buttons.forEach(button => {
+    console.log(`butt[${button.text}] => ${button.component.name} with ${JSON.stringify(button.component.props)}`);
+  })
+
   const fields = props.columns; // WooAdmin.getReactTableColumns(props.original);
-  console.log({fields});
+  // console.log({fields});
   const data = fields.map(field => {
     const { Header: property } = field;
-    const value = props.original[field.accessor];
+    const value = props.data.original[field.accessor];
     return {
       property: `${property}:`,
       value
