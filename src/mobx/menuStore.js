@@ -160,26 +160,31 @@ function extendMenu(queries) {
 function extendMenuFromDB() {
   WooAdmin.rest('/admin/queries')
     .then(result => {
-      extendMenu(result.map(item => {
-        const {
-          id,
-          inserted_at: insertedAt,
-          updated_at: updatedAt,
-          menu_path: menuPath,
-          menu_order: menuOrder,
-          properties,
-          permissions,
-        } = item;
-        return {
-          id,
-          properties,
-          permissions,
-          menuPath,
-          menuOrder,
-          insertedAt,
-          updatedAt
-        }
-      }));
+      console.log('extendMenuFromDB: result:', result);
+      if (result) {
+        extendMenu(result.map(item => {
+          const {
+            id,
+            inserted_at: insertedAt,
+            updated_at: updatedAt,
+            menu_path: menuPath,
+            menu_order: menuOrder,
+            properties,
+            permissions,
+          } = item;
+          return {
+            id,
+            properties,
+            permissions,
+            menuPath,
+            menuOrder,
+            insertedAt,
+            updatedAt
+          }
+        }));
+      } else {
+        console.log('extendMenuFromDB: result is null!');
+      }
     })
     .catch(err => {
       console.log('extendMenuFromDB: error:', err);

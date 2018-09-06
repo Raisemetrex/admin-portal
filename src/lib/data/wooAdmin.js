@@ -61,16 +61,19 @@ class WooAdmin {
   }
 
   getEndpoint() {
-    console.assert(this.endpoint[this.environment], 'Environment endpoint is incorrect', this);
+    console.assert(this.endpoint, 'getEndpoint: endpoint is null');
+    console.assert(this.endpoint[this.environment], 'getEndpoint: Environment endpoint is incorrect', {
+      endpoint: this.endpoint[this.environment],
+    });
     return this.endpoint[this.environment];
   }
 
   isAuthenticated = () => {
     const { environment, access_token } = this;
-    console.log('WooAdmin.isAuthenticated:', {
-      environment,
-      access_token
-    });
+    // console.log('WooAdmin.isAuthenticated:', {
+    //   environment,
+    //   access_token
+    // });
     return this.environment && this.access_token !== null;
   }
 
@@ -159,6 +162,10 @@ class WooAdmin {
   }
 
   rest = (path, method = 'GET') => {
+    if (!this.isAuthenticated()) {
+      // console.error(`rest: not authenticated`);
+      return Promise.reject(`rest: not authenticated`);
+    }
     const query = `${this.getEndpoint()}${path}`;
     return fetch(query, {
       method,
