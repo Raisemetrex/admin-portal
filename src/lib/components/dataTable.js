@@ -30,11 +30,12 @@ class DataTable extends React.Component {
     //   sql: 'SELECT * FROM users WHERE inserted_at BETWEEN $1 and $2 AND current_account_id = $3',
     // };
     const { query, WooAdmin } = this.props;
-    const { properties, componentOptions, id } = query;
+    const { properties, id, params } = query;
+    // const { componentOptions } = properties;
 
-    // console.log('loadData: properties:', { properties, query });
+    console.log('loadData: properties:', { properties, query });
 
-    const { params } = properties;
+    // const { params } = properties;
     if (id) {
       this.setState({ loading: true }, () => {
         const stateUpdate = {
@@ -42,8 +43,12 @@ class DataTable extends React.Component {
         };
         WooAdmin.queryById({params: params || [], id})
           .then(data => {
-            // console.log('query_by_id: result:', data);
-            stateUpdate.columns = WooAdmin.getReactTableColumns(data, this.props.query);
+            console.log('query_by_id: result:', data);
+            if (data.length) {
+              stateUpdate.columns = WooAdmin.getReactTableColumns(data, this.props.query);
+            } else {
+              stateUpdate.columns = [{Header: 'No Data', accessor: 'id'}];
+            }
             stateUpdate.data = data;
           })
           .catch(err => {
@@ -66,13 +71,14 @@ class DataTable extends React.Component {
   }
   extraProps = () => {
     const { query } = this.props;
-    const { properties, componentOptions, id } = query;
+    const { properties, id } = query;
+    const { componentOptions } = properties;
     const { columns, loading, data } = this.state;
     const SubComponent = properties.SubComponent
-      ? row => ComponentFactory.create(properties.SubComponent, {values: row.original, parentProps: this.props})
-      : row => <PropertySheet columns={columns} data={row} parentProps={this.props} />;
+      ? row => ComponentFactory.create(properties.SubComponent, {values: row.original, parentProps: this.props, componentOptions})
+      : row => <PropertySheet columns={columns} data={row} parentProps={this.props} componentOptions={componentOptions} />;
     const showPagination = data.length >= this.props.pageSize;
-    const defaultPageSize = data.length < this.props.pageSize ? data.length : this.props.pageSize;
+    const defaultPageSize = Math.max(data.length < this.props.pageSize ? data.length : this.props.pageSize, 5);
     const extra = {
       SubComponent,
       loading,
@@ -80,11 +86,12 @@ class DataTable extends React.Component {
       defaultPageSize,
       pageSize: defaultPageSize,
       showPagination,
+      filterable: data.length != 0,
     };
     return extra;
   }
   render() {
-    // console.log('DataTable: props:', this.props);
+    console.log('DataTable: props:', this.props);
     const { columns, data } = this.state;
     // console.log('DataTable:', { columns, data });
     const extraProps = this.extraProps();
@@ -94,7 +101,6 @@ class DataTable extends React.Component {
           columns={columns}
           data={data}
           defaultPageSize={this.props.pageSize}
-          filterable
           defaultFilterMethod={this.props.defaultFilterMethod}
           {...extraProps}
         />

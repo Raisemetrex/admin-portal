@@ -7,6 +7,8 @@ import humanReadable from '../lib/utils/humanReadable';
 
 class MenuStore {
 
+  map = mobx.observable(new Map());
+
   data = mobx.observable([
     {
       key: 'dashboard',
@@ -75,6 +77,10 @@ class MenuStore {
     }
   })
 
+  find(path) {
+    return this.map.get(path);
+  }
+
   findByPath(path, children = null) {
 
     // children || console.log('findByPath:', {data: this.data, path});
@@ -129,6 +135,9 @@ function extendMenu(queries) {
     const { menuPath, properties } = query;
     if (properties && menuPath) {
       // console.log({ menuPath, properties, query });
+
+      menuStore.map.set(menuPath, query);
+
       const { component } = properties;
       // console.log({ menuPath, component});
       const path = menuPath.split('.');
@@ -160,7 +169,7 @@ function extendMenu(queries) {
 function extendMenuFromDB() {
   WooAdmin.rest('/admin/queries')
     .then(result => {
-      console.log('extendMenuFromDB: result:', result);
+      // console.log('extendMenuFromDB: result:', result);
       if (result) {
         extendMenu(result.map(item => {
           const {
@@ -200,7 +209,7 @@ export { extenderMenuFromDB };
 extenderMenuFromDB();
 // extender();
 
-// window.menuStoreData = menuStore.data;
+window.menuStore = menuStore;
 
 
 export default menuStore;

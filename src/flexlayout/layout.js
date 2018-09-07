@@ -8,6 +8,8 @@ import MenuStore from '../mobx/menuStore';
 
 import ComponentFactory from '../lib/components/componentFactory';
 
+import { trimAccountId } from '../lib/utils/transformations';
+
 const DashboardPanel = {
 	type: 'tab',
 	name: 'Dashboard',
@@ -104,6 +106,21 @@ class Main extends React.Component {
 			}
 		}
 
+		showPosts = (data) => {
+			console.log('showPosts: data:', data);
+
+	    const newTab = {
+	      component: 'AccountPosts',
+				componentOptions: {
+					data,
+				},
+	      name: `Account Posts (${trimAccountId(data.id)})`,
+	      id: `AccountPosts-${data.id}`,
+	    }
+	    this.addNode(newTab);
+
+		}
+
 		addNode = (node) => {
 			// console.log('Layout.addNode node:', node);
 			const existing = this.layout.model.getNodeById(node.id);
@@ -124,9 +141,10 @@ class Main extends React.Component {
 
 				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
 				const { WooAdmin, setEnvironment } = this.props;
-				const { addNode } = this;
+				const { addNode, showPosts } = this;
 				const props = {
 					addNode,
+					showPosts,
 					setEnvironment,
 					WooAdmin,
 					setEnvironment,

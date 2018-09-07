@@ -17,6 +17,7 @@ import Charts from './charts';
 import Tools from './tools';
 import Settings from './settings';
 import JsonProps from './jsonProps';
+import AccountPosts from './accountPosts';
 
 import JSONEditor from './jsonEditor';
 
@@ -48,6 +49,7 @@ class ComponentFactory {
   }
 
   create(key, props) {
+    // console.log('ComponentFactory.create:', {key,props});
     const component = this.find(key);
     if (component) {
       return React.createElement(component, props);
@@ -76,6 +78,7 @@ factory
   .add('JsonProps', JsonProps)
   .add('JSONEditor', JSONEditor)
   .add('EmptyComponent', EmptyComponent)
+  .add('AccountPosts', AccountPosts)
   ;
 
 window.factory = factory;
