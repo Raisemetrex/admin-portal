@@ -71,12 +71,20 @@ class DataTable extends React.Component {
   }
   extraProps = () => {
     const { query } = this.props;
-    const { properties, id } = query;
+    const { properties /*, id */ } = query;
     const { componentOptions } = properties;
     const { columns, loading, data } = this.state;
+
+    const subComponentProps = {
+      ...this.props,
+      ...componentOptions,
+      columns,
+      // query,
+    };
     const SubComponent = properties.SubComponent
-      ? row => ComponentFactory.create(properties.SubComponent, {values: row.original, parentProps: this.props, componentOptions})
-      : row => <PropertySheet columns={columns} data={row} parentProps={this.props} componentOptions={componentOptions} />;
+      ? row => ComponentFactory.create(properties.SubComponent, {...subComponentProps, data: row.original })
+      : row => <PropertySheet {...subComponentProps} data={row.original} />; // columns={columns} data={row} parentProps={this.props} componentOptions={componentOptions} />;
+
     const showPagination = data.length >= this.props.pageSize;
     const defaultPageSize = Math.max(data.length < this.props.pageSize ? data.length : this.props.pageSize, 5);
     const extra = {

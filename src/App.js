@@ -7,6 +7,7 @@ import 'flexlayout-react/style/light.css';
 
 import Layout from './flexlayout/layout';
 import Authentication from './lib/components/authentication';
+import menu from './mobx/menuStore';
 
 class App extends Component {
   constructor(props) {
@@ -25,14 +26,16 @@ class App extends Component {
     const { setEnvironment } = this;
     const { WooAdmin } = this.props;
     const { environment } = this.state;
-    const extra = {
+    const globalProps = {
       setEnvironment,
       environment,
+      WooAdmin,
+      menu,
     };
     return (
       <div className="App">
-        <Authentication WooAdmin={WooAdmin} {...extra}>
-          <Layout WooAdmin={WooAdmin} {...extra} />
+        <Authentication {...globalProps}>
+          <Layout {...globalProps} />
         </Authentication>
       </div>
     );

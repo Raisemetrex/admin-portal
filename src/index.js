@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import 'react-table/react-table.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
+import './css/account.css';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';

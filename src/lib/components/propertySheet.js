@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactTable from 'react-table';
 import Inspector from 'react-inspector';
+import shortid from 'shortid';
 
 // import ReactJsonEditor from './reactJsonEditor';
 
@@ -16,27 +17,37 @@ function editorChangeHandler(values) {
     console.log('new values', values)
 }
 
-function getButtons(data, options, props) {
-  let buttons = null;
-  console.log('getButtons:', options);
-  if (options.showPosts) {
-    console.assert(props.parentProps.showPosts, `getButtons: parentProps does not contain showPosts callback:`, props.parentProps);
-    buttons = (
-      <div>
-        <button onClick={() => props.parentProps.showPosts(data)}>Show Posts</button>
-      </div>
-    )
+function getButtons(props) {
+  const { buttons, data } = props;
+  const result = [];
+  // console.log('getButtons:', buttons);
+  if (buttons) {
+    buttons.map(button => {
+      const { action, text, props: actionProps } = button;
+      console.log('button:', {text, action, actionProps: {...actionProps} });
+      if (props[action]) {
+        result.push(
+          <button key={shortid.generate()} onClick={() => props[action](data, props, actionProps)}>{text}</button>
+        )
+      }
+    })
   }
-  return buttons;
+  return (
+    result ?
+      <div style={{padding: '5px', marginTop: '5px', marginBottom: '10px', border: '1px solid #DDD', borderRadius: '5px', backgroundColor: '#EEE'}}>
+        {result}
+      </div>
+    : null
+);
 }
 
 function PropertySheet(props) {
   console.log('PropertySheet: props:', props);
-  const { WooAdmin } = props;
-  const { query } = props.parentProps;
 
-  const { properties } = query;
-  const { componentOptions } = properties;
+  const { WooAdmin, query, componentOptions } = props;
+
+  // const { properties } = query;
+  // const { componentOptions } = properties;
 
   console.log('options:', { componentOptions: {...componentOptions} });
 
@@ -50,7 +61,7 @@ function PropertySheet(props) {
   // console.log({fields});
   const data = fields.map(field => {
     const { Header: property } = field;
-    const value = props.data.original[field.accessor];
+    const value = props.data[field.accessor];
     return {
       property: `${property}:`,
       value
@@ -60,7 +71,7 @@ function PropertySheet(props) {
     // style: {height: '400px'},
     // filterable: true,
   }
-  const buttons = getButtons(props.data.original, componentOptions, props);
+  const buttons = getButtons(props);
 
   return (
     <div style={{padding: '10px', backgroundColor: '#F9F9F9'}}>

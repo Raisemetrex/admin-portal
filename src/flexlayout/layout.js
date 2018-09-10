@@ -4,51 +4,10 @@ import React from 'react';
 import shortid from 'shortid';
 import FlexLayout from 'flexlayout-react';
 
-import MenuStore from '../mobx/menuStore';
-
+import Panels from './panels/index';
 import ComponentFactory from '../lib/components/componentFactory';
 
 import { trimAccountId } from '../lib/utils/transformations';
-
-const DashboardPanel = {
-	type: 'tab',
-	name: 'Dashboard',
-	enableClose: false,
-	enableDrag: false,
-	enableRename: false,
-	component: 'Dashboard',
-	id: 'DashboardTab',
-};
-
-const SideMenuPanel = {
-	type: 'tab',
-	enableClose: false,
-	enableDrag: false,
-	enableRename: false,
-	name: 'Menu',
-	component: 'SideMenu',
-	id: '#menu',
-};
-
-const SettingsPanel = {
-	type: 'tab',
-	enableClose: false,
-	enableDrag: false,
-	enableRename: false,
-	name: '\u2699',
-	component: 'Settings',
-	id: '#settings',
-};
-
-const toolsPanel = {
-	type: 'tab',
-	name: 'Tools',
-	component: 'Tools',
-	id: '#tools',
-	enableClose: false,
-	enableDrag: true,
-	enableRename: false,
-};
 
 const mainLayout = {
 	global: {},
@@ -63,7 +22,7 @@ const mainLayout = {
 				active: true,
 				id: 'MAIN',
 				children: [
-					DashboardPanel
+					Panels.DashboardPanel
 				]
 			},
 		]
@@ -74,8 +33,8 @@ const mainLayout = {
 			location: 'left',
 			selected: 0,
 			children: [
-				SideMenuPanel,
-				SettingsPanel,
+				Panels.SideMenuPanel,
+				Panels.SettingsPanel,
 			]
 	 },
 	 {
@@ -101,18 +60,19 @@ class Main extends React.Component {
 		componentDidMount() {
 			const { WooAdmin } = this.props;
 			if (['local'].includes(WooAdmin.getEnvironment())) {
-				this.layout.addTabToTabSet('border_right',toolsPanel);
+				this.layout.addTabToTabSet('border_right', Panels.ToolsPanel);
 				// this.layout.doAction(FlexLayout.Actions.selectTab(toolsPanel.id));
 			}
 		}
 
-		showPosts = (data) => {
-			console.log('showPosts: data:', data);
+		showPosts = (data, props, actionProps) => {
+			console.log('showPosts:', { data, props, actionProps });
 
 	    const newTab = {
 	      component: 'AccountPosts',
 				componentOptions: {
 					data,
+					...actionProps,
 				},
 	      name: `Account Posts (${trimAccountId(data.id)})`,
 	      id: `AccountPosts-${data.id}`,
@@ -137,48 +97,46 @@ class Main extends React.Component {
     factory(node) {
         const component = node.getComponent();
 				const extraData = node.getExtraData().data || {};
+				const { componentOptions, ...restExtra} = extraData;
 				const config = node.getConfig() || {};
 
-				var result = <div style={{padding: '10px'}}><h4>Unknown Component</h4></div>;
-				const { WooAdmin, setEnvironment } = this.props;
+				// console.log('factory:', { component, extraData, config });
+
 				const { addNode, showPosts } = this;
 				const props = {
+					...this.props,
 					addNode,
 					showPosts,
-					setEnvironment,
-					WooAdmin,
-					setEnvironment,
 					...config,
-					...extraData,
-					logout: WooAdmin.logout,
-					menu: MenuStore,
+					...restExtra,
+					...componentOptions,
 				};
 
 				// console.log('factory:', { component, extraData, config, props });
 
-				result = ComponentFactory.create(component, props);
+				const result = ComponentFactory.create(component, props);
 				console.assert(result,`Layout: ComponentFactory could not locate component: ${component}`);
 
 				return result;
     }
 
-		settingsClick = (x) => {
-			const { target } = x;
-			console.log('settingsClick:', { target, x });
-		}
-
-		onRenderTab = (node, renderValues) => {
-			console.log('onRenderTab:', { node, renderValues });
-			renderValues.leading = 'Bingo:';
-		}
-
-		onRenderTabSet = (node, renderValues) => {
-			if (node._attributes.id === 'MAIN') {
-				console.log('onRenderTabSet:', { node, renderValues });
-				renderValues.headerContent = "-- " + renderValues.headerContent + " --";
-				renderValues.buttons.push(<i className="fa fa-fw fa-cog" key={shortid.generate()} onClick={this.settingsClick} />);
-			}
-		};
+		// settingsClick = (x) => {
+		// 	const { target } = x;
+		// 	console.log('settingsClick:', { target, x });
+		// }
+		//
+		// onRenderTab = (node, renderValues) => {
+		// 	console.log('onRenderTab:', { node, renderValues });
+		// 	renderValues.leading = 'Bingo:';
+		// }
+		//
+		// onRenderTabSet = (node, renderValues) => {
+		// 	if (node._attributes.id === 'MAIN') {
+		// 		console.log('onRenderTabSet:', { node, renderValues });
+		// 		renderValues.headerContent = "-- " + renderValues.headerContent + " --";
+		// 		renderValues.buttons.push(<i className="fa fa-fw fa-cog" key={shortid.generate()} onClick={this.settingsClick} />);
+		// 	}
+		// };
 
     render() {
 			// console.log('layout: props:', this.props);
