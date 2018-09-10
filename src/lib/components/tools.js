@@ -100,6 +100,15 @@ class Tools extends React.Component {
     const provider = 'okta';
     this.authProvider(provider)
   }
+  testResponsive = () => {
+    const newTab = {
+      component: 'Responsive',
+      name: `Responsive`,
+      id: `Responsive`,
+    }
+    this.props.addNode(newTab);
+  }
+
   showUsersQuery = () => {
     // console.log('showUsers props:', this.props);
 
@@ -191,6 +200,12 @@ class Tools extends React.Component {
 
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.consoleJwt}>Show JWT</button>
+        </div>
+
+        <hr/>
+
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.testResponsive}>Responsive</button>
         </div>
 
         <hr/>

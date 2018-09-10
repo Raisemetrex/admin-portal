@@ -137,7 +137,7 @@ class WooAdmin {
 
   queryById = (request) => {
     const query = `${this.getEndpoint()}/admin/query_by_id`;
-    console.log('running query:', request);
+    // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
       headers: {

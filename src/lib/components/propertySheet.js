@@ -24,7 +24,7 @@ function getButtons(props) {
   if (buttons) {
     buttons.map(button => {
       const { action, text, props: actionProps } = button;
-      console.log('button:', {text, action, actionProps: {...actionProps} });
+      // console.log('button:', {text, action, actionProps: {...actionProps} });
       if (props[action]) {
         result.push(
           <button key={shortid.generate()} onClick={() => props[action](data, props, actionProps)}>{text}</button>
@@ -42,20 +42,11 @@ function getButtons(props) {
 }
 
 function PropertySheet(props) {
-  console.log('PropertySheet: props:', props);
+  // console.log('PropertySheet: props:', props);
 
   const { WooAdmin, query, componentOptions } = props;
 
-  // const { properties } = query;
-  // const { componentOptions } = properties;
-
-  console.log('options:', { componentOptions: {...componentOptions} });
-
-  // const buttons = [...query.properties.componentOptions.buttons];
-  // console.log({ buttons });
-  // buttons.forEach(button => {
-  //   console.log(`butt[${button.text}] => ${button.component.name} with ${JSON.stringify(button.component.props)}`);
-  // })
+  // console.log('options:', { componentOptions: {...componentOptions} });
 
   const fields = props.columns; // WooAdmin.getReactTableColumns(props.original);
   // console.log({fields});

@@ -33,7 +33,7 @@ class DataTable extends React.Component {
     const { properties, id, params } = query;
     // const { componentOptions } = properties;
 
-    console.log('loadData: properties:', { properties, query });
+    // console.log('loadData: properties:', { properties, query });
 
     // const { params } = properties;
     if (id) {
@@ -43,7 +43,7 @@ class DataTable extends React.Component {
         };
         WooAdmin.queryById({params: params || [], id})
           .then(data => {
-            console.log('query_by_id: result:', data);
+            // console.log('query_by_id: result:', data);
             if (data.length) {
               stateUpdate.columns = WooAdmin.getReactTableColumns(data, this.props.query);
             } else {
@@ -99,7 +99,7 @@ class DataTable extends React.Component {
     return extra;
   }
   render() {
-    console.log('DataTable: props:', this.props);
+    // console.log('DataTable: props:', this.props);
     const { columns, data } = this.state;
     // console.log('DataTable:', { columns, data });
     const extraProps = this.extraProps();

@@ -23,14 +23,29 @@ import JSONEditor from './jsonEditor';
 
 import EmptyComponent from './emptyComponent';
 
+import Responsive from './responsive';
+
+
+function getDisplayName(Component) {
+  // console.log('getDisplayName: Component', Component);
+  return (
+    Component.displayName ||
+    Component.name ||
+    (typeof Component === 'string' && Component.length > 0
+      ? Component
+      : 'Unknown')
+  );
+}
 
 class ComponentFactory {
   constructor() {
     this.registry = new Map();
   }
 
-  add(key, item) {
-    this.registry.set(key, item);
+  add(item, key = null) {
+    const displayName = getDisplayName(item);
+    console.assert(displayName !== 'Unknown' || key !== null, `displayName for item could not be found: item:`, { item, key });
+    this.registry.set(key ? key : displayName, item);
     return this;
   }
 
@@ -61,24 +76,25 @@ class ComponentFactory {
 const factory = new ComponentFactory();
 
 factory
-  .add('Dashboard', Dashboard)
-  .add('DataTable', DataTable)
-  .add('RestTable', RestTable)
-  .add('PieChart', PieChart)
-  .add('BarChart', BarChart)
-  .add('NewQuery', NewQuery)
+  .add(Dashboard)
+  .add(DataTable)
+  .add(RestTable)
+  .add(PieChart)
+  .add(BarChart)
+  .add(NewQuery)
 
-  .add('SideMenu', SideMenu)
-  .add('AccountSearch', AccountSearch)
-  .add('AccountResults', AccountResults)
-  .add('Reports', Reports)
-  .add('Charts', Charts)
-  .add('Tools', Tools)
-  .add('Settings', Settings)
-  .add('JsonProps', JsonProps)
-  .add('JSONEditor', JSONEditor)
-  .add('EmptyComponent', EmptyComponent)
-  .add('AccountPosts', AccountPosts)
+  .add(SideMenu)
+  .add(AccountSearch)
+  .add(AccountResults)
+  .add(Reports)
+  .add(Charts)
+  .add(Tools)
+  .add(Settings)
+  .add(JsonProps)
+  .add(JSONEditor)
+  .add(EmptyComponent)
+  .add(AccountPosts)
+  .add(Responsive)
   ;
 
 window.factory = factory;

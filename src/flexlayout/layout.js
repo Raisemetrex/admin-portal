@@ -102,11 +102,12 @@ class Main extends React.Component {
 
 				// console.log('factory:', { component, extraData, config });
 
-				const { addNode, showPosts } = this;
+				const { addNode, showPosts, factory } = this;
 				const props = {
 					...this.props,
 					addNode,
 					showPosts,
+					factory,
 					...config,
 					...restExtra,
 					...componentOptions,

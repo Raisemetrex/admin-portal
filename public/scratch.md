@@ -133,3 +133,9 @@ status = 'free-trial'
   ]
 }
 }
+
+
+
+SELECT
+a.*,u.email_address
+FROM accounts a INNER JOIN users u ON a.id = u.current_account_id AND u.role = 'owner'

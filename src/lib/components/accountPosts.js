@@ -2,21 +2,17 @@
 import React from 'react';
 
 import DataTable from './dataTable';
+import AccountDetails from './accountDetails.js';
 
 function AccountPosts(props) {
-  console.log('AccountPosts: props:', props);
+  // console.log('AccountPosts: props:', props);
   const accountPosts = props.menu.find('hidden.account_posts');
   const { data } = props;
-  console.log('accountPosts:', { accountPosts, data });
+  // console.log('accountPosts:', { accountPosts, data });
   accountPosts.params = [data.id];
   return (
     <div>
-      <div className="account-details">
-        <dl>
-          <dt>Account Name:</dt><dd>{data.name}</dd>
-          <dt>Email Address:</dt><dd>{data.email_address}</dd>
-        </dl>
-      </div>
+      <AccountDetails data={data} />
       <DataTable
         {...props}
         pageSize={10}
