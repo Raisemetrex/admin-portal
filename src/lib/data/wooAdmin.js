@@ -199,11 +199,22 @@ class WooAdmin {
   }
 
   logout = () => {
+    console.log('WooAdmin.logout:',{
+      environment: this.environment,
+      jwt: this.getJwt(),
+    })
     this.reset();
     window.location.reload();
   }
 
   me = () => {
+
+    console.log('me:', {
+      environment: this.environment,
+      jwt: this.getJwt(),
+      endpoint: this.getEndpoint(),
+    });
+
     const q = `${this.getEndpoint()}/admin/me`;
     // return this.fetch(q);
     return fetch(q, {

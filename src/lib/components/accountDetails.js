@@ -8,7 +8,7 @@ function mapToDl(data, details) {
   const aData = [];
   details.map(item => {
     aData.push(<dt key={`dt_${item.key}`}>{`${item.text}:`}</dt>);
-    aData.push(<dd key={`dd_${item.key}`}>{data[item.key]}</dd>);
+    aData.push(<dd key={`dd_${item.key}`}>{data[item.key] || <span>&nbsp;</span>}</dd>);
   });
   return aData;
   // return (

@@ -84,22 +84,32 @@ class Settings extends React.Component {
     });
   }
 
+  logout = () => {
+    const { WooAdmin } = this.props;
+    console.assert(WooAdmin, 'WooAdmin is null in Settings.logout');
+    WooAdmin.logout();
+  }
+
   render() {
-    // console.log('Settings.props:', this.props);
+    console.log('Settings.props:', this.props);
     const { me, environment } = this.state;
     return (
       <div style={{padding: '10px'}}>
-        <Me me={me} />
         <div style={{textAlign: 'center', margin: '10px 10px'}}>
+          <label>Environment: &nbsp;</label>
+          {environment}
+        </div>
+        <Me me={me} />
+        {/*<div style={{textAlign: 'center', margin: '10px 10px'}}>
           <label>Environment: &nbsp;</label>
           <select onChange={this.switchEnvironment} value={environment}>
             <option value="local">Local</option>
             <option value="staging">Staging</option>
             <option value="production">Production</option>
           </select>
-        </div>
+        </div>*/}
         <div style={{textAlign: 'center', marginTop: '10px'}}>
-          <button onClick={this.props.logout}>Logout</button>
+          <button onClick={this.logout}>Logout</button>
         </div>
       </div>
     )

@@ -66,7 +66,7 @@ class Main extends React.Component {
 		}
 
 		showPosts = (data, props, actionProps) => {
-			console.log('showPosts:', { data, props, actionProps });
+			// console.log('showPosts:', { data, props, actionProps });
 
 	    const newTab = {
 	      component: 'AccountPosts',

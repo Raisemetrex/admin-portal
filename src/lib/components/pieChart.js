@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pie } from 'react-chartjs-2';
+import { Pie, Polar } from 'react-chartjs-2';
 
 import Loading from './loading';
 
@@ -14,6 +14,8 @@ class PieChart extends React.Component {
     this.state = {
       loading: false,
       options: {
+        startAngle: -45 * Math.PI / 180,
+        // startAngle: -0.8 * Math.PI,
 				responsive: true,
 				legend: {
 					position: 'bottom',
@@ -91,15 +93,15 @@ class PieChart extends React.Component {
   }
 
   onElementsClick = (elems) => {
-    const { data, result } = this.state;
-    // const { datasets } = data;
-    console.log('PieChart.onElementsClick:', { elems, data, result });
-    elems.map(e => {
-      // const dataset = datasets[e._datasetIndex];
-      // const { data } = dataset;
-      const item = result[e._index];
-      console.log('item:', item);
-    })
+    // const { data, result } = this.state;
+    // // const { datasets } = data;
+    // console.log('PieChart.onElementsClick:', { elems, data, result });
+    // elems.map(e => {
+    //   // const dataset = datasets[e._datasetIndex];
+    //   // const { data } = dataset;
+    //   const item = result[e._index];
+    //   console.log('item:', item);
+    // })
   }
 
   render() {
@@ -109,7 +111,7 @@ class PieChart extends React.Component {
       options.title.display = false;
     }
     return (
-      <Pie
+      <Polar
         data={this.state.data}
         options={options}
         onElementsClick={this.onElementsClick}

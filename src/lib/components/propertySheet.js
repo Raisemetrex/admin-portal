@@ -31,14 +31,15 @@ function getButtons(props) {
         )
       }
     })
+    return (
+      result ?
+        <div style={{padding: '5px', marginTop: '5px', marginBottom: '10px', border: '1px solid #DDD', borderRadius: '5px', backgroundColor: '#EEE'}}>
+          {result}
+        </div>
+      : null
+    );
   }
-  return (
-    result ?
-      <div style={{padding: '5px', marginTop: '5px', marginBottom: '10px', border: '1px solid #DDD', borderRadius: '5px', backgroundColor: '#EEE'}}>
-        {result}
-      </div>
-    : null
-);
+  return null;
 }
 
 function PropertySheet(props) {

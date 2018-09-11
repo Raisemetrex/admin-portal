@@ -18,7 +18,7 @@ class BarChart extends React.Component {
         responsive: true,
         title: {
 					display: false,
-					text: 'Posts by Month - Past 6 Months',
+					text: 'Posts by Month - All Time',
 				},
 			},
       data: {
@@ -60,18 +60,20 @@ class BarChart extends React.Component {
 
       this.setState({ loading: true }, () => {
         const { properties, id } = this.props.query;
-        const { params } = properties;
+        const { params, componentOptions } = properties;
+        // console.log({componentOptions});
         const state = { loading: false};
         const { WooAdmin } = this.props;
         WooAdmin.queryById({id, params})
           .then(result => {
             const columns = WooAdmin.getReactTableColumns(result);
             const { data } = this.state;
-            data.labels = result.map(row => row.mon.split('T')[0]);
+            data.labels = result.map(row => row[componentOptions.key].split('T')[0]);
             data.datasets[0].data = result.map(row => row.count);
+            data.datasets[0].label = componentOptions.label || 'Value';
             state.data = data;
           })
-          .catch(err => console.log('PieChart: didMount: error:', err))
+          .catch(err => console.log('BarChart: didMount: error:', err))
           .finally(() => {
             this.setState(state);
           })
@@ -80,7 +82,7 @@ class BarChart extends React.Component {
   }
 
   onElementsClick = (elems) => {
-    console.log('BarChart.onElementsClick:', elems);
+    // console.log('BarChart.onElementsClick:', elems);
   }
 
   render() {
