@@ -76,6 +76,8 @@ function oauthPopup(url) {
 class Tools extends React.Component {
   constructor(props) {
     super(props);
+    // this.testObject = props.menu.find('charts.posts-by-month');
+    this.testObject = props.menu.find('reports.free_trial');
   }
   extendMenuFromDB = () => {
     extenderMenuFromDB();
@@ -100,6 +102,19 @@ class Tools extends React.Component {
     const provider = 'okta';
     this.authProvider(provider)
   }
+
+  addComponent = (name, data = null) => {
+    const newTab = {
+      name,
+      component: name,
+      id: name,
+    };
+    if (data) newTab.data = data;
+    this.props.addNode(newTab);
+  }
+
+  testFinder = () => this.addComponent('Finder', this.testObject)
+
   testResponsive = () => {
     const newTab = {
       component: 'Responsive',
@@ -206,6 +221,12 @@ class Tools extends React.Component {
 
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.testResponsive}>Responsive</button>
+        </div>
+
+        <hr/>
+
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.testFinder}>Finder</button>
         </div>
 
         <hr/>

@@ -5,6 +5,7 @@
   "dependencies": {
     "bootstrap": "^3.3.7",
     "chart.js": "^2.7.2",
+    "codemirror": "^5.40.0",
     "faker": "^4.1.0",
     "flexlayout-react": "^0.2.5",
     "json-api-serializer": "^1.13.0",
@@ -18,8 +19,10 @@
     "rc-tree": "^1.12.7",
     "react": "^16.4.2",
     "react-chartjs-2": "^2.7.4",
+    "react-codemirror": "^1.0.0",
     "react-dazzle": "^1.4.0",
     "react-dom": "^16.4.2",
+    "react-finderjs": "^0.1.6",
     "react-fontawesome": "^1.6.1",
     "react-inspector": "^2.3.0",
     "react-jsonschema-form": "^1.0.4",

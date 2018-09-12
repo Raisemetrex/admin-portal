@@ -70,7 +70,7 @@ class DataTable extends React.Component {
     }
   }
   extraProps = () => {
-    const { query } = this.props;
+    const { query, pageSize } = this.props;
     const { properties /*, id */ } = query;
     const { componentOptions } = properties;
     const { columns, loading, data } = this.state;
@@ -86,15 +86,17 @@ class DataTable extends React.Component {
       : row => <PropertySheet {...subComponentProps} data={row.original} />; // columns={columns} data={row} parentProps={this.props} componentOptions={componentOptions} />;
 
     const showPagination = data.length >= this.props.pageSize;
-    const defaultPageSize = Math.max(data.length < this.props.pageSize ? data.length : this.props.pageSize, 5);
+    const defaultPageSize = Math.max(data.length < pageSize ? data.length : pageSize, 5);
+    console.log({ defaultPageSize, pageSize, length: data.length });
     const extra = {
       SubComponent,
       loading,
       loadingText: <i className="fa fa-fw fa-spinner fa-spin fa-2x" />,
-      defaultPageSize,
-      pageSize: defaultPageSize,
+      // defaultPageSize,
+      // pageSize: defaultPageSize,
       showPagination,
       filterable: data.length != 0,
+      defaultFilterMethod: this.props.defaultFilterMethod,
     };
     return extra;
   }
@@ -108,8 +110,6 @@ class DataTable extends React.Component {
           className={this.props.className}
           columns={columns}
           data={data}
-          defaultPageSize={this.props.pageSize}
-          defaultFilterMethod={this.props.defaultFilterMethod}
           {...extraProps}
         />
     )

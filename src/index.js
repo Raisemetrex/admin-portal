@@ -5,6 +5,8 @@ import './index.css';
 import 'react-table/react-table.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import './css/account.css';
+import './css/finder.css';
+import 'codemirror/lib/codemirror.css';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';

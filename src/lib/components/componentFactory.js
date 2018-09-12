@@ -24,6 +24,7 @@ import JSONEditor from './jsonEditor';
 import EmptyComponent from './emptyComponent';
 
 import Responsive from './responsive';
+import Finder from './finder';
 
 
 function getDisplayName(Component) {
@@ -95,6 +96,7 @@ factory
   .add(EmptyComponent, 'EmptyComponent')
   .add(AccountPosts, 'AccountPosts')
   .add(Responsive, 'Response')
+  .add(Finder, 'Finder')
   ;
 
 window.factory = factory;
