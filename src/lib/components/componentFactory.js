@@ -76,25 +76,25 @@ class ComponentFactory {
 const factory = new ComponentFactory();
 
 factory
-  .add(Dashboard)
-  .add(DataTable)
-  .add(RestTable)
-  .add(PieChart)
-  .add(BarChart)
-  .add(NewQuery)
+  .add(Dashboard, 'Dashboard')
+  .add(DataTable, 'DataTable')
+  .add(RestTable, 'RestTable')
+  .add(PieChart, 'PieChart')
+  .add(BarChart, 'BarChart')
+  .add(NewQuery, 'NewQuery')
 
-  .add(SideMenu)
-  .add(AccountSearch)
-  .add(AccountResults)
-  .add(Reports)
-  .add(Charts)
-  .add(Tools)
-  .add(Settings)
-  .add(JsonProps)
-  .add(JSONEditor)
-  .add(EmptyComponent)
-  .add(AccountPosts)
-  .add(Responsive)
+  .add(SideMenu, 'SideMenu')
+  .add(AccountSearch, 'AccountSearch')
+  .add(AccountResults, 'AccountResults')
+  .add(Reports, 'Reports')
+  .add(Charts, 'Charts')
+  .add(Tools, 'Tools')
+  .add(Settings, 'Settings')
+  .add(JsonProps, 'JsonProps')
+  .add(JSONEditor, 'JSONEditor')
+  .add(EmptyComponent, 'EmptyComponent')
+  .add(AccountPosts, 'AccountPosts')
+  .add(Responsive, 'Response')
   ;
 
 window.factory = factory;
