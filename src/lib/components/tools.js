@@ -103,26 +103,31 @@ class Tools extends React.Component {
     this.authProvider(provider)
   }
 
-  addComponent = (name, data = null) => {
+  addComponent = (name, props = {}) => {
     const newTab = {
       name,
       component: name,
       id: name,
+      ...props,
     };
-    if (data) newTab.data = data;
+    // if (data) newTab.data = data;
     this.props.addNode(newTab);
   }
 
-  testFinder = () => this.addComponent('Finder', this.testObject)
+  testFinder = () => this.addComponent('Finder', {data: this.testObject })
 
-  testResponsive = () => {
-    const newTab = {
-      component: 'Responsive',
-      name: `Responsive`,
-      id: `Responsive`,
-    }
-    this.props.addNode(newTab);
-  }
+  testSqlEditor = () => this.addComponent('SQLEditor', {data: this.testObject.properties.sql, onSave: (sql) => console.log('onSave:', sql.replace(/\s+/g,' '))})
+
+  testResponsive = () => this.addComponent('Responsive');
+
+  // testResponsive = () => {
+  //   const newTab = {
+  //     component: 'Responsive',
+  //     name: `Responsive`,
+  //     id: `Responsive`,
+  //   }
+  //   this.props.addNode(newTab);
+  // }
 
   showUsersQuery = () => {
     // console.log('showUsers props:', this.props);
@@ -217,19 +222,17 @@ class Tools extends React.Component {
           <button style={buttonStyle} onClick={this.consoleJwt}>Show JWT</button>
         </div>
 
-        <hr/>
-
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.testResponsive}>Responsive</button>
         </div>
 
-        <hr/>
+        {/*<div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.testFinder}>Finder</button>
+        </div>*/}
 
         <div style={buttonRowStyle}>
-          <button style={buttonStyle} onClick={this.testFinder}>Finder</button>
+          <button style={buttonStyle} onClick={this.testSqlEditor}>SQL Editor</button>
         </div>
-
-        <hr/>
 
         {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.googleAuth}>Google Auth</button>

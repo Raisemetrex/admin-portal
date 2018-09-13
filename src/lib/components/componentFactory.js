@@ -25,6 +25,7 @@ import EmptyComponent from './emptyComponent';
 
 import Responsive from './responsive';
 import Finder from './finder';
+import SQLEditor from './sqlEditor';
 
 
 function getDisplayName(Component) {
@@ -97,6 +98,7 @@ factory
   .add(AccountPosts, 'AccountPosts')
   .add(Responsive, 'Response')
   .add(Finder, 'Finder')
+  .add(SQLEditor, 'SQLEditor')
   ;
 
 window.factory = factory;

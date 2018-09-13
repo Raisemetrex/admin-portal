@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 // import './App.css';
 // import '../node_modules/flexlayout-react/style/light.css';
-import 'flexlayout-react/style/light.css';
 
 // import WooAdmin from './lib/data/wooAdmin';
 

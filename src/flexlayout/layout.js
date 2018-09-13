@@ -7,6 +7,8 @@ import FlexLayout from 'flexlayout-react';
 import Panels from './panels/index';
 import ComponentFactory from '../lib/components/componentFactory';
 
+import Missing from '../lib/components/missing';
+
 import { trimAccountId } from '../lib/utils/transformations';
 
 const mainLayout = {
@@ -115,7 +117,7 @@ class Main extends React.Component {
 
 				// console.log('factory:', { component, extraData, config, props });
 
-				const result = ComponentFactory.create(component, props);
+				const result = ComponentFactory.create(component, props) || <Missing />;
 				console.assert(result,`Layout: ComponentFactory could not locate component: ${component}`);
 
 				return result;

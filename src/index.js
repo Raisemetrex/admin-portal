@@ -1,12 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import './index.css';
+import 'flexlayout-react/style/light.css';
 import 'react-table/react-table.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
+import 'codemirror/lib/codemirror.css';
+
+import './index.css';
 import './css/account.css';
 import './css/finder.css';
-import 'codemirror/lib/codemirror.css';
+import './css/codemirror.css';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
