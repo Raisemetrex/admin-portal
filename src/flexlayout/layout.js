@@ -94,6 +94,7 @@ class Main extends React.Component {
 			} else {
 				this.layout.doAction(FlexLayout.Actions.selectTab(node.id));
 			}
+			// console.log('layout: model: json:', this.layout.model.toJson());
 		}
 
     factory(node) {
@@ -141,6 +142,13 @@ class Main extends React.Component {
 		// 	}
 		// };
 
+		action = (a) => {
+			/* We can catch any action in the layout here - but have to call the original */
+
+			// console.log('action: ', a);
+			this.layout.model.doAction(a);
+		}
+
     render() {
 			// console.log('layout: props:', this.props);
 			const { onRenderTabSet, onRenderTab } = this;
@@ -153,6 +161,7 @@ class Main extends React.Component {
 						ref={(r) => this.layout = r}
 						model={this.state.model}
 						factory={this.factory.bind(this)}
+						onAction={this.action}
 						{...extra}
 					/>
       )

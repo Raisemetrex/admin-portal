@@ -3,6 +3,9 @@
 import React from 'react';
 
 import ReactTable from 'react-table';
+import Form from "react-jsonschema-form";
+import Moment from 'moment';
+
 
 // import WooAdmin from '../data/wooAdmin';
 
@@ -12,6 +15,8 @@ import ComponentFactory from './componentFactory';
 
 import PropertySheet from './propertySheet';
 
+// import filterForm1 from '../prototype/filterForm1';
+
 class DataTable extends React.Component {
   constructor(props) {
     super(props);
@@ -19,12 +24,51 @@ class DataTable extends React.Component {
       columns: [],
       data: [],
       loading: false,
+      formVisible: false,
+      filterData: {
+      },
+      filterSchema: null,
     }
+
+    if (this.props.query.properties.filterSchema) {
+      this.state.filterSchema = {...this.props.query.properties.filterSchema};
+      this.state.formVisible = true;
+
+      const { schema, uiSchema } = this.state.filterSchema;
+
+      // console.log('1. DataTable: constructor:', {schema:{...schema}, uiSchema});
+
+      if (uiSchema && uiSchema['ui:order']) {
+        const order = uiSchema['ui:order'];
+        order.forEach(item => {
+          const field = uiSchema[item];
+
+          // console.log(`schema[${item}]:`, field);
+
+          if (field && field['ui:widget'] === 'date-time') {
+            const now = Moment();
+            const value = item.startsWith('end') ? now.endOf('week')
+                          : (item.startsWith('start') ? now.startOf('week') : now);
+            schema.default[item] = value.format(); // 'YYYY-MM-DD');
+          }
+        });
+        // console.log('default:', schema.default);
+      }
+
+      // console.log('2. DataTable: constructor:', {schema, uiSchema});
+
+    }
+
   }
   componentDidMount() {
-    this.loadData();
+    if (!this.state.filterSchema) {
+      this.loadData();
+    }
   }
   loadData = () => {
+    const { filterData } = this.state;
+    console.log('loadData:', {filterData});
+
     // const requestFiltered = {
     //   params: ['2018-01-22','2018-01-23T23:59:59Z','8BF248F5-AFAF-49F3-86D0-3E886C375ED1'],
     //   sql: 'SELECT * FROM users WHERE inserted_at BETWEEN $1 and $2 AND current_account_id = $3',
@@ -33,7 +77,7 @@ class DataTable extends React.Component {
     const { properties, id, params } = query;
     // const { componentOptions } = properties;
 
-    // console.log('loadData: properties:', { properties, query });
+    console.log('loadData: properties:', { properties, query });
 
     // const { params } = properties;
     if (id) {
@@ -41,7 +85,7 @@ class DataTable extends React.Component {
         const stateUpdate = {
           loading: false,
         };
-        WooAdmin.queryById({params: params || [], id})
+        WooAdmin.queryById({params: params || filterData || [], id})
           .then(data => {
             // console.log('query_by_id: result:', data);
             if (data.length) {
@@ -73,7 +117,7 @@ class DataTable extends React.Component {
     const { query, pageSize } = this.props;
     const { properties /*, id */ } = query;
     const { componentOptions } = properties;
-    const { columns, loading, data } = this.state;
+    const { columns, loading, data, filterData } = this.state;
 
     const subComponentProps = {
       ...this.props,
@@ -100,18 +144,57 @@ class DataTable extends React.Component {
     };
     return extra;
   }
+  toggleForm = () => {
+    this.setState({ formVisible: !this.state.formVisible });
+  }
+  filterUpdate = (form) => {
+    const { formData:data } = form;
+    const { filterSchema } = this.state;
+    const { uiSchema } = filterSchema;
+    const filterData = uiSchema['ui:order'].map(item => {
+      return data[item];
+    });
+    console.log('filterUpdate:', { filterData });
+    this.setState({ filterData, formVisible: false }, this.loadData);
+  }
   render() {
-    // console.log('DataTable: props:', this.props);
-    const { columns, data } = this.state;
+    console.log('DataTable: props:', this.props);
+    const { columns, data, formVisible, filterSchema } = this.state;
     // console.log('DataTable:', { columns, data });
     const extraProps = this.extraProps();
+    const toolbarStyle = {padding: '5px'};
+    const formStyle = {padding: '5px'};
     return (
-      <ReactTable
-          className={this.props.className}
-          columns={columns}
-          data={data}
-          {...extraProps}
-        />
+      <div>
+        <div style={toolbarStyle}>
+          <small>
+            <button onClick={this.loadData}><i className="fa fa-fw fa-recycle" /> Refresh</button>&nbsp;
+            {
+              filterSchema ?
+                <button onClick={this.toggleForm}><i className="fa fa-fw fa-filter" /> {formVisible ? 'Hide' : 'Show'} Form</button>
+              :null
+            }
+          </small>
+        </div>
+        {
+          formVisible ?
+            <div style={formStyle}>
+              <Form
+                className="form form-wide"
+                schema={filterSchema.schema}
+                uiSchema={filterSchema.uiSchema}
+                onSubmit={this.filterUpdate}
+              />
+            </div>
+          : null
+        }
+        <ReactTable
+            className={this.props.className}
+            columns={columns}
+            data={data}
+            {...extraProps}
+          />
+      </div>
     )
   }
 }
