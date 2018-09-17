@@ -53,7 +53,7 @@ function PropertySheet(props) {
   // console.log({fields});
   const data = fields.map(field => {
     const { Header: property } = field;
-    const value = props.data[field.accessor];
+    const value = props.data[field.id];
     return {
       property: `${property}:`,
       value

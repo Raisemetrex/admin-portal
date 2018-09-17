@@ -3,23 +3,61 @@ const filterForm1 = { // react-jsonschema-form
   schema: {
     title: 'Between Dates',
     type: 'object',
-    required: ['startDate','endDate'],
+    required: [
+      // 'status',
+      'startDate',
+      'endDate'
+    ],
     properties: {
       startDate: {type: 'string', title: 'Start Date'},
       endDate: {type: 'string', title: 'End Date'},
+      buttons: {type: 'string', title: 'Buttons '},
+      // status: {type: 'string', enum: ['free-trial','paying-customer','free-account'], enumNames: ['Free Trial','Paying Customer','Free Account'], title: 'Status'},
     },
     default: {
       startDate: null,
       endDate: null,
+      // status: '',
     },
   },
   uiSchema: {
-    'ui:order': ['startDate', 'endDate'],
-    startDate: { 'ui:widget': 'date' },
-    endDate: { 'ui:widget': 'date' },
+    'ui:field': 'layout',
+    'ui:layout': [
+      // { status: { md: 6 }},
+      {
+        startDate: { md: 6 },
+        endDate: { md: 6 },
+        buttons: { md: 12 },
+      },
+    ],
+    'ui:order': [
+      // 'status',
+      'startDate',
+      'endDate'
+    ],
+    buttons: {
+      'ui:field': 'buttons',
+      'ui:buttons': [
+        { label: 'This Week', action: 'thisWeek' },
+        { label: 'Last Week', action: 'lastWeek' },
+        { label: 'This Month', action: 'thisMonth'},
+        { label: 'Last Month', action: 'lastMonth' },
+        { label: 'Last 3 Months', action: 'last3Months' },
+      ],
+    },
+    startDate: { 'ui:widget': 'date-time' },
+    endDate: { 'ui:widget': 'date-time' },
+    // status: { 'ui:widget': 'select' },
   },
 };
 
+
+// "filterSchema": {"schema": {"type": "object", "title": "BETWEEN Dates",
+// "default": {"endDate": null, "startDate": null}, "required": ["startDate",
+// "endDate"], "properties": {"endDate": {"type": "string", "title": "END Date"},
+// "startDate": {"type": "string", "title": "START Date"}}}, "uiSchema":
+// {"endDate": {"ui:widget": "date-time"}, "ui:order": ["startDate", "endDate"],
+// "startDate": {"ui:widget": "date-time"}}}
 
 // const freeTrialDateRange = {
 //   sql: `

@@ -3,7 +3,10 @@
 import React from 'react';
 
 import ReactTable from 'react-table';
-import Form from "react-jsonschema-form";
+// import LayoutField from 'react-jsonschema-form-layout';
+import Form from 'react-jsonschema-form';
+import LayoutField from '../utils/form/layout';
+import FormButtons from '../utils/form/buttons';
 import Moment from 'moment';
 
 
@@ -15,7 +18,14 @@ import ComponentFactory from './componentFactory';
 
 import PropertySheet from './propertySheet';
 
-// import filterForm1 from '../prototype/filterForm1';
+import filterForm1 from '../prototype/filterForm1';
+
+const fields = {
+  layout: LayoutField,
+  buttons: FormButtons,
+}
+
+// console.log({ fields });
 
 class DataTable extends React.Component {
   constructor(props) {
@@ -23,6 +33,7 @@ class DataTable extends React.Component {
     this.state = {
       columns: [],
       data: [],
+      filtered: [],
       loading: false,
       formVisible: false,
       filterData: {
@@ -31,34 +42,89 @@ class DataTable extends React.Component {
     }
 
     if (this.props.query.properties.filterSchema) {
-      this.state.filterSchema = {...this.props.query.properties.filterSchema};
+      // this.state.filterSchema = {...this.props.query.properties.filterSchema};
+      this.state.filterSchema = {...filterForm1};
       this.state.formVisible = true;
 
       const { schema, uiSchema } = this.state.filterSchema;
 
       // console.log('1. DataTable: constructor:', {schema:{...schema}, uiSchema});
 
-      if (uiSchema && uiSchema['ui:order']) {
-        const order = uiSchema['ui:order'];
-        order.forEach(item => {
-          const field = uiSchema[item];
+      if (uiSchema) {
+        if (uiSchema['ui:order']) {
+          const order = uiSchema['ui:order'];
+          order.forEach(item => {
+            const field = uiSchema[item];
 
-          // console.log(`schema[${item}]:`, field);
+            // console.log(`schema[${item}]:`, field);
 
-          if (field && field['ui:widget'] === 'date-time') {
-            const now = Moment();
-            const value = item.startsWith('end') ? now.endOf('week')
-                          : (item.startsWith('start') ? now.startOf('week') : now);
-            schema.default[item] = value.format(); // 'YYYY-MM-DD');
-          }
-        });
-        // console.log('default:', schema.default);
+            if (field && field['ui:widget'] === 'date-time') {
+              const now = Moment();
+              const value = item.startsWith('end') ? now.endOf('week')
+                            : (item.startsWith('start') ? now.startOf('week') : now);
+              schema.default[item] = value.format(); // 'YYYY-MM-DD');
+            }
+          });
+        }
+
+        if (uiSchema.buttons && uiSchema.buttons['ui:buttons']) {
+          uiSchema.buttons['ui:buttons'] = uiSchema.buttons['ui:buttons'].map(button => {
+            return {
+              ...button,
+              onClick: action => {
+                console.log('button click:', action);
+                this.setDateRange(action);
+              },
+            };
+          })
+        }
       }
 
       // console.log('2. DataTable: constructor:', {schema, uiSchema});
 
     }
 
+  }
+  setDateRange = (action) => {
+    let stateUpdate = null;
+    let now = Moment();
+    switch(action) {
+      case 'lastWeek':
+        now = now.subtract('week', 1);
+      case 'thisWeek':
+        stateUpdate = {
+          filterData: {
+            startDate: now.startOf('week').format(),
+            endDate: now.endOf('week').format(),
+          }
+        };
+        break;
+
+      case 'lastMonth':
+        now = now.subtract('month', 1);
+      case 'thisMonth':
+        stateUpdate = {
+          filterData: {
+            startDate: now.startOf('month').format(),
+            endDate: now.endOf('month').format(),
+          }
+        };
+        break;
+
+      case 'last3Months':
+        stateUpdate = {
+          filterData: {
+            endDate: now.endOf('month').format(),
+          }
+        };
+        now = now.subtract('month', 3);
+        stateUpdate.filterData.startDate = now.startOf('month').format();
+        break;
+    }
+    if (stateUpdate) {
+      stateUpdate.formData = { ...stateUpdate.filterData };
+      this.setState(stateUpdate);
+    }
   }
   componentDidMount() {
     if (!this.state.filterSchema) {
@@ -67,7 +133,7 @@ class DataTable extends React.Component {
   }
   loadData = () => {
     const { filterData } = this.state;
-    console.log('loadData:', {filterData});
+    // console.log('loadData:', {filterData});
 
     // const requestFiltered = {
     //   params: ['2018-01-22','2018-01-23T23:59:59Z','8BF248F5-AFAF-49F3-86D0-3E886C375ED1'],
@@ -77,7 +143,7 @@ class DataTable extends React.Component {
     const { properties, id, params } = query;
     // const { componentOptions } = properties;
 
-    console.log('loadData: properties:', { properties, query });
+    // console.log('loadData: properties:', { properties, query });
 
     // const { params } = properties;
     if (id) {
@@ -117,7 +183,7 @@ class DataTable extends React.Component {
     const { query, pageSize } = this.props;
     const { properties /*, id */ } = query;
     const { componentOptions } = properties;
-    const { columns, loading, data, filterData } = this.state;
+    const { columns, loading, data, filterData, filtered } = this.state;
 
     const subComponentProps = {
       ...this.props,
@@ -131,7 +197,7 @@ class DataTable extends React.Component {
 
     const showPagination = data.length >= this.props.pageSize;
     const defaultPageSize = Math.max(data.length < pageSize ? data.length : pageSize, 5);
-    console.log({ defaultPageSize, pageSize, length: data.length });
+    // console.log({ defaultPageSize, pageSize, length: data.length });
     const extra = {
       SubComponent,
       loading,
@@ -141,53 +207,68 @@ class DataTable extends React.Component {
       showPagination,
       filterable: data.length != 0,
       defaultFilterMethod: this.props.defaultFilterMethod,
+      filtered,
+      onFilteredChange: this.onFilteredChange,
     };
     return extra;
+  }
+  onFilteredChange = (filtered) => {
+    this.setState({ filtered });
   }
   toggleForm = () => {
     this.setState({ formVisible: !this.state.formVisible });
   }
   filterUpdate = (form) => {
-    const { formData:data } = form;
+    const { formData } = form;
     const { filterSchema } = this.state;
     const { uiSchema } = filterSchema;
     const filterData = uiSchema['ui:order'].map(item => {
-      return data[item];
+      return formData[item];
     });
-    console.log('filterUpdate:', { filterData });
-    this.setState({ filterData, formVisible: false }, this.loadData);
+    // console.log('filterUpdate:', { filterData });
+    this.setState({ filterData, formVisible: false, formData }, this.loadData);
+  }
+  clearFilter = () => {
+    // console.log('filtered:', this.state.filtered);
+    this.setState({ filtered: [] });
   }
   render() {
-    console.log('DataTable: props:', this.props);
-    const { columns, data, formVisible, filterSchema } = this.state;
+    // console.log('DataTable: props:', this.props);
+    const { columns, data, formVisible, filterSchema, formData } = this.state;
     // console.log('DataTable:', { columns, data });
+    console.log('formData:', formData);
     const extraProps = this.extraProps();
     const toolbarStyle = {padding: '5px'};
     const formStyle = {padding: '5px'};
     return (
       <div>
+        {
+          filterSchema ?
+            <div style={formStyle}>
+              <small>
+                <button onClick={this.toggleForm}><i className="fa fa-fw fa-filter" /> {formVisible ? 'Hide' : 'Show'} Form</button>
+              </small>
+              {
+                formVisible ?
+                <Form
+                  className="form form-wide"
+                  schema={filterSchema.schema}
+                  fields={fields}
+                  uiSchema={filterSchema.uiSchema}
+                  onSubmit={this.filterUpdate}
+                  formData={formData}
+                />
+                :null
+              }
+            </div>
+          :null
+        }
         <div style={toolbarStyle}>
           <small>
             <button onClick={this.loadData}><i className="fa fa-fw fa-recycle" /> Refresh</button>&nbsp;
-            {
-              filterSchema ?
-                <button onClick={this.toggleForm}><i className="fa fa-fw fa-filter" /> {formVisible ? 'Hide' : 'Show'} Form</button>
-              :null
-            }
+            <button onClick={this.clearFilter}><i className="fa fa-fw fa-ban" /> Clear Filter</button>&nbsp;
           </small>
         </div>
-        {
-          formVisible ?
-            <div style={formStyle}>
-              <Form
-                className="form form-wide"
-                schema={filterSchema.schema}
-                uiSchema={filterSchema.uiSchema}
-                onSubmit={this.filterUpdate}
-              />
-            </div>
-          : null
-        }
         <ReactTable
             className={this.props.className}
             columns={columns}

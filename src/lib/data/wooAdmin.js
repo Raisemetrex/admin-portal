@@ -5,9 +5,13 @@ import React from 'react';
 
 import type from 'type-of';
 
-import Numeral from 'numeral';
+// import Numeral from 'numeral';
+// import Moment from 'moment';
 
 import humanReadable from '../utils/humanReadable';
+
+import { filterNumber } from '../utils/reactTableFilters';
+import ReactTableRenderers from '../utils/reactTableRenderers';
 
 class WooAdmin {
 
@@ -137,7 +141,7 @@ class WooAdmin {
 
   queryById = (request) => {
     const query = `${this.getEndpoint()}/admin/query_by_id`;
-    console.log('running query:', request);
+    // console.log('running query:', request);
     return fetch(query, {
       method: 'POST',
       headers: {
@@ -149,12 +153,15 @@ class WooAdmin {
       body: JSON.stringify(request),
     })
     .then(result => {
-      // console.log('queryById: result:', result);
       if (result.status !== 200) {
         throw {error: result.status, message: `WooAdmin.query: ${result.statusText}`};
       }
       return result.json();
     })
+    // .then(json => {
+    //   console.log('queryById: json:', json);
+    //   return json;
+    // })
     .catch(err => {
       console.error(`WooAdmin: queryById: error:`, err);
       throw new Error(err.message);
@@ -344,7 +351,38 @@ class WooAdmin {
     throw "Invalid json-api or unsupported version"
   }
 
-  createColumn(key, value) {
+  // this could probably be improved using a cast to a date object
+  testForDate(value) {
+    // console.log('testForDate', { value });
+    if (type(value) === 'date' || type(value) === 'string') {
+      const datetime = value.split('T');
+      if (datetime.length === 2 && datetime[0].length === 10) {
+        const d = datetime[0].split('-');
+        if (d.length === 3) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  getType(data, key) {
+    let typeFound = 'string'; // default
+    for(let r = 0; r< data.length; r += 1) {
+      if (data[r][key] != undefined && data[r][key] != null) {
+        const value = data[r][key];
+        // first non-null value - grab the type
+        typeFound = type(value);
+        if (this.testForDate(value)) {
+          typeFound = 'date';
+        }
+        break;
+      }
+    }
+    return typeFound;
+  }
+
+  createColumn(key, data) {
     const column = {};
 
     column.Header = humanReadable(key);
@@ -354,16 +392,27 @@ class WooAdmin {
 
     // console.log(`column(${type(value)}):`, { key, value} );
 
-    switch(type(value)) {
+    switch(this.getType(data, key)) {
       case 'null':
       case 'object':
-        column.Cell = displayJSON;
+        // console.log('we have an object!', { key });
+        column.Cell = ReactTableRenderers.displayJSON;
         break;
       case 'date':
+        // console.log('we have a date!', { key });
+        column.Cell = ReactTableRenderers.displayDate;
+        column.accessor = d => new Date(d[key]);
+
         break;
       case 'number':
-        column.Cell = displayNumber;
+        // console.log('we have a number!', { key });
+        column.Cell = ReactTableRenderers.displayNumber;
         column.style = {textAlign: 'right'};
+        column.filterMethod = filterNumber;
+        break;
+      default:
+        // console.log('we have a string!', { key });
+        column.getProps = ReactTableRenderers.colouredStrings;
         break;
     }
 
@@ -385,8 +434,8 @@ class WooAdmin {
         componentOptions.columnOrder.map(col => {
           // console.log('col:', col);
           if (data[0].hasOwnProperty(col)) {
-            const value = data[0][col];
-            columns.push(this.createColumn(col, value));
+            // const value = data[0][col];
+            columns.push(this.createColumn(col, data));
           } else {
             console.assert(data[0][col], `Column ${col} not found in data:`, data[0]);
           }
@@ -394,15 +443,15 @@ class WooAdmin {
       } else {
         const keys = Object.keys(data[0]);
         keys.forEach(key => {
-          const value = data[0][key];
-          columns.push(this.createColumn(key, value));
+          // const value = data[0][key];
+          columns.push(this.createColumn(key, data));
         });
       }
     } else {
       const keys = Object.keys(data);
       keys.forEach(key => {
-        const value = data[key];
-        columns.push(this.createColumn(key, value));
+        // const value = data[key];
+        columns.push(this.createColumn(key, data));
       });
     }
 
@@ -411,23 +460,56 @@ class WooAdmin {
 
 }
 
-function displayJSON(props) {
-  let result = props.value ? <div>{JSON.stringify(props.value)}</div> : <div className="dull">null</div>;
-  switch( type(props.value) ) {
-    case 'string':
-      result = props.value;
-      break;
-    case 'number':
-      result = displayNumber(props);
-      break;
-  }
-  return result;
-}
+// function displayJSON(props) {
+//   let result = props.value ? <div>{JSON.stringify(props.value)}</div> : <div className="dull">null</div>;
+//   switch( type(props.value) ) {
+//     case 'string':
+//       result = props.value;
+//       break;
+//     case 'number':
+//       result = displayNumber(props);
+//       break;
+//   }
+//   return result;
+// }
 
-function displayNumber(props) {
-  return <div>{Numeral(props.value).format(Number.isInteger(props.value) ? '0' : '0,0.000')}</div>
-}
-
+// function displayNumber(props) {
+//   return <div>{Numeral(props.value).format(Number.isInteger(props.value) ? '0' : '0,0.000')}</div>;
+// }
+//
+// function displayDate(props) {
+//   return <div>{Moment(props.value).format('YYYY-MM-DD HH:MM:SS')}</div>;
+// }
+//
+// function colouredStrings(state, ri, ci) {
+//   // console.log('colouredStrings:', { ri, ci, state });
+//   if (!ri) return {};
+//   let backgroundColor = 'inherit';
+//   let color = 'inherit';
+//   const value = ri.original[ci.id];
+//   switch(value) {
+//     case 'active':
+//       backgroundColor = 'green';
+//       color = 'white';
+//       break;
+//     case 'partial':
+//       backgroundColor = 'yellow';
+//       color = 'black';
+//       break;
+//     case 'inactive':
+//       backgroundColor = 'red';
+//       color = 'white';
+//       break;
+//   }
+//   const style = {
+//     backgroundColor,
+//     color,
+//   };
+//   return {
+//     style,
+//   };
+// }
+//
 const wooAdmin = new WooAdmin();
 
 window.WooAdmin = wooAdmin;
