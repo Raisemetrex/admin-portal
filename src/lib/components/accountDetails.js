@@ -33,7 +33,8 @@ function mapToDl(data, details) {
 }
 
 function AccountDetails(props) {
-  const { data } = props;
+  const { data, WooAdmin } = props;
+  const root = WooAdmin.getDesktopEndpoint(data.subdomain);
   const details = [
     {text: 'Account Name', key: 'name'},
     {text: 'Email Address', key: 'email_address'},
@@ -77,6 +78,15 @@ function AccountDetails(props) {
           <div className={className}>
             <div><strong>Weekly Targets:</strong></div>
             {mapToDl(data, settingsDetails)}
+          </div>
+        </div>
+        <div className="row">
+          <div className={className}>
+            <div><strong>TV Mode:</strong></div>
+            <dt>TV Mode Link:</dt>
+            <dd>
+              <a href={`${root}/#/screen?mode=tv&account_id=${data.id}`} target="_blank">TV Mode</a>
+            </dd>
           </div>
         </div>
       </div>

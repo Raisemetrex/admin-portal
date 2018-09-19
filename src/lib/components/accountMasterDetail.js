@@ -29,6 +29,31 @@ class AccountMasterDetail extends React.Component {
             component: 'AccountUsers',
             config,
           },
+					{
+            name: 'Announcements',
+            component: 'AccountAnnouncements',
+            config,
+          },
+					{
+            name: 'Customisations',
+            component: 'AccountCustomisations',
+            config,
+          },
+					{
+            name: 'Company Values',
+            component: 'AccountCompanyValues',
+            config,
+          },
+					{
+            name: 'Whitelisting',
+            component: 'AccountWhitelisting',
+            config,
+          },
+					{
+            name: 'Billing',
+            component: 'AccountBilling',
+            config,
+          },
         ]
       )
 

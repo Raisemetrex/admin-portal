@@ -185,7 +185,7 @@ class DataTable extends React.Component {
     const { properties /*, id */ } = query;
     const { componentOptions } = properties;
     const { columns, loading, data, filterData, filtered } = this.state;
-    const { doubleClick } = componentOptions;
+    const { doubleClick } = componentOptions || {};
 
     const subComponentProps = {
       ...this.props,

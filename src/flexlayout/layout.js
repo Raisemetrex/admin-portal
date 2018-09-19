@@ -121,7 +121,7 @@ class Main extends React.Component {
 
 				// console.log('factory:', { component, extraData, config, props });
 
-				const result = ComponentFactory.create(component, props) || <Missing />;
+				const result = ComponentFactory.create(component, props) || <Missing componentName={component}/>;
 				console.assert(result,`Layout: ComponentFactory could not locate component: ${component}`);
 
 				return result;

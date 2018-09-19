@@ -1,5 +1,5 @@
 
-export function getMasterDetailLayout(master, details, {weight} = {weight: {master: 20, detail: 80}}) {
+export function getMasterDetailLayout(master, details, {weight} = {weight: {master: 30, detail: 70}}) {
   const base = {
     global: {},
   	layout: {

@@ -35,6 +35,18 @@ class WooAdmin {
     return this.environment;
   }
 
+  getDesktopEndpoint(subdomain) {
+    let root = null;
+    const environment = this.getEnvironment();
+    switch (environment) {
+      case 'local': root = `http://${subdomain}.reffind.local:4200`; break;
+      case 'staging': root = `https://${subdomain}.reffind.xyz`; break;
+      case 'production': root = `https://${subdomain}.wooboard.com`; break;
+    }
+    console.assert(root, `Error: getDesktopEndpoint: root is null`);
+    return root;
+  }
+
   setEnvironment(environment) {
     console.assert(environment === null || ['local','staging','production'].includes(environment), `setEnvironment: Invalid environment: ${environment}`);
     console.log('WooAdmin.setEnvironment:', environment)
