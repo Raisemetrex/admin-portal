@@ -45,7 +45,7 @@ const filterForm1 = { // react-jsonschema-form
         { label: 'Last 3 Months', action: 'last3Months' },
       ],
     },
-    startDate: { 'ui:widget': 'date-time' },
+    startDate: { 'ui:widget': 'date' },
     endDate: { 'ui:widget': 'date-time' },
     // status: { 'ui:widget': 'select' },
   },

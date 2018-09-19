@@ -57,7 +57,7 @@ class Authenticate extends React.Component {
   componentWillReceiveProps(newProps) {
     const { state: oldProps } = this;
     if (newProps.environment !== oldProps.environment) {
-      console.log('new environment:', newProps.environment);
+      console.log('Authenticate: new environment:', {newProps, oldProps});
     }
   }
 
@@ -169,7 +169,7 @@ class Authentication extends React.Component {
     const { props: oldProps } = this;
     if (newProps.environemnt !== oldProps.environment) {
       // console.log('new props:', { newProps, oldProps: this.props });
-      console.log('new environment:', newProps.environent);
+      console.log('Authentication: new environment:', {newProps, oldProps});
       this.setState({ checkAuthentication: true });
     }
   }

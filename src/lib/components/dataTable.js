@@ -127,6 +127,7 @@ class DataTable extends React.Component {
     }
   }
   componentDidMount() {
+    // console.log('componentDidMount:', this.props.id);
     if (!this.state.filterSchema) {
       this.loadData();
     }
@@ -184,6 +185,7 @@ class DataTable extends React.Component {
     const { properties /*, id */ } = query;
     const { componentOptions } = properties;
     const { columns, loading, data, filterData, filtered } = this.state;
+    const { doubleClick } = componentOptions;
 
     const subComponentProps = {
       ...this.props,
@@ -196,7 +198,7 @@ class DataTable extends React.Component {
       : row => <PropertySheet {...subComponentProps} data={row.original} />; // columns={columns} data={row} parentProps={this.props} componentOptions={componentOptions} />;
 
     const showPagination = data.length >= this.props.pageSize;
-    const defaultPageSize = Math.max(data.length < pageSize ? data.length : pageSize, 5);
+    // const defaultPageSize = Math.max(data.length < pageSize ? data.length : pageSize, 5);
     // console.log({ defaultPageSize, pageSize, length: data.length });
     const extra = {
       SubComponent,
@@ -207,9 +209,37 @@ class DataTable extends React.Component {
       showPagination,
       filterable: data.length != 0,
       defaultFilterMethod: this.props.defaultFilterMethod,
+      defaultPageSize: this.props.defaultPageSize,
       filtered,
       onFilteredChange: this.onFilteredChange,
     };
+    if (doubleClick) {
+      // console.log({ doubleClick });
+      extra.getTrProps = (state, ri, ci, instance) => {
+        const { heading, component, subheadingColumn } = doubleClick;
+        return {
+          onDoubleClick: (e, handleOriginal) => {
+            const { original: data } = ri;
+            const { id } = ri.original;
+            const subHeading = subheadingColumn && data[subheadingColumn] ? `: ${data[subheadingColumn]}` : '';
+            const name = `${heading}${subHeading}`;
+            // console.log('DblClick: row.id:', { id, heading, component, subHeading });
+            const node = {
+              id,
+              name,
+              component,
+              config: {
+                data
+              },
+            };
+
+            this.props.addNode(node);
+
+            if (handleOriginal) handleOriginal();
+          }
+        }
+      }
+    }
     return extra;
   }
   onFilteredChange = (filtered) => {
@@ -236,7 +266,7 @@ class DataTable extends React.Component {
     // console.log('DataTable: props:', this.props);
     const { columns, data, formVisible, filterSchema, formData } = this.state;
     // console.log('DataTable:', { columns, data });
-    console.log('formData:', formData);
+    // console.log('formData:', formData);
     const extraProps = this.extraProps();
     const toolbarStyle = {padding: '5px'};
     const formStyle = {padding: '5px'};
@@ -282,7 +312,7 @@ class DataTable extends React.Component {
 
 DataTable.defaultProps = {
   defaultFilterMethod: filterContainsNoCase,
-  pageSize: 20,
+  defaultPageSize: 10,
   className: '-striped -highlight',
 };
 

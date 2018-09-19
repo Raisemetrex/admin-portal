@@ -12,5 +12,5 @@ export function ipsum(paras = null) {
   Donec sit amet tempor ligula, a pretium ex. Donec sed mi eget massa tempor tincidunt ac sit amet mi. Aliquam bibendum dolor erat, ac volutpat tortor placerat ac. Nam non auctor quam. Duis a elementum lacus. Quisque tincidunt, est at mollis elementum, erat dui cursus risus, id pellentesque erat metus vitae urna. Praesent malesuada fringilla lacus, in facilisis dolor cursus sed. Nunc congue est at massa molestie varius. Quisque accumsan non nibh egestas eleifend. Nunc at odio at justo vestibulum malesuada. Mauris ac felis luctus, bibendum ipsum at, pretium libero. Praesent ultricies sollicitudin diam a porttitor. Cras auctor, orci nec tempor mattis, enim nisl dictum turpis, in volutpat nulla lorem eu libero. Morbi molestie augue nec cursus fermentum. Nullam quis lorem eu sapien hendrerit commodo vel non arcu. Vivamus vehicula at nunc ut pulvinar.
   `;
   const testParas = text.split('\n\n');
-  return testParas[0];
+  return testParas;
 }

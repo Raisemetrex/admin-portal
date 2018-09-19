@@ -11,6 +11,7 @@ import NewQuery from './newQuery';
 import SideMenu from './sidemenu';
 import AccountSearch from './accountSearch';
 import AccountResults from './accountResults';
+import AccountDetails from './accountDetails';
 // import QuickTest from './quickTest';
 import Reports from './reports';
 import Charts from './charts';
@@ -18,6 +19,8 @@ import Tools from './tools';
 import Settings from './settings';
 import JsonProps from './jsonProps';
 import AccountPosts from './accountPosts';
+import AccountUsers from './accountUsers';
+import AccountMasterDetail from './accountMasterDetail';
 
 import JSONEditor from './jsonEditor';
 
@@ -27,6 +30,7 @@ import Responsive from './responsive';
 import Finder from './finder';
 import SQLEditor from './sqlEditor';
 
+import ContextTest from './test/menuContext';
 
 function getDisplayName(Component) {
   // console.log('getDisplayName: Component', Component);
@@ -84,10 +88,10 @@ factory
   .add(PieChart, 'PieChart')
   .add(BarChart, 'BarChart')
   .add(NewQuery, 'NewQuery')
-
   .add(SideMenu, 'SideMenu')
   .add(AccountSearch, 'AccountSearch')
   .add(AccountResults, 'AccountResults')
+  .add(AccountMasterDetail, 'AccountMasterDetail')
   .add(Reports, 'Reports')
   .add(Charts, 'Charts')
   .add(Tools, 'Tools')
@@ -96,9 +100,12 @@ factory
   .add(JSONEditor, 'JSONEditor')
   .add(EmptyComponent, 'EmptyComponent')
   .add(AccountPosts, 'AccountPosts')
-  .add(Responsive, 'Response')
+  .add(AccountUsers, 'AccountUsers')
+  .add(Responsive, 'Responsive')
   .add(Finder, 'Finder')
   .add(SQLEditor, 'SQLEditor')
+  .add(ContextTest, 'ContextTest')
+  .add(AccountDetails, 'AccountDetails')
   ;
 
 window.factory = factory;

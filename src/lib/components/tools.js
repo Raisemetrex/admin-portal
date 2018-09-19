@@ -1,8 +1,10 @@
 
 import React from 'react';
 import shortid from 'shortid';
+import * as mobxReact from 'mobx-react';
+import faker from 'faker';
 
-import { extenderMenuFromDB } from '../../mobx/menuStore';
+// import { extenderMenuFromDB } from '../../mobx/menuStore';
 // import WooAdmin from '../lib/data/wooAdmin';
 
 import NoAccess from './noAccess';
@@ -79,9 +81,9 @@ class Tools extends React.Component {
     // this.testObject = props.menu.find('charts.posts-by-month');
     this.testObject = props.menu.find('reports.free_trial');
   }
-  extendMenuFromDB = () => {
-    extenderMenuFromDB();
-  }
+  // extendMenuFromDB = () => {
+  //   extenderMenuFromDB();
+  // }
   consoleJwt = () => {
     const { WooAdmin } = this.props;
     console.log('JWT:',WooAdmin.getJwt());
@@ -103,12 +105,19 @@ class Tools extends React.Component {
     this.authProvider(provider)
   }
 
+  addTestString = () => {
+    this.props.menu.addTestString(faker.fake('{{hacker.phrase}}'));
+  }
+
   addComponent = (name, props = {}) => {
     const newTab = {
       name,
       component: name,
       id: name,
       ...props,
+      config: {
+        marbles: new Date(),
+      }
     };
     // if (data) newTab.data = data;
     this.props.addNode(newTab);
@@ -119,6 +128,8 @@ class Tools extends React.Component {
   testSqlEditor = () => this.addComponent('SQLEditor', {data: this.testObject.properties.sql, onSave: (sql) => console.log('onSave:', sql.replace(/\s+/g,' '))})
 
   testResponsive = () => this.addComponent('Responsive');
+
+  testContext = () => this.addComponent('ContextTest');
 
   // testResponsive = () => {
   //   const newTab = {
@@ -200,7 +211,24 @@ class Tools extends React.Component {
     }
     this.props.addNode(newTab);
   }
+
+  addSomething = () => {
+    const phrase = faker.fake('{{hacker.phrase}}');
+    const item = {
+      key: phrase,
+      title: phrase,
+      open: false,
+      // disabled: true,
+      children: [],
+    }
+
+    this.props.menu.add(item);
+  }
+
   render() {
+    const { props } = this;
+    const { posts } = this.props.menu;
+
     const { WooAdmin } = this.props;
     const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
     const buttonStyle = {width: '100%'};
@@ -234,6 +262,14 @@ class Tools extends React.Component {
           <button style={buttonStyle} onClick={this.testSqlEditor}>SQL Editor</button>
         </div>
 
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.testContext}>Context Test</button>
+        </div>
+
+        <div style={buttonRowStyle}>
+          {`Posts Count: ${posts.length}`}
+        </div>
+
         {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.googleAuth}>Google Auth</button>
         </div>
@@ -261,4 +297,4 @@ class Tools extends React.Component {
   }
 }
 
-export default Tools;
+export default mobxReact.observer(Tools);

@@ -12,7 +12,7 @@ function AccountPosts(props) {
   accountPosts.params = [data.id];
   return (
     <div>
-      <AccountDetails data={data} />
+      {/*<AccountDetails data={data} />*/}
       <DataTable
         {...props}
         pageSize={10}

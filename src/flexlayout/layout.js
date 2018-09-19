@@ -56,7 +56,7 @@ class Main extends React.Component {
 
     constructor(props) {
         super(props);
-				this.state = {model: FlexLayout.Model.fromJson(mainLayout)};
+				this.layout = {model: FlexLayout.Model.fromJson(mainLayout)};
     }
 
 		componentDidMount() {
@@ -91,6 +91,9 @@ class Main extends React.Component {
 				// this.layout.addTabToActiveTabSet(node);
 				const newNode = this.layout.model.getNodeById(node.id);
 				newNode.getExtraData().data = node;
+				// newNode.setEventListener("visibility", (v) => {
+				// 	console.log('node visibility:', v);
+				// });
 			} else {
 				this.layout.doAction(FlexLayout.Actions.selectTab(node.id));
 			}
@@ -159,7 +162,7 @@ class Main extends React.Component {
       return (
           <FlexLayout.Layout
 						ref={(r) => this.layout = r}
-						model={this.state.model}
+						model={this.layout.model}
 						factory={this.factory.bind(this)}
 						onAction={this.action}
 						{...extra}

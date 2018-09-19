@@ -7,6 +7,32 @@ import humanReadable from '../lib/utils/humanReadable';
 
 class MenuStore {
 
+  // test = mobx.observable([]);
+  //
+  // addTestString = mobx.action(string => {
+  //   console.log('MenuStore.addTestString:', string);
+  //   this.test.push(string);
+  // });
+
+  posts = mobx.observable([]);
+  getPosts = mobx.action(() => {
+    console.log('MenuStore.getPosts:');
+    const queryId = '26EC84EA-DA77-4914-A3A7-BEFD99D94485';
+    const accountId = '8BF248F5-AFAF-49F3-86D0-3E886C375ED1';
+    WooAdmin.queryById({id: queryId, params: [accountId]})
+      .then(posts => {
+        console.log('getPosts: result:', posts);
+        this.posts.replace(posts);
+      })
+      .catch(e => {
+        console.log('PostsService.getPosts: error:', e);
+        this.postErrors.replace(e);
+      });
+  });
+  clearPosts = mobx.action(() => {
+    this.posts.replace([]);
+  })
+
   map = mobx.observable(new Map());
 
   data = mobx.observable([
@@ -52,6 +78,7 @@ class MenuStore {
   ]);
 
   add = mobx.action(item => {
+    // console.log('MenuStore.add:', item);
     this.data.push(item);
   });
 

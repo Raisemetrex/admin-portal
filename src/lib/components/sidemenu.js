@@ -47,7 +47,7 @@ class SideMenu extends React.Component {
 
   render() {
     const { data } = this.props.menu;
-
+    // console.log('SideMenu: data:', data);
     return (
       <Tree
         onSelect={this.onSelect}

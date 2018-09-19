@@ -8,6 +8,9 @@ import Layout from './flexlayout/layout';
 import Authentication from './lib/components/authentication';
 import menu from './mobx/menuStore';
 
+import Context from './lib/context/context';
+import DataStore from './lib/context/dataStore';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -30,12 +33,15 @@ class App extends Component {
       environment,
       WooAdmin,
       menu,
+      DataStore,
     };
     return (
       <div className="App">
-        <Authentication {...globalProps}>
-          <Layout {...globalProps} />
-        </Authentication>
+        <Context>
+          <Authentication {...globalProps}>
+            <Layout {...globalProps} />
+          </Authentication>
+        </Context>
       </div>
     );
   }
