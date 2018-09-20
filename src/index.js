@@ -16,6 +16,10 @@ import registerServiceWorker from './registerServiceWorker';
 
 import WooAdmin from './lib/data/wooAdmin';
 
+// NOTE: just testing the JSON conversion by importing the module
+import * as jsonApiUtils from './lib/components/test/jsonApi';
+
+
 const url = new URL(window.location.href);
 const access_token = url.searchParams.get('access_token');
 
