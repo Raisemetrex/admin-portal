@@ -17,7 +17,7 @@ import registerServiceWorker from './registerServiceWorker';
 import WooAdmin from './lib/data/wooAdmin';
 
 // NOTE: just testing the JSON conversion by importing the module
-import * as jsonApiUtils from './lib/components/test/jsonApi';
+import * as jsonApiTest from './lib/components/test/testJsonApi';
 
 
 const url = new URL(window.location.href);

@@ -1,6 +1,4 @@
 
-const testJsonApi = require('./json-api.json');
-
 
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -24,7 +22,7 @@ export function camelCaseObject(object) {
   return result;
 }
 
-export function getObject(included, type, id) {
+export function getObject(included, type, id, visited, ignore) {
   let object = null;
 
   const foundItem = included.find(item =>
@@ -33,7 +31,7 @@ export function getObject(included, type, id) {
 
   if (foundItem) {
     const { id, attributes } = foundItem;
-    const relationships = getRelationships(included, foundItem.relationships);
+    const relationships = getRelationships(included, foundItem.relationships, type, id, visited, ignore);
     object = {
       id,
       ...camelCaseObject(attributes),
@@ -44,7 +42,7 @@ export function getObject(included, type, id) {
   return object;
 }
 
-export function mapRelationship(included, relationship) {
+export function mapRelationship(included, relationship, visited, ignore) {
   // console.log('mapRelationship: relationship:', relationship);
 
   let result = {...relationship};
@@ -52,50 +50,72 @@ export function mapRelationship(included, relationship) {
     if (Array.isArray(relationship.data)) {
       result = relationship.data.map(item => {
         const { type, id } = item;
-        return getObject(included, type, id);
+        const key = `${type}-${id}`;
+        if (visited.has(key)) {
+          return relationship.link ? relationship.link : undefined;
+        }
+        visited.add(key);
+        return getObject(included, type, id, visited, ignore);
       })
     } else {
       const { type, id } = relationship.data;
-      result = getObject(included, type, id);
+      const key = `${type}-${id}`;
+      if (visited.has(key)) {
+        result = relationship.link ? relationship.link : undefined;
+      } else {
+        visited.add(key);
+        result = getObject(included, type, id, visited, ignore);
+      }
     }
   } else {
-    result = null;
+    result = relationship.link ? relationship.link : null;
   }
 
   return result;
 }
 
 let nesting = 0;
-export function getRelationships(included, relationships) {
+const nestingArray = [];
+export function getRelationships(included, relationships, type, id, visited, ignore) {
 
   // recursive stopping point
-  if (nesting > 10) return;
+  if (nesting > 10) {
+    console.log('maxiumum recursion level reached', { nestingArray, visited });
+    throw new Error('maxiumum recursion level reached' );
+    return;
+  }
+
+  nestingArray.push({nesting, id, type, relationships});
   nesting += 1;
 
   const mapped = {};
   if (relationships) {
 
-    // console.log('mapRelationship: included:', included);
+    // console.log('mapRelationship: included:', included, relationships, type);
 
     Object.keys(relationships).map(key => {
-      const relationship = relationships[key]
-      // mapped[key] = relationship.data;
-      mapped[key] = mapRelationship(included, relationship);
+      if (!ignore.includes(key)) {
+        const relationship = relationships[key]
+        mapped[key] = mapRelationship(included, relationship, visited, ignore);
+      }
     });
   }
+
+  nesting -= 1;
+  nestingArray.pop();
+
 
   return mapped;
 }
 
-export function toObject(object) {
-  // const object = JSON.parse(json);
-
-  console.log('jsonApiToObject:', {object});
+export function toObject(object, ignore = ['account']) {
+  // console.log('jsonApiToObject:', {object});
 
   const { included } = object;
   const result = object.data.map(item => {
-    const { id, attributes } = item;
-    const relationships = getRelationships(object.included, item.relationships);
+    const visited = new Set();
+    const { id, attributes, type } = item;
+    const relationships = getRelationships(object.included, item.relationships, type, id, visited, ignore);
     return {
       id,
       ...camelCaseObject(attributes),
@@ -105,7 +125,3 @@ export function toObject(object) {
 
   return result;
 }
-
-const converted = toObject(testJsonApi);
-console.log('toObject: result:', converted);
-console.log('customisations:', camelCaseObject(converted[0].account.customisations));
