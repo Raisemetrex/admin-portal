@@ -197,7 +197,7 @@ class DataTable extends React.Component {
       ? row => ComponentFactory.create(properties.SubComponent, {...subComponentProps, data: row.original })
       : row => <PropertySheet {...subComponentProps} data={row.original} />; // columns={columns} data={row} parentProps={this.props} componentOptions={componentOptions} />;
 
-    const showPagination = data.length >= this.props.pageSize;
+    const showPagination = data.length >= this.props.defaultPageSize; //  : true : false;
     // const defaultPageSize = Math.max(data.length < pageSize ? data.length : pageSize, 5);
     // console.log({ defaultPageSize, pageSize, length: data.length });
     const extra = {
