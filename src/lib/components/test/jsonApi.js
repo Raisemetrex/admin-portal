@@ -112,16 +112,30 @@ export function toObject(object, ignore = ['account']) {
   // console.log('jsonApiToObject:', {object});
 
   const { included } = object;
-  const result = object.data.map(item => {
-    const visited = new Set();
-    const { id, attributes, type } = item;
-    const relationships = getRelationships(object.included, item.relationships, type, id, visited, ignore);
-    return {
-      id,
-      ...camelCaseObject(attributes),
-      ...camelCaseObject(relationships),
-    }
-  });
 
-  return result;
+  if (Array.isArray(object.data)) {
+    const result = object.data.map(item => {
+      const visited = new Set();
+      const { id, attributes, type } = item;
+      const relationships = getRelationships(object.included, item.relationships, type, id, visited, ignore);
+      return {
+        id,
+        ...camelCaseObject(attributes),
+        ...camelCaseObject(relationships),
+      }
+    });
+
+    return result;
+  }
+
+  const visited = new Set();
+  const item = object.data;
+  const { id, attributes, type } = item;
+  const relationships = getRelationships(object.included, item.relationships, type, id, visited, ignore);
+  return {
+    id,
+    ...camelCaseObject(attributes),
+    ...camelCaseObject(relationships),
+  }
+
 }
