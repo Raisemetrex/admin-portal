@@ -79,8 +79,8 @@ class Tools extends React.Component {
   constructor(props) {
     super(props);
     // this.testObject = props.menu.find('charts.posts-by-month');
-    this.testObject = props.menu.find('reports.free_trial');
   }
+
   // extendMenuFromDB = () => {
   //   extenderMenuFromDB();
   // }
@@ -110,6 +110,7 @@ class Tools extends React.Component {
   }
 
   addComponent = (name, props = {}) => {
+
     const newTab = {
       name,
       component: name,
@@ -130,6 +131,8 @@ class Tools extends React.Component {
   testResponsive = () => this.addComponent('Responsive');
 
   testContext = () => this.addComponent('ContextTest');
+
+  queryComparison = () => this.addComponent('QueryComparison');
 
   // testResponsive = () => {
   //   const newTab = {
@@ -232,6 +235,12 @@ class Tools extends React.Component {
     const { WooAdmin } = this.props;
     const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
     const buttonStyle = {width: '100%'};
+
+    if (!this.testObject) {
+      this.testObject = this.props.menu.find('reports.free_trial');
+      console.log('testObject:', this.testObject);
+    }
+
     if (!['local'].includes(WooAdmin.getEnvironment())) {
       return (
         <NoAccess />
@@ -264,6 +273,10 @@ class Tools extends React.Component {
 
         <div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.testContext}>Context Test</button>
+        </div>
+
+        <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.queryComparison}>Query Comparison</button>
         </div>
 
         <div style={buttonRowStyle}>

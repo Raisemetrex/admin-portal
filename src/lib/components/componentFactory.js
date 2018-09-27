@@ -18,9 +18,10 @@ import Charts from './charts';
 import Tools from './tools';
 import Settings from './settings';
 import JsonProps from './jsonProps';
+
+import AccountMasterDetail from './accountMasterDetail';
 import AccountPosts from './accountPosts';
 import AccountUsers from './accountUsers';
-import AccountMasterDetail from './accountMasterDetail';
 
 import JSONEditor from './jsonEditor';
 

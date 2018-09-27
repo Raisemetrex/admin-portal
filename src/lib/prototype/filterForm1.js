@@ -11,7 +11,7 @@ const filterForm1 = { // react-jsonschema-form
     properties: {
       startDate: {type: 'string', title: 'Start Date'},
       endDate: {type: 'string', title: 'End Date'},
-      buttons: {type: 'string', title: 'Buttons '},
+      buttons: {type: 'string', title: 'Buttons'},
       // status: {type: 'string', enum: ['free-trial','paying-customer','free-account'], enumNames: ['Free Trial','Paying Customer','Free Account'], title: 'Status'},
     },
     default: {
@@ -45,7 +45,7 @@ const filterForm1 = { // react-jsonschema-form
         { label: 'Last 3 Months', action: 'last3Months' },
       ],
     },
-    startDate: { 'ui:widget': 'date' },
+    startDate: { 'ui:widget': 'date-time' },
     endDate: { 'ui:widget': 'date-time' },
     // status: { 'ui:widget': 'select' },
   },

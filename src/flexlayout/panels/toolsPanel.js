@@ -3,6 +3,7 @@ const ToolsPanel = {
 	name: 'Tools',
 	component: 'Tools',
 	id: '#tools',
+	active: true,
 	enableClose: false,
 	enableDrag: true,
 	enableRename: false,

@@ -2,7 +2,7 @@
 import React from 'react';
 
 import DataTable from './dataTable';
-import AccountDetails from './accountDetails.js';
+// import AccountDetails from './accountDetails.js';
 
 function AccountPosts(props) {
   // console.log('AccountPosts: props:', props);

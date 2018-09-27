@@ -3,7 +3,7 @@ import React from 'react';
 import shortid from 'shortid';
 
 function FormButtons(props) {
-  console.log('FormButtons:', props);
+  // console.log('FormButtons:', props);
   const buttons = props.uiSchema['ui:buttons'];
   return (
     <div>

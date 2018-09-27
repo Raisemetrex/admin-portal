@@ -11,6 +11,8 @@ import menu from './mobx/menuStore';
 import Context from './lib/context/context';
 import DataStore from './lib/context/dataStore';
 
+import FactoryComponents from './lib/components/factoryComponents';
+
 class App extends Component {
   constructor(props) {
     super(props);

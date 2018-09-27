@@ -42,6 +42,7 @@ const mainLayout = {
 	 {
 		 type: 'border',
 		 location: 'right',
+		 selected: 0,
 		 // children: [],
 	 },
 	 {

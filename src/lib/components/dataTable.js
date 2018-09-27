@@ -2,12 +2,13 @@
 
 import React from 'react';
 
+import Moment from 'moment';
+import * as mobx from 'mobx';
 import ReactTable from 'react-table';
 // import LayoutField from 'react-jsonschema-form-layout';
 import Form from 'react-jsonschema-form';
 import LayoutField from '../utils/form/layout';
 import FormButtons from '../utils/form/buttons';
-import Moment from 'moment';
 
 
 // import WooAdmin from '../data/wooAdmin';
@@ -42,13 +43,11 @@ class DataTable extends React.Component {
     }
 
     if (this.props.query.properties.filterSchema) {
-      // this.state.filterSchema = {...this.props.query.properties.filterSchema};
-      this.state.filterSchema = {...filterForm1};
+      this.state.filterSchema = {...this.props.query.properties.filterSchema};
+      // this.state.filterSchema = {...filterForm1};
       this.state.formVisible = true;
 
       const { schema, uiSchema } = this.state.filterSchema;
-
-      // console.log('1. DataTable: constructor:', {schema:{...schema}, uiSchema});
 
       if (uiSchema) {
         if (uiSchema['ui:order']) {
@@ -72,11 +71,12 @@ class DataTable extends React.Component {
             return {
               ...button,
               onClick: action => {
-                console.log('button click:', action);
+                // console.log('button click:', action);
                 this.setDateRange(action);
               },
             };
-          })
+          });
+          // console.log('uiSchema.buttons ui:buttons:', uiSchema.buttons['ui:buttons']);
         }
       }
 
@@ -256,7 +256,11 @@ class DataTable extends React.Component {
       return formData[item];
     });
     // console.log('filterUpdate:', { filterData });
-    this.setState({ filterData, formVisible: false, formData }, this.loadData);
+    this.setState({
+      filterData,
+      // formVisible: false,
+      formData
+    }, this.loadData);
   }
   clearFilter = () => {
     // console.log('filtered:', this.state.filtered);

@@ -76,12 +76,27 @@ class WooAdmin {
     return this.endpoint[environment];
   }
 
+  getTokenFor(environment) {
+    const token = localStorage.getItem(`${environment}_access_token`);
+    console.assert(token, `getTokenFor: The token for ${environment} does not exist!`);
+    return token;
+  }
+
   getEndpoint() {
     console.assert(this.endpoint, 'getEndpoint: endpoint is null');
     console.assert(this.endpoint[this.environment], 'getEndpoint: Environment endpoint is incorrect', {
       endpoint: this.endpoint[this.environment],
     });
     return this.endpoint[this.environment];
+  }
+
+  getFeedEndpoint() {
+    console.assert(this.endpoint, 'getFeedEndpoint: endpoint is null');
+    console.assert(this.endpoint[this.environment], 'getFeedEndpoint: Environment endpoint is incorrect', {
+      endpoint: this.endpoint[this.environment],
+    });
+    const [http, ...rest] = this.endpoint[this.environment].split(/\/\//gi);
+    return `${http}//${rest[0].split('/')[0]}`;
   }
 
   isAuthenticated = () => {
@@ -180,16 +195,17 @@ class WooAdmin {
     })
   }
 
-  rest = (path, method = 'GET') => {
+  rest = (path, { method, environment} = { method: 'GET', environment: 'local'}) => {
     if (!this.isAuthenticated()) {
       // console.error(`rest: not authenticated`);
       return Promise.reject(`rest: not authenticated`);
     }
-    const query = `${this.getEndpoint()}${path}`;
+    const query = `${this.getEndpointFor(environment)}${path}`;
+    const access_token = this.getTokenFor(environment);
     return fetch(query, {
       method,
       headers: {
-        'Authorization': `Bearer ${this.access_token}`,
+        'Authorization': `Bearer ${access_token || this.access_token}`,
         'Accept': 'application/json, application/vnd.api+, text/html, text/plain',
         'Content-Type': 'application/json',
       },
@@ -215,6 +231,39 @@ class WooAdmin {
     //   }
     //   return result.json();
     // })
+  }
+
+  queryComparison = async (leftEnvironment, rightEnvironment) => {
+    const comparison = {};
+    comparison.left = await this.rest('/admin/queries', {environment: leftEnvironment});
+    comparison.right = await this.rest('/admin/queries', {environment: rightEnvironment});
+
+    comparison.leftKeys = new Set(comparison.left.map(item => item.menu_path));
+    comparison.rightKeys = new Set(comparison.right.map(item => item.menu_path));
+    comparison.uniqueKeys = new Set([...comparison.leftKeys, ...comparison.rightKeys]);
+    comparison.compare = [];
+    comparison.uniqueKeys.forEach((value, key, o) => {
+      const leftItem = comparison.left.filter(item => item.menu_path === key).pop();
+      const rightItem = comparison.right.filter(item => item.menu_path === key).pop();
+      let presence = 0;
+      let equal = false;
+      if (!leftItem) presence = 1;
+      if (!rightItem) presence = -1;
+      if (presence === 0) {
+        equal = JSON.stringify(leftItem.properties) === JSON.stringify(rightItem.properties);
+      }
+      comparison.compare.push(
+        {
+          menu_path: key,
+          [leftEnvironment]: leftItem,
+          [rightEnvironment]: rightItem,
+          presence,
+          equal,
+        }
+      );
+    });
+
+    return comparison;
   }
 
   logout = () => {
@@ -405,15 +454,18 @@ class WooAdmin {
     // console.log(`column(${type(value)}):`, { key, value} );
 
     switch(this.getType(data, key)) {
+      case 'boolean':
+        column.Cell = d => d.value.toString().toUpperCase();
+        break;
       case 'null':
       case 'object':
         // console.log('we have an object!', { key });
-        column.Cell = ReactTableRenderers.displayJSON;
+        column.Cell = ReactTableRenderers.displayObject;
         break;
       case 'date':
         // console.log('we have a date!', { key });
         column.Cell = ReactTableRenderers.displayDate;
-        column.accessor = d => new Date(d[key]);
+        column.accessor = d => new Date(d.value);
 
         break;
       case 'number':

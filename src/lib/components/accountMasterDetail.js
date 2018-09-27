@@ -19,14 +19,19 @@ class AccountMasterDetail extends React.Component {
           config,
         },
         [
-          {
-            name: 'Posts',
-            component: 'AccountPosts',
+					{
+						name: 'Teams',
+						component: 'AccountTeams',
+						config,
+					},
+					{
+            name: 'Users',
+            component: 'AccountUsers',
             config,
           },
           {
-            name: 'Users',
-            component: 'AccountUsers',
+            name: 'Posts',
+            component: 'AccountPosts',
             config,
           },
 					{
@@ -35,18 +40,13 @@ class AccountMasterDetail extends React.Component {
             config,
           },
 					{
-            name: 'Customisations',
-            component: 'AccountCustomisations',
-            config,
-          },
-					{
             name: 'Company Values',
             component: 'AccountCompanyValues',
             config,
           },
 					{
-            name: 'Whitelisting',
-            component: 'AccountWhitelisting',
+            name: 'Domains',
+            component: 'AccountDomains',
             config,
           },
 					{
@@ -54,6 +54,26 @@ class AccountMasterDetail extends React.Component {
             component: 'AccountBilling',
             config,
           },
+					{
+            name: 'Customisations',
+            component: 'AccountCustomisations',
+            config,
+          },
+					// {
+          //   name: 'Branding',
+          //   component: 'AccountBrancing',
+          //   config,
+          // },
+					{
+            name: 'Rewards',
+            component: 'AccountRewards',
+            config,
+          },
+					// {
+          //   name: 'Integrations',
+          //   component: 'AccountIntegrations',
+          //   config,
+          // },
         ]
       )
 

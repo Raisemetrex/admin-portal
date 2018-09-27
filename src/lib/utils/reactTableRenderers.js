@@ -1,5 +1,7 @@
 
 import React from 'react';
+import Inspector from 'react-inspector';
+import JsonDiffReact from 'jsondiffpatch-for-react';
 
 import type from 'type-of';
 
@@ -7,9 +9,14 @@ import Numeral from 'numeral';
 import Moment from 'moment';
 
 
-function displayJSON(props) {
-  let result = props.value ? <div>{JSON.stringify(props.value)}</div> : <div className="dull">null</div>;
+function displayObject(props) {
+  // console.log('displayJSON: props:', props);
+  // let result = props.value ? <div>{JSON.stringify(props.value, null, '\t')}</div> : <div className="dull">null</div>;
+  let result = props.value ? <Inspector data={props.value} expandLevel={props.original._expandLevel} /> : <div className="dull">null</div>;
   switch( type(props.value) ) {
+    case 'boolean':
+      result = props.value.toString();
+      break;
     case 'string':
       result = props.value;
       break;
@@ -18,6 +25,24 @@ function displayJSON(props) {
       break;
   }
   return result;
+}
+
+function displayJSON(props) {
+  console.log('displayJSON: props:', props);
+  let result = props.value ? <textarea rows={20} cols={200} defaultValue={JSON.stringify(props.value.properties)} /> : <div className="dull">null</div>;
+  // let result = props.value ? <div style={{wordWrap: 'break-word'}}><Inspector data={props.value.properties} expandLevel={props.original._expandLevel} /></div> : <div className="dull">null</div>;
+  return result;
+}
+
+function jsonDiffPatch(props) {
+  const { local, production } = props.original;
+  return (
+    <JsonDiffReact
+      right={local ? local.properties || {} : {}}
+      left={production ? production.properties || {} : {}}
+      show={false}
+    />
+  );
 }
 
 function displayNumber(props) {
@@ -53,8 +78,8 @@ function colouredStrings(state, ri, ci) {
 
   const style = {};
   if (backgroundColor) style.backgroundColor = backgroundColor;
-  if (color) style.colo = color;
-  
+  if (color) style.color = color;
+
   return {
     style,
   };
@@ -63,9 +88,11 @@ function colouredStrings(state, ri, ci) {
 
 const renderers = {
   displayJSON,
+  displayObject,
   displayNumber,
   displayDate,
   colouredStrings,
+  jsonDiffPatch,
 }
 
 export default renderers;

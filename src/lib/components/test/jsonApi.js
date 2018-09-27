@@ -25,17 +25,23 @@ export function camelCaseObject(object) {
 export function getObject(included, type, id, visited, ignore) {
   let object = null;
 
-  const foundItem = included.find(item =>
-    item.type === type && item.id === id
-  )
+  if (included) {
+    const foundItem = included.find(item =>
+      item.type === type && item.id === id
+    )
 
-  if (foundItem) {
-    const { id, attributes } = foundItem;
-    const relationships = getRelationships(included, foundItem.relationships, type, id, visited, ignore);
+    if (foundItem) {
+      const { id, attributes } = foundItem;
+      const relationships = getRelationships(included, foundItem.relationships, type, id, visited, ignore);
+      object = {
+        id,
+        ...camelCaseObject(attributes),
+        ...camelCaseObject(relationships),
+      }
+    }
+  } else {
     object = {
-      id,
-      ...camelCaseObject(attributes),
-      ...camelCaseObject(relationships),
+      id
     }
   }
 
