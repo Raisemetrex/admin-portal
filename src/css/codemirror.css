@@ -1,0 +1,15 @@
+
+.CodeMirror {
+  height: 600px;
+}
+
+.cm-s-default .cm-keyword {
+  font-weight: bold !important;
+  color: #2879FF;
+}
+
+.ReactCodeMirror {
+  padding: 5px;
+  background-color: #E0E0E0;
+
+}

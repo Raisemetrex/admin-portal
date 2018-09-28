@@ -1,0 +1,8 @@
+
+.account-details {
+
+}
+
+.account-details dl { border: 1px solid #DDD; margin: 5px; width: 100%; overflow: hidden; padding: 5px; border-radius: 5px; }
+.account-details dt { float: left; clear: left; min-width: 100px; text-align: right; padding-right: 5px; margin-bottom: 2px; }
+.account-details dd { _min-width: 100px; overflow: hidden; position: relative; top: 1px; white-space: nowrap; background-color: #EEE; padding-left: 5px; padding-right: 5px; margin-bottom: 2px; }

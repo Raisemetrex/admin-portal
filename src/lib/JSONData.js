@@ -8,10 +8,23 @@ class JSONData {
     this.jsonServer = `http://localhost:${this.port}`;
   }
 
+  read(schemaName) {
+
+    return request
+      .get(`${this.jsonServer}/${schemaName}`)
+      .withCredentials()
+      .then(res => {
+        return(res.body);
+      })
+      .catch(err => {
+        console.log('JSONData.read: error:', err);
+      })
+  }
+
   insert(schemaName, data) {
-    
+
     // console.log(`JSONData.insert(${schemaName}):`, data);
-    
+
     const results = [];
     data.forEach(item => {
       results.push(
@@ -31,9 +44,9 @@ class JSONData {
     Promise.all(results).then(r => {
       // console.log('results:', r);
     });
-    
+
   }
-  
+
 }
 
 const jsonData = new JSONData();
