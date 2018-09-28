@@ -5,6 +5,7 @@ import 'flexlayout-react/style/light.css';
 import 'react-table/react-table.css';
 import 'jsoneditor/dist/jsoneditor.min.css';
 import 'codemirror/lib/codemirror.css';
+import 'rodal/lib/rodal.css';
 
 import './index.css';
 import './css/account.css';

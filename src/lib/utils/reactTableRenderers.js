@@ -10,7 +10,7 @@ import Moment from 'moment';
 
 
 function displayObject(props) {
-  // console.log('displayJSON: props:', props);
+  // console.log('displayObject: props:', props);
   // let result = props.value ? <div>{JSON.stringify(props.value, null, '\t')}</div> : <div className="dull">null</div>;
   let result = props.value ? <Inspector data={props.value} expandLevel={props.original._expandLevel} /> : <div className="dull">null</div>;
   switch( type(props.value) ) {
@@ -28,8 +28,10 @@ function displayObject(props) {
 }
 
 function displayJSON(props) {
-  console.log('displayJSON: props:', props);
-  let result = props.value ? <textarea rows={20} cols={200} defaultValue={JSON.stringify(props.value.properties)} /> : <div className="dull">null</div>;
+  // console.log('displayJSON: props:', props);
+  const { columnProps } = props;
+  const { element } = columnProps.rest;
+  let result = props.value ? <pre style={{whiteSpace: 'pre-wrap'}}>{JSON.stringify(props.value[element], null, 0)}</pre> : <div className="dull">null</div>;
   // let result = props.value ? <div style={{wordWrap: 'break-word'}}><Inspector data={props.value.properties} expandLevel={props.original._expandLevel} /></div> : <div className="dull">null</div>;
   return result;
 }
@@ -50,7 +52,7 @@ function displayNumber(props) {
 }
 
 function displayDate(props) {
-  return <div>{Moment(props.value).format('YYYY-MM-DD HH:MM:SS')}</div>;
+  return <div>{props.value ? Moment(props.value).format('YYYY-MM-DD HH:MM:SS') : <span className="dull">null</span>}</div>;
 }
 
 function colouredStrings(state, ri, ci) {

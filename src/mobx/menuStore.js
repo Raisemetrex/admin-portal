@@ -139,21 +139,27 @@ class MenuStore {
     return null;
   }
 
+  setHidden(state) {
+    const node = this.findByPath('hidden');
+    // console.log('setHidden:', { node, state });
+    if (node) node.hide = state;
+  }
+
 }
 
 const hidden = {
   key: 'hidden',
   title: 'Hidden',
-  open: false,
-  // disabled: true,
+  open: true,
   children: [],
+  hide: true,
 }
 
 const menuStore = new MenuStore();
 
-if (['local'].includes(WooAdmin.getEnvironment())) {
+// if (['local'].includes(WooAdmin.getEnvironment())) {
   menuStore.add(hidden);
-}
+// }
 
 function extendMenu(queries) {
   // console.log('extendMenu:', queries);
@@ -198,26 +204,29 @@ function extendMenuFromDB() {
     .then(result => {
       // console.log('extendMenuFromDB: result:', result);
       if (result) {
-        extendMenu(result.map(item => {
-          const {
-            id,
-            inserted_at: insertedAt,
-            updated_at: updatedAt,
-            menu_path: menuPath,
-            menu_order: menuOrder,
-            properties,
-            permissions,
-          } = item;
-          return {
-            id,
-            properties,
-            permissions,
-            menuPath,
-            menuOrder,
-            insertedAt,
-            updatedAt
-          }
-        }));
+        extendMenu(result);
+        // extendMenu(result.map(item => {
+        //   const {
+        //     id,
+        //     insertedAt,
+        //     updatedAt,
+        //     menuPath,
+        //     menuOrder,
+        //     properties,
+        //     permissions,
+        //   } = item;
+        //   const result = {
+        //     id,
+        //     properties,
+        //     permissions,
+        //     menuPath,
+        //     menuOrder,
+        //     insertedAt,
+        //     updatedAt
+        //   };
+        //   // console.log('processing item:', { item, result });
+        //   return result;
+        // }));
       } else {
         console.log('extendMenuFromDB: result is null!');
       }

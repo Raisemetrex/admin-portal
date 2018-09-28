@@ -7,6 +7,7 @@ import ReactTable from 'react-table';
 import WooAdmin from '../data/wooAdmin';
 
 import { filterContainsNoCase } from '../utils/reactTableFilters';
+import { getReactTableColumns } from '../utils/reactTableColumns';
 
 class RestTable extends React.Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class RestTable extends React.Component {
           const { text: error } = data;
           this.setState({ error });
         } else {
-          const columns = WooAdmin.getReactTableColumns(data, {componentOptions});
+          const columns = getReactTableColumns(data, {componentOptions});
           this.setState({ data, columns });
         }
       })

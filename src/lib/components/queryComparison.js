@@ -7,18 +7,21 @@ import ReactTable from 'react-table';
 
 import WooAdmin from '../data/wooAdmin';
 import ComponentFactory from './componentFactory';
+import Loading from './loading';
 
 import { filterContainsNoCase } from '../utils/reactTableFilters';
 import ReactTableRenderers from '../utils/reactTableRenderers';
+import { getReactTableColumns } from '../utils/reactTableColumns';
 
 class QueryComparison extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       columns: [],
-      data: [],
+      data: null,
       showAsDiff: true,
       showAsJson: false,
+      selected: null,
     }
   }
   componentDidMount() {
@@ -33,62 +36,138 @@ class QueryComparison extends React.Component {
     // console.log('componentDidMount: props:', this.props);
     WooAdmin.queryComparison('local', 'production')
       .then(result => {
-        const { showAsJson, showAsDiff } = this.state;
+        // const { showAsJson, showAsDiff } = this.state;
         const { compare } = result;
-        const notEqual = compare.filter(item => item.equal === false);
-        const columns = WooAdmin.getReactTableColumns(notEqual, {componentOptions});
+        const notEqual = compare; // compare.filter(item => item.equal === false);
+        const columns = getReactTableColumns(notEqual, {componentOptions});
+
+        // decorate the case columns as required
         columns.forEach(column => {
-          if (['local','staging','production'].includes(column.id) && showAsJson) {
+          if (['local','staging','production'].includes(column.id)) {
             column.Cell = ReactTableRenderers.displayJSON;
+            column.getProps = (state, ri, ci) => {
+              return {
+                element: 'properties',
+              };
+            }
           }
-          if (['local','production','presence','_equal'].includes(column.id) && showAsDiff) column.show = false;
-          if (['menu_path','equal','presence'].includes(column.id)) column.width = 160;
+          if (['presence'].includes(column.id)) {
+            column.Cell = d => d.value === 0 ? '<=>' : (d.value < 1 ? '<=' : '=>');
+          }
+          // if (['local','production','presence','_equal'].includes(column.id)) column.show = true;
+          if (['menuPath','equal','presence'].includes(column.id)) column.width = 160;
         })
-        const data = notEqual.map((item,i) => {
-          return {
-            ...item,
-            _expandLevel: 10,
-            _index: i,
-          }
-        });
-        if (showAsDiff) {
-          columns.push({
-            Header: 'Differences',
-            Cell: ReactTableRenderers.jsonDiffPatch,
-            id: 'differences',
-            width: 5000,
-            accessor: d => `${JSON.stringify(d.local ? d.local.properties : {})}-${JSON.stringify(d.production ? d.production.properties : {})}`,
-          })
-        }
-        this.setState({ data, columns });
+
+        // add in the "difference" column
+        columns.push({
+          Header: 'Differences',
+          Cell: ReactTableRenderers.jsonDiffPatch,
+          id: 'differences',
+          width: 5000,
+          show: false,
+          accessor: d => `${JSON.stringify(d.local ? d.local.properties : {})}-${JSON.stringify(d.production ? d.production.properties : {})}`,
+        })
+
+        // augment the data
+        // const data = notEqual.map((item,i) => {
+        //   return {
+        //     ...item,
+        //     // _expandLevel: 10,
+        //     // _index: i,
+        //   }
+        // });
+
+        this.setState({ data: notEqual, columns });
       })
       .catch(err => {
         console.log('QueryComparison: didMount: error:', err)
       });
   }
+
+  tdProps = (state, ri, ci, instance ) => {
+    const { selected } = this.state;
+    return {
+      style: {
+        backgroundColor: selected && ri && selected === ri.original.id ? 'pink': 'inherit',
+      },
+    };
+  }
+
   trProps = (state, ri, ci, instance) => {
     return {
-      onDoubleClick: e => {
+      onClick: (e, handleOriginal) => {
         const { original } = ri;
-        const data = [...this.state.data];
-        data[original._index]._expandLevel = original._expandLevel === 0 ? 20 : 0,
-        this.setState({ data });
-      }
+        const { selected } = this.state;
+
+        this.setState({ selected: selected === original.id ? null : original.id });
+
+        // const selected = original._selected;
+        // const data = [...this.state.data];
+        // data.forEach(record => {
+        //   record._selected = false;
+        // })
+        // data[original._index]._selected  = selected ? false : true;
+        // this.setState({ data, selected: data[original._index]._selected ? original._index : null }
+        //   //, () => console.log('updated selected:', data[original._index])
+        // );
+        if (handleOriginal) handleOriginal();
+      },
     }
   }
 
   showAsDiff = () => {
-    this.setState({ showAsDiff: true, showAsJson: false }, this.loadData);
+    const columns = [...this.state.columns];
+    columns.forEach(column => {
+      if (['local','production','presence','_equal'].includes(column.id)) column.show = false;
+      if (['differences'].includes(column.id)) column.show = true;
+    });
+    this.setState({ showAsDiff: true, showAsJson: false, columns });
   }
 
   showAsJson = () => {
-    this.setState({ showAsDiff: false, showAsJson: true }, this.loadData);
+    // this.setState({ showAsDiff: false, showAsJson: true }, this.loadData);
+    const columns = [...this.state.columns];
+    columns.forEach(column => {
+      if (['local','production','presence','_equal'].includes(column.id)) column.show = true;
+      if (['differences'].includes(column.id)) column.show = false;
+    });
+    this.setState({ showAsDiff: false, showAsJson: true, columns });
+  }
+
+  copyJSONtoClipboard = () => {
+    const { selected } = this.state;
+    if (selected) {
+      const record = this.state.data.filter(record => record.id === selected).pop();
+      if (record) {
+        const { presence, local, production } = record;
+        console.log('toClipboard: record:', record);
+        const properties = presence < 0 ? local.properties : (presence > 0 ? production.properties : local.properties);
+        if (properties) {
+          navigator.clipboard.writeText(JSON.stringify(properties).replace(/\\n|\n/g, ' '))
+            .then(result => {
+              // console.log('copied OK:', result)
+            })
+            .catch(e => {
+              console.log('copy error:', e);
+            })
+        }
+      } else {
+        console.log('copyJSONtoClipboard: no record');
+      }
+    }
   }
 
   render() {
-    // console.log('RestTable.props:', this.props);
-    const { columns, data, error } = this.state;
-    const toolbarStyle = {padding: '5px'};
+    // console.log('QueryComparison.props:', this.props);
+    // console.log('QueryComparison.state:', this.state);
+    const { columns, data, error, selected } = this.state;
+    const toolbarStyle = {
+      padding: '5px',
+      position: 'sticky',
+      backgroundColor: '#DDD',
+      top: 0,
+      zIndex: 1000,
+    };
 
     // console.log('QueryComparison.state:', this.state);
     // return <div>Testing</div>
@@ -105,17 +184,22 @@ class QueryComparison extends React.Component {
             <button onClick={this.loadData}><i className="fa fa-fw fa-recycle" />Refresh</button>&nbsp;
             <button onClick={this.showAsDiff}><i className="fa fa-fw fa-recycle" />Diff</button>&nbsp;
             <button onClick={this.showAsJson}><i className="fa fa-fw fa-recycle" />JSON</button>&nbsp;
+            <button onClick={this.copyJSONtoClipboard} disabled={selected !== null ? false: true}><i className="fa fa-fw fa-recycle"/>Copy to Clipboard</button>&nbsp;
           </small>
         </div>
         <ReactTable
             className={this.props.className}
             columns={columns}
-            data={data}
-            defaultPageSize={this.props.pageSize}
+            data={data ? data : []}
+            loading={data === null ? true : false}
+            loadingText={<i className="fa fa-fw fa-spinner fa-spin fa-2x" />}
+            pageSize={data ? data.length : 0}
+            pagination={false}
             filterable
             defaultFiltered={[{id: 'equal', value: 'FALSE'}]}
             defaultFilterMethod={this.props.defaultFilterMethod}
             getTrProps={this.trProps}
+            getTdProps={this.tdProps}
           />
       </div>
     )

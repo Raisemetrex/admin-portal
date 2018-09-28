@@ -29,6 +29,7 @@
     "react-jsonschema-form": "^1.0.4",
     "react-scripts": "1.1.4",
     "react-table": "^6.8.6",
+    "rodal": "^1.6.3",
     "shortid": "^2.2.12",
     "sql-formatter": "^2.3.1",
     "superagent": "^3.8.3",

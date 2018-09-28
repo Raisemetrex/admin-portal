@@ -1,5 +1,6 @@
 
 import React from 'react';
+import Rodal from 'rodal';
 import shortid from 'shortid';
 import * as mobxReact from 'mobx-react';
 import faker from 'faker';
@@ -79,6 +80,11 @@ class Tools extends React.Component {
   constructor(props) {
     super(props);
     // this.testObject = props.menu.find('charts.posts-by-month');
+    const hidden = props.menu.findByPath('hidden');
+    this.state = {
+      rodalVisible: false,
+      hiddenMenu: hidden ? hidden.hide : true,
+    }
   }
 
   // extendMenuFromDB = () => {
@@ -116,9 +122,7 @@ class Tools extends React.Component {
       component: name,
       id: name,
       ...props,
-      config: {
-        marbles: new Date(),
-      }
+      config: {},
     };
     // if (data) newTab.data = data;
     this.props.addNode(newTab);
@@ -228,9 +232,30 @@ class Tools extends React.Component {
     this.props.menu.add(item);
   }
 
+  closeRodal = () => {
+    this.setState({ rodalVisible: false });
+  }
+
+  showRodal = () => {
+    this.setState({ rodalVisible: true });
+  }
+
+  hiddenMenu = (event) => {
+    const target = event.target;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
+
+    this.setState({
+      [name]: value
+    }, () => {
+      this.props.menu.setHidden(value);
+    });
+  }
+
   render() {
-    const { props } = this;
+    const { props, closeRodal } = this;
     const { posts } = this.props.menu;
+    const { rodalVisible, hiddenMenu } = this.state;
 
     const { WooAdmin } = this.props;
     const buttonRowStyle = {textAlign: 'left', marginBottom: '10px'};
@@ -238,7 +263,7 @@ class Tools extends React.Component {
 
     if (!this.testObject) {
       this.testObject = this.props.menu.find('reports.free_trial');
-      console.log('testObject:', this.testObject);
+      // console.assert(this.testObject,'Tools.render: testObject is not set');
     }
 
     if (!['local'].includes(WooAdmin.getEnvironment())) {
@@ -259,9 +284,9 @@ class Tools extends React.Component {
           <button style={buttonStyle} onClick={this.consoleJwt}>Show JWT</button>
         </div>
 
-        <div style={buttonRowStyle}>
+        {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.testResponsive}>Responsive</button>
-        </div>
+        </div>*/}
 
         {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.testFinder}>Finder</button>
@@ -280,8 +305,35 @@ class Tools extends React.Component {
         </div>
 
         <div style={buttonRowStyle}>
+          <button style={buttonStyle} onClick={this.showRodal}>Show Rodal</button>
+        </div>
+
+        <div style={buttonRowStyle}>
+          <label>
+            <input
+              name="hiddenMenu"
+              type="checkbox"
+              checked={hiddenMenu}
+              onChange={this.hiddenMenu}
+            />&nbsp;
+            Hidden Menu
+          </label>
+        </div>
+
+        <div style={buttonRowStyle}>
           {`Posts Count: ${posts.length}`}
         </div>
+
+        <Rodal
+            visible={rodalVisible}
+            onClose={closeRodal}
+            animation="rotate"
+            width={800}
+            height={500}
+        >
+          <h1>This is my Rodal Dialog</h1>
+          <div>Stuff goes here!</div>
+        </Rodal>
 
         {/*<div style={buttonRowStyle}>
           <button style={buttonStyle} onClick={this.googleAuth}>Google Auth</button>

@@ -3,15 +3,13 @@
 
 import React from 'react';
 
-import type from 'type-of';
+// import type from 'type-of';
+import shortid from 'shortid';
 
 // import Numeral from 'numeral';
 // import Moment from 'moment';
 
-import humanReadable from '../utils/humanReadable';
-
-import { filterNumber } from '../utils/reactTableFilters';
-import ReactTableRenderers from '../utils/reactTableRenderers';
+import { toObject as jsonApiToObject } from '../utils/jsonApi';
 
 class WooAdmin {
 
@@ -49,7 +47,7 @@ class WooAdmin {
 
   setEnvironment(environment) {
     console.assert(environment === null || ['local','staging','production'].includes(environment), `setEnvironment: Invalid environment: ${environment}`);
-    console.log('WooAdmin.setEnvironment:', environment)
+    // console.log('WooAdmin.setEnvironment:', environment)
     this.environment = environment;
     localStorage.setItem('environment', environment);
     if (this.environment) {
@@ -195,11 +193,13 @@ class WooAdmin {
     })
   }
 
-  rest = (path, { method, environment} = { method: 'GET', environment: 'local'}) => {
+  rest = (path, { method = 'GET', environment = 'local', request = undefined } = {}) => {
+    // console.log('WooAdmin.rest:', {method, environment, request});
     if (!this.isAuthenticated()) {
       // console.error(`rest: not authenticated`);
       return Promise.reject(`rest: not authenticated`);
     }
+    // console.log('WooAdmin.rest: path:', path);
     const query = `${this.getEndpointFor(environment)}${path}`;
     const access_token = this.getTokenFor(environment);
     return fetch(query, {
@@ -209,7 +209,7 @@ class WooAdmin {
         'Accept': 'application/json, application/vnd.api+, text/html, text/plain',
         'Content-Type': 'application/json',
       },
-      // body: JSON.stringify(request),
+      body: method.toUpperCase() === 'POST' ? JSON.stringify(request) : undefined,
     })
     .then(async result => {
       if (result.status === 200) {
@@ -221,16 +221,11 @@ class WooAdmin {
       if (jsonApi.hasOwnProperty('error')) {
         return jsonApi;
       } else {
-        // console.log('jsonApi:', jsonApi);
-        return this.getDataFromJsonAPI(jsonApi);
+        const result = jsonApiToObject(jsonApi);
+        // console.log('WooAdmin.rest: jsonApi:', result);
+        return result;
       }
     })
-    // .then(result => {
-    //   if (result.status !== 200) {
-    //     throw {error: result.status, message: `WooAdmin.rest: ${result.statusText}`};
-    //   }
-    //   return result.json();
-    // })
   }
 
   queryComparison = async (leftEnvironment, rightEnvironment) => {
@@ -238,13 +233,13 @@ class WooAdmin {
     comparison.left = await this.rest('/admin/queries', {environment: leftEnvironment});
     comparison.right = await this.rest('/admin/queries', {environment: rightEnvironment});
 
-    comparison.leftKeys = new Set(comparison.left.map(item => item.menu_path));
-    comparison.rightKeys = new Set(comparison.right.map(item => item.menu_path));
+    comparison.leftKeys = new Set(comparison.left.map(item => item.menuPath));
+    comparison.rightKeys = new Set(comparison.right.map(item => item.menuPath));
     comparison.uniqueKeys = new Set([...comparison.leftKeys, ...comparison.rightKeys]);
     comparison.compare = [];
     comparison.uniqueKeys.forEach((value, key, o) => {
-      const leftItem = comparison.left.filter(item => item.menu_path === key).pop();
-      const rightItem = comparison.right.filter(item => item.menu_path === key).pop();
+      const leftItem = comparison.left.filter(item => item.menuPath === key).pop();
+      const rightItem = comparison.right.filter(item => item.menuPath === key).pop();
       let presence = 0;
       let equal = false;
       if (!leftItem) presence = 1;
@@ -254,7 +249,8 @@ class WooAdmin {
       }
       comparison.compare.push(
         {
-          menu_path: key,
+          id: shortid.generate(),
+          menuPath: key,
           [leftEnvironment]: leftItem,
           [rightEnvironment]: rightItem,
           presence,
@@ -267,21 +263,21 @@ class WooAdmin {
   }
 
   logout = () => {
-    console.log('WooAdmin.logout:',{
-      environment: this.environment,
-      jwt: this.getJwt(),
-    })
+    // console.log('WooAdmin.logout:',{
+    //   environment: this.environment,
+    //   jwt: this.getJwt(),
+    // })
     this.reset();
     window.location.reload();
   }
 
   me = () => {
 
-    console.log('me:', {
-      environment: this.environment,
-      jwt: this.getJwt(),
-      endpoint: this.getEndpoint(),
-    });
+    // console.log('me:', {
+    //   environment: this.environment,
+    //   jwt: this.getJwt(),
+    //   endpoint: this.getEndpoint(),
+    // });
 
     const q = `${this.getEndpoint()}/admin/me`;
     // return this.fetch(q);
@@ -302,31 +298,31 @@ class WooAdmin {
     })
   }
 
-  fetch = (url, data, method = 'GET') => {
-    let extra = {};
-    if (data) {
-      extra = {
-        ...extra,
-        body: JSON.stringify(data)
-      };
-    }
-    return fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${this.access_token}`,
-        'Accept': 'application/json, application/vnd.api+json',
-        'Content-Type': 'application/json',
-      },
-      ...extra,
-    })
-    // .then(result => {
-    //   // console.log('testQuery: result:', result);
-    //   if (result.status !== 200) {
-    //     throw {error: result.status, message: result.statusText};
-    //   }
-    //   return result.json();
-    // })
-  }
+  // fetch = (url, data, method = 'GET') => {
+  //   let extra = {};
+  //   if (data) {
+  //     extra = {
+  //       ...extra,
+  //       body: JSON.stringify(data)
+  //     };
+  //   }
+  //   return fetch(url, {
+  //     method,
+  //     headers: {
+  //       'Authorization': `Bearer ${this.access_token}`,
+  //       'Accept': 'application/json, application/vnd.api+json',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     ...extra,
+  //   })
+  //   // .then(result => {
+  //   //   // console.log('testQuery: result:', result);
+  //   //   if (result.status !== 200) {
+  //   //     throw {error: result.status, message: result.statusText};
+  //   //   }
+  //   //   return result.json();
+  //   // })
+  // }
 
   getJwt() {
     return this.access_token ? this.parseJwt(this.access_token) : null;
@@ -342,185 +338,88 @@ class WooAdmin {
     return JSON.parse(window.atob(base64));
   }
 
-  getDataFromJsonAPI(jsonApi) {
-    const data = this.getDataset(jsonApi);
-    const result = data.map(item => {
-      return this.getDataFromJsonRecord(item);
-    });
-    return result;
-  }
+  // getDataFromJsonAPI(jsonApi) {
+  //
+  //   return jsonApiToObject(jsonApi);
+  //
+  //   // let result = null;
+  //   // const data = this.getDataset(jsonApi);
+  //   // if (Array.isArray(data)) {
+  //   //   result = data.map(item => {
+  //   //     return this.getDataFromJsonRecord(item);
+  //   //   });
+  //   // } else {
+  //   //   result = data;
+  //   // }
+  //   // return result;
+  // }
 
-  getDataFromJsonRecord(item) {
-    if (item.attributes) {
-      const record = {
-        ...item.attributes,
-        id: item.id,
-        _type: item.type,
-      }
-      return record;
-    }
-    return item;
-  }
+  // getDataFromJsonRecord(item) {
+  //   if (item.attributes) {
+  //     const record = {
+  //       ...item.attributes,
+  //       id: item.id,
+  //       _type: item.type,
+  //     }
+  //     return record;
+  //   }
+  //   return item;
+  // }
 
-  getDataset(jsonApi) {
-    if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
-      const { data } = jsonApi;
-      return data;
-    }
-    return jsonApi;
+  // isJsonApi(jsonApi) {
+  //   return (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0');
+  // }
 
-    // console.log('WooBoard.getDataset: unsupported json-api:', jsonApi);
-    // throw "Invalid json-api or unsupported version"
-  }
+  // getDataset(jsonApi) {
+  //   if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
+  //     const { data } = jsonApi;
+  //     return data;
+  //   }
+  //   return jsonApi;
+  //
+  //   // console.log('WooBoard.getDataset: unsupported json-api:', jsonApi);
+  //   // throw "Invalid json-api or unsupported version"
+  // }
 
-  getDatasetLength(jsonApi) {
+  // getDatasetLength(jsonApi) {
+  //
+  //   if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
+  //     const { data } = jsonApi;
+  //     // console.log('getRecord: jsonApi.data:', { data, index });
+  //
+  //     let length = 1;
+  //     if (Array.isArray(data)) {
+  //       // console.log('data isArray');
+  //       length = data.length;
+  //     }
+  //     return length;
+  //   }
+  //
+  //   console.log('WooBoard.getDatasetLength: unsupported json-api:', jsonApi);
+  //   throw "Invalid json-api or unsupported version"
+  // }
 
-    if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
-      const { data } = jsonApi;
-      // console.log('getRecord: jsonApi.data:', { data, index });
+  // getRecord(jsonApi, index = 0) {
+  //   // console.log('WooBoard.getRecord jsonApi:', jsonApi);
+  //   if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
+  //     const { data } = jsonApi;
+  //     // console.log('getRecord: jsonApi.data:', { data, index });
+  //
+  //     let record = null;
+  //     if (Array.isArray(data)) {
+  //       // console.log('data isArray');
+  //       record = data[index];
+  //     } else {
+  //       record = data;
+  //     }
+  //     record = this.getDataFromJsonRecord(record);
+  //     return record;
+  //   }
+  //
+  //   console.log('WooBoard.getRecord: unsupported json-api:', jsonApi);
+  //   throw "Invalid json-api or unsupported version"
+  // }
 
-      let length = 1;
-      if (Array.isArray(data)) {
-        // console.log('data isArray');
-        length = data.length;
-      }
-      return length;
-    }
-
-    console.log('WooBoard.getDatasetLength: unsupported json-api:', jsonApi);
-    throw "Invalid json-api or unsupported version"
-  }
-
-  getRecord(jsonApi, index = 0) {
-    // console.log('WooBoard.getRecord jsonApi:', jsonApi);
-    if (jsonApi.jsonapi && jsonApi.jsonapi.version === '1.0') {
-      const { data } = jsonApi;
-      // console.log('getRecord: jsonApi.data:', { data, index });
-
-      let record = null;
-      if (Array.isArray(data)) {
-        // console.log('data isArray');
-        record = data[index];
-      } else {
-        record = data;
-      }
-      record = this.getDataFromJsonRecord(record);
-      return record;
-    }
-
-    console.log('WooBoard.getRecord: unsupported json-api:', jsonApi);
-    throw "Invalid json-api or unsupported version"
-  }
-
-  // this could probably be improved using a cast to a date object
-  testForDate(value) {
-    // console.log('testForDate', { value });
-    if (type(value) === 'date' || type(value) === 'string') {
-      const datetime = value.split('T');
-      if (datetime.length === 2 && datetime[0].length === 10) {
-        const d = datetime[0].split('-');
-        if (d.length === 3) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  getType(data, key) {
-    let typeFound = 'string'; // default
-    for(let r = 0; r< data.length; r += 1) {
-      if (data[r][key] != undefined && data[r][key] != null) {
-        const value = data[r][key];
-        // first non-null value - grab the type
-        typeFound = type(value);
-        if (this.testForDate(value)) {
-          typeFound = 'date';
-        }
-        break;
-      }
-    }
-    return typeFound;
-  }
-
-  createColumn(key, data) {
-    const column = {};
-
-    column.Header = humanReadable(key);
-    column.accessor = key;
-    column.id = key;
-    column.show = !['id','inserted_at', 'updated_at', 'deactivated_at'].includes(key);
-
-    // console.log(`column(${type(value)}):`, { key, value} );
-
-    switch(this.getType(data, key)) {
-      case 'boolean':
-        column.Cell = d => d.value.toString().toUpperCase();
-        break;
-      case 'null':
-      case 'object':
-        // console.log('we have an object!', { key });
-        column.Cell = ReactTableRenderers.displayObject;
-        break;
-      case 'date':
-        // console.log('we have a date!', { key });
-        column.Cell = ReactTableRenderers.displayDate;
-        column.accessor = d => new Date(d.value);
-
-        break;
-      case 'number':
-        // console.log('we have a number!', { key });
-        column.Cell = ReactTableRenderers.displayNumber;
-        column.style = {textAlign: 'right'};
-        column.filterMethod = filterNumber;
-        break;
-      default:
-        // console.log('we have a string!', { key });
-        column.getProps = ReactTableRenderers.colouredStrings;
-        break;
-    }
-
-    return column;
-  }
-
-  getReactTableColumns(data, query) {
-    // console.log('getReactTableColumns:', { data, query });
-    const columns = [];
-    if (data && data.length) {
-      if (
-        query
-        && query.properties
-        && query.properties.componentOptions
-        && query.properties.componentOptions.columnOrder
-      ) {
-
-        const { componentOptions } = query.properties;
-        componentOptions.columnOrder.map(col => {
-          // console.log('col:', col);
-          if (data[0].hasOwnProperty(col)) {
-            // const value = data[0][col];
-            columns.push(this.createColumn(col, data));
-          } else {
-            console.assert(data[0][col], `Column ${col} not found in data:`, data[0]);
-          }
-        })
-      } else {
-        const keys = Object.keys(data[0]);
-        keys.forEach(key => {
-          // const value = data[0][key];
-          columns.push(this.createColumn(key, data));
-        });
-      }
-    } else {
-      const keys = Object.keys(data);
-      keys.forEach(key => {
-        // const value = data[key];
-        columns.push(this.createColumn(key, data));
-      });
-    }
-
-    return columns;
-  }
 
 }
 

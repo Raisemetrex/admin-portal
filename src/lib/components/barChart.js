@@ -8,6 +8,7 @@ import Loading from './loading';
 
 import humanReadable from '../utils/humanReadable';
 import colors from '../utils/randomColors';
+import { getReactTableColumns } from '../utils/reactTableColumns';
 
 class BarChart extends React.Component {
   constructor() {
@@ -66,7 +67,7 @@ class BarChart extends React.Component {
         const { WooAdmin } = this.props;
         WooAdmin.queryById({id, params})
           .then(result => {
-            const columns = WooAdmin.getReactTableColumns(result);
+            const columns = getReactTableColumns(result);
             const { data } = this.state;
             data.labels = result.map(row => row[componentOptions.key].split('T')[0]);
             data.datasets[0].data = result.map(row => row.count);

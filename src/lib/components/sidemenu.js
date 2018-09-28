@@ -26,6 +26,9 @@ class SideMenu extends React.Component {
 
   loop = data => {
     return data.map(item => {
+
+      if (item.hide) return undefined;
+
       const { key } = item;
 
       if (!key) console.log('no key:', { item });
@@ -42,7 +45,7 @@ class SideMenu extends React.Component {
       }
 
       return <TreeNode {...rest} />;
-    });
+    }).filter(item => item);
   };
 
   render() {

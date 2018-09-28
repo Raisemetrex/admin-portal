@@ -9,7 +9,7 @@ import ReactTable from 'react-table';
 import Form from 'react-jsonschema-form';
 import LayoutField from '../utils/form/layout';
 import FormButtons from '../utils/form/buttons';
-
+import { getReactTableColumns } from '../utils/reactTableColumns';
 
 // import WooAdmin from '../data/wooAdmin';
 
@@ -156,7 +156,7 @@ class DataTable extends React.Component {
           .then(data => {
             // console.log('query_by_id: result:', data);
             if (data.length) {
-              stateUpdate.columns = WooAdmin.getReactTableColumns(data, this.props.query);
+              stateUpdate.columns = getReactTableColumns(data, this.props.query);
             } else {
               stateUpdate.columns = [{Header: 'No Data', accessor: 'id'}];
             }

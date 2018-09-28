@@ -49,7 +49,7 @@ function PropertySheet(props) {
 
   // console.log('options:', { componentOptions: {...componentOptions} });
 
-  const fields = props.columns; // WooAdmin.getReactTableColumns(props.original);
+  const fields = props.columns;
   // console.log({fields});
   const data = fields.map(field => {
     const { Header: property } = field;
